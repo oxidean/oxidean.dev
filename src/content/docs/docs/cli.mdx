@@ -1,0 +1,41 @@
+---
+title: ox CLI
+description: The ox command-line client — repositories, issues, pull requests, actions runs, releases, packages, and notifications from the shell.
+---
+
+`ox` is the Oxidean command-line client — the same workflows the web UI
+offers, scriptable from your shell. It talks to any Oxidean instance,
+cloud or self-hosted.
+
+## Install
+
+Every forge serves its own matching build at `/cli` — install scripts and
+binaries included:
+
+```bash
+curl -fsSL https://<your-instance>/cli/install.sh | sh
+```
+
+Prebuilt binaries also ship on the repository's
+[releases page](https://github.com/oxidean/oxidean/releases).
+
+## Everyday commands
+
+```bash
+ox repo view owner/repo          # repository overview
+ox issue list -R owner/repo      # open issues
+ox pr list -R owner/repo         # open pull requests
+ox pr checks                     # CI status for the current branch's PR
+ox run list -R owner/repo        # actions runs
+ox release list -R owner/repo    # published releases
+```
+
+Most commands take `--json` for `--jq`-style pipelines, and
+[`ox api`](https://github.com/oxidean/oxidean/blob/main/docs/API.md) is the
+raw-RPC escape hatch when a subcommand does not cover what you need.
+
+## Authentication
+
+`ox auth login` stores a token per instance host. Scripts and CI can
+authenticate with an access token created under **Settings → Applications**
+in the web UI.

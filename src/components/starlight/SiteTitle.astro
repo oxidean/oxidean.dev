@@ -1,0 +1,38 @@
+---
+const { siteTitle, siteTitleHref } = Astro.locals.starlightRoute;
+---
+
+<a href={siteTitleHref} class="site-title sl-flex">
+	<img src="/oxidean-mark.png" alt="" width="26" height="26" />
+	<span class="title">{siteTitle}</span>
+	<span class="docs-tag" aria-hidden="true">
+		docs
+	</span>
+</a>
+
+<style>
+	a {
+		display: flex;
+		align-items: center;
+		gap: 0.55rem;
+		text-decoration: none;
+	}
+	.title {
+		font-family: var(--font-display);
+		font-weight: 700;
+		font-size: 1.15rem;
+		color: var(--sl-color-white);
+		letter-spacing: -0.01em;
+	}
+	.docs-tag {
+		font-family: var(--sl-font-mono);
+		font-size: 0.66rem;
+		line-height: 1;
+		color: var(--sl-color-gray-3);
+		border: 1px solid var(--sl-color-hairline-light);
+		border-radius: 4px;
+		padding: 0.2rem 0.35rem;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+	}
+</style>

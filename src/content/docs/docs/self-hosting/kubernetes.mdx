@@ -1,0 +1,40 @@
+---
+title: Kubernetes (Helm)
+description: Install the Oxidean forge on Kubernetes with the published Helm chart.
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+The same images that run the Compose bundle ship as a Helm chart:
+
+```bash
+helm install oxidean oci://ghcr.io/oxidean/charts/oxidean
+```
+
+Chart source lives in
+[`deploy/helm/oxidean/`](https://github.com/oxidean/oxidean/tree/main/deploy/helm/oxidean)
+of the main repository.
+
+## Values that matter
+
+| Value                 | Default     | What it controls                                                                    |
+| --------------------- | ----------- | ----------------------------------------------------------------------------------- |
+| `postgres.enabled`    | `true`      | Bundled Postgres vs. external `DATABASE_URL` (Postgres, MySQL, or SQLite dialects). |
+| `objectstore.enabled` | eval bundle | Bundled RustFS object store (eval-grade).                                           |
+| `seaweedfs.enabled`   | `false`     | Production-shaped bundled store — mutually exclusive with `objectstore`.            |
+| `runner.enabled`      | `false`     | In-cluster Actions runner for CI jobs.                                              |
+
+External S3-compatible endpoints override the same `OXIDEAN_S3_*`
+environment contract used by the Compose surface — no per-surface config
+fork.
+
+<Aside type="tip">
+  Moving an existing Compose install onto Kubernetes? The repo ships a dedicated walkthrough:
+  [SELFHOST-MIGRATE-TO-K8S.md](https://github.com/oxidean/oxidean/blob/main/docs/SELFHOST-MIGRATE-TO-K8S.md).
+</Aside>
+
+## Ingress
+
+`web` is still the single HTTP origin on Kubernetes — point your ingress at
+the `web` service for HTTP(S), and expose `OXIDEAN_SSH_PORT` (a raw TCP
+service, not HTTP) for git-over-SSH.
