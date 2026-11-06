@@ -1,0 +1,52 @@
+---
+title: oxl
+description: A lean, fast language for CLI tools and services — Go-shaped DX on a runtime with no tracing GC.
+---
+
+import { Aside, CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+oxl is a small language for the kind of tools Oxidean builds: memory safety
+from **dynamic ownership/borrow checking**, structured concurrency
+(`scope`/`spawn`/channels), and ahead-of-time native binaries from a single
+toolchain binary.
+
+<Aside type="caution" title="Status: v0.0.1 bootstrap">
+	The compiler works end to end — the programs in `examples/` compile to
+	native binaries and run today, including an HTTP CRUD + SQLite pilot.
+	Two known v0 gaps: arena-backed slices stored in outer fields can be
+	read after their scope closes, and ordinary `own` dereferences don't yet
+	receive dangling checks. Expect movement; the design spec is the source
+	of truth.
+</Aside>
+
+## Design in one breath
+
+- **Ownership without ceremony** — `own` / `ref` / `mut` handles with
+  runtime borrow checks and compile-time move tracking.
+- **Structured concurrency** — `scope`/`spawn` plus channels;
+  suspend-capable functions compile to stackless state machines — tasks are
+  ~96 B frames, not threads.
+- **Errors you can't drop** — `[v, err]` returns; dropping the error is a
+  compile error.
+- **One toolchain** — `oxl build|run|test|fmt|doc|get|mod|lsp`, AOT to
+  native through a C backend.
+
+## Where to next
+
+<CardGrid>
+	<LinkCard
+		title="Get the toolchain"
+		href="/docs/oxl/getting-started/"
+		description="cargo build --release, PATH, first binary."
+	/>
+	<LinkCard
+		title="The language"
+		href="/docs/oxl/language/"
+		description="The v0 surface — types, ownership, concurrency, modules."
+	/>
+	<LinkCard
+		title="oxidean/oxl"
+		href="https://github.com/oxidean/oxl"
+		description="Compiler source, examples, and the design spec."
+	/>
+</CardGrid>

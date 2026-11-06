@@ -79,8 +79,9 @@ export default defineConfig({
     octane(),
     starlight({
       title: "Oxidean",
+      favicon: "/favicon.ico",
       description:
-        "Self-hostable code forge — git hosting, pull requests, issues, CI actions, and package registries in one product.",
+        "Oxidean ships three open-source projects — a self-hostable code forge, a repository-local AI-SDLC runtime, and a lean systems language.",
       components: {
         SiteTitle: "./src/components/starlight/SiteTitle.astro",
       },
@@ -94,24 +95,40 @@ export default defineConfig({
         {
           icon: "github",
           label: "GitHub",
-          href: "https://github.com/oxidean/oxidean",
+          href: "https://github.com/oxidean",
         },
       ],
       sidebar: [
+        { slug: "docs" },
         {
-          label: "Start here",
-          items: [{ slug: "docs" }, { slug: "docs/quickstart" }],
-        },
-        {
-          label: "Self-hosting",
-          items: [{ autogenerate: { directory: "docs/self-hosting" } }],
-        },
-        {
-          label: "Reference",
+          label: "Oxidean",
           items: [
-            { slug: "docs/cli" },
-            { slug: "docs/configuration" },
-            { slug: "docs/contributing" },
+            { slug: "docs/oxidean" },
+            { slug: "docs/oxidean/quickstart" },
+            {
+              label: "Self-hosting",
+              items: [{ autogenerate: { directory: "docs/oxidean/self-hosting" } }],
+            },
+            { slug: "docs/oxidean/cli" },
+            { slug: "docs/oxidean/configuration" },
+            { slug: "docs/oxidean/contributing" },
+          ],
+        },
+        {
+          label: "OxAgent",
+          items: [
+            { slug: "docs/ox-agent" },
+            { slug: "docs/ox-agent/install" },
+            { slug: "docs/ox-agent/quickstart" },
+            { slug: "docs/ox-agent/cli" },
+          ],
+        },
+        {
+          label: "oxl",
+          items: [
+            { slug: "docs/oxl" },
+            { slug: "docs/oxl/getting-started" },
+            { slug: "docs/oxl/language" },
           ],
         },
       ],

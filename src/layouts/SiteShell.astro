@@ -16,7 +16,7 @@ interface Props {
 
 const {
 	title = "Oxidean",
-	description = "Self-hostable code forge — git hosting, pull requests, issues, CI actions, and package registries in one product.",
+	description = "Oxidean ships three open-source projects — a self-hostable code forge, a repository-local AI-SDLC runtime, and a lean systems language.",
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -97,13 +97,13 @@ const ogImage = new URL("/oxidean-mark.png", Astro.site);
 							Docs
 						</a>
 						<a
-							href="/docs/self-hosting/"
+							href="/#products"
 							class="hidden rounded-md px-2.5 py-1.5 transition-colors hover:text-foreground sm:block"
 						>
-							Self-hosting
+							Products
 						</a>
 						<a
-							href="https://github.com/oxidean/oxidean"
+							href="https://github.com/oxidean"
 							target="_blank"
 							rel="noopener"
 							class="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 transition-colors hover:text-foreground"
@@ -148,15 +148,23 @@ const ogImage = new URL("/oxidean-mark.png", Astro.site);
 							rel="noopener"
 							class="transition-colors hover:text-foreground"
 						>
-							GitHub
+							oxidean
 						</a>
 						<a
-							href="https://github.com/oxidean/oxidean/issues"
+							href="https://github.com/oxidean/Ox-Agent"
 							target="_blank"
 							rel="noopener"
 							class="transition-colors hover:text-foreground"
 						>
-							Issues
+							Ox-Agent
+						</a>
+						<a
+							href="https://github.com/oxidean/oxl"
+							target="_blank"
+							rel="noopener"
+							class="transition-colors hover:text-foreground"
+						>
+							oxl
 						</a>
 						<a
 							href="https://github.com/oxidean/oxidean.dev"

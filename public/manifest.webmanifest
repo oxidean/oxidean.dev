@@ -1,7 +1,7 @@
 {
   "name": "Oxidean",
   "short_name": "Oxidean",
-  "description": "Social coding forge — cloud or self-hosted.",
+  "description": "The Oxidean stack — forge, agent runtime, and language.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

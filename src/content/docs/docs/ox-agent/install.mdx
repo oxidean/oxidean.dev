@@ -1,0 +1,55 @@
+---
+title: Install OxAgent
+description: Install the ox-agent binary — one Go executable, no project-local runtime.
+---
+
+import { Aside, TabItem, Tabs } from "@astrojs/starlight/components";
+
+<Tabs>
+	<TabItem label="macOS / Linux">
+		Install the latest release globally:
+
+		```bash
+		curl -fsSL \
+		  https://github.com/oxidean/Ox-Agent/releases/latest/download/install.sh \
+		  | bash
+		```
+
+		The installer detects the platform, downloads the matching release
+		archive, verifies its SHA-256 checksum, and installs `ox-agent` to
+		`~/.local/bin` — make sure that directory is on your `PATH`.
+
+		Pin a specific version:
+
+		```bash
+		curl -fsSL \
+		  https://github.com/oxidean/Ox-Agent/releases/download/v0.1.2/install.sh \
+		  | OX_AGENT_VERSION=v0.1.2 bash
+		```
+	</TabItem>
+	<TabItem label="Windows">
+		Use `install.ps1` from the matching [GitHub
+		release](https://github.com/oxidean/Ox-Agent/releases). Release targets
+		currently cover macOS and Linux on amd64 and arm64, plus Windows.
+	</TabItem>
+</Tabs>
+
+Verify the installation:
+
+```bash
+ox-agent version
+```
+
+## Staying current
+
+```bash
+ox-agent update --check   # is a newer release out?
+ox-agent update           # self-update in place
+ox-agent uninstall --yes  # remove the binary
+```
+
+<Aside type="note">
+	The binary is the only required runtime — it should never be installed
+	into `node_modules`, `.ox-agent/`, or a project vendor directory. What
+	lives in the repo is state and assets; what runs them is global.
+</Aside>

@@ -1,0 +1,34 @@
+---
+title: OxAgent CLI
+description: The ox-agent command surface — work items, runs, state replay, context packets, and self-update.
+---
+
+```text
+ox-agent version                     Show the installed binary version
+ox-agent init [--repair|--integrate] Initialize or repair .ox-agent/
+ox-agent doctor [--fix]              Validate the local Ox-Agent setup
+ox-agent start <title>               Create a work item
+ox-agent status [work-item]          List or inspect work items
+ox-agent transition <wi> <state>     Move along a legal lifecycle edge
+ox-agent advance <wi>                Advance to the next profile stage
+ox-agent run <wi> [--pipeline p]     Dispatch stage skills or a pipeline
+ox-agent run collect <run-id>        Validate and apply a run's output
+ox-agent review <wi> / ship <wi>     Pipeline shortcuts
+ox-agent discuss open|add|...        Durable discussion threads
+ox-agent state replay|explain|events Inspect the event journal
+ox-agent context index|compile       Context index and packets
+ox-agent eval <skill> [--emit]       Score skill eval cases
+ox-agent update [--check]            Self-update the binary
+ox-agent uninstall --yes             Remove the binary
+```
+
+`run` dispatches the stage-mapped skill through a configured harness
+integration — the manual adapter works with any agent — and `run collect`
+validates the recorded output and applies its next action.
+
+The flag-level reference is
+[docs/cli.md](https://github.com/oxidean/Ox-Agent/blob/main/docs/cli.md) in
+the repository, alongside
+[getting-started.md](https://github.com/oxidean/Ox-Agent/blob/main/docs/getting-started.md)
+and
+[install.md](https://github.com/oxidean/Ox-Agent/blob/main/docs/install.md).

@@ -21,18 +21,18 @@ Do not edit `.ox-agent/skills`, `schemas`, `workflows`, `pipelines`,
 tracked by `assets.lock`. Add extension skills as new directories instead.
 <!-- ox-agent:end -->
 
-## oxidean.dev — product site
+## oxidean.dev — org site
 
-Marketing landing + product docs for [oxidean/oxidean](https://github.com/oxidean/oxidean). Static Astro output deployed to Vercel — no server runtime, no env vars.
+Org site for the Oxidean GitHub org — landing + per-product docs covering the forge ([oxidean/oxidean](https://github.com/oxidean/oxidean)), the OxAgent runtime ([oxidean/Ox-Agent](https://github.com/oxidean/Ox-Agent)), and the oxl language ([oxidean/oxl](https://github.com/oxidean/oxl)). Static Astro output deployed to Vercel — no server runtime, no env vars.
 
 ### Stack (do not invent alternatives)
 
-| Layer          | Tech                                                                                                                    |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Pages          | Astro `src/pages/**` + `src/layouts/SiteShell.astro`                                                                    |
-| Interactive UI | **Octane** `.tsrx` islands (`src/components/`), `client:load` — not React                                               |
-| Docs           | Starlight (`@astrojs/starlight`) — content in `src/content/docs/docs/` (nested dir ⇒ `/docs/*` URLs)                    |
-| Styling        | Tailwind v4 via `@tailwindcss/vite`; brand tokens in `src/styles/tokens.css` (Tailwind-free — Starlight imports it too) |
+| Layer          | Tech                                                                                                                                                  |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pages          | Astro `src/pages/**` + `src/layouts/SiteShell.astro`                                                                                                  |
+| Interactive UI | **Octane** `.tsrx` islands (`src/components/`), `client:load` — not React                                                                             |
+| Docs           | Starlight (`@astrojs/starlight`) — content in `src/content/docs/docs/` (nested dir ⇒ `/docs/*` URLs; product subdirs `oxidean/`, `ox-agent/`, `oxl/`) |
+| Styling        | Tailwind v4 via `@tailwindcss/vite`; brand tokens in `src/styles/tokens.css` (Tailwind-free — Starlight imports it too)                               |
 
 ### Octane is not React JSX
 

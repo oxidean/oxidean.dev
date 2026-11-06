@@ -1,0 +1,67 @@
+---
+title: Get the oxl toolchain
+description: Build the oxl compiler from source and run your first program.
+---
+
+import { Aside, Steps } from "@astrojs/starlight/components";
+
+**Requires:** Rust (`cargo`), a C compiler (`cc`), and pthreads. Programs
+that use the sqlite3 shims also need sqlite3 dev headers. Supported
+platforms: Linux (x86_64), macOS (aarch64), and Windows (x86_64, via MinGW
+gcc or LLVM clang).
+
+<Steps>
+1. Clone and build the toolchain:
+
+   ```bash
+   git clone https://github.com/oxidean/oxl
+   cd oxl/oxl && cargo build --release
+   ```
+
+2. Put the binary on `PATH`:
+
+   ```bash
+   export PATH="$PWD/target/release:$PATH"
+   ```
+
+3. Write and run a program:
+
+   ```go title="hello.oxl"
+   fn main() {
+       println("hello, oxl")
+   }
+   ```
+
+   ```bash
+   oxl run hello.oxl      # compile + run
+   oxl build hello.oxl    # → native binary
+   ```
+</Steps>
+
+`oxl build` and `oxl run` invoke a C compiler for the final link. Set
+`LANG_CC` to override the probe order (`cc` → `gcc` → `clang`),
+`LANG_LDFLAGS` to append link inputs (FFI shim objects, libraries), and
+`LANG_SQLITE_SRC` to point at an amalgamation `sqlite3.c` where no dev
+package exists.
+
+## The toolbox
+
+```text
+oxl build file.oxl [-o out]    compile to a native binary
+oxl run file.oxl [args...]     compile + run
+oxl test file.oxl              run all fn test_*() in a scope each
+oxl fmt [-w|--check] file.oxl  canonical AST pretty-print (comments kept)
+oxl doc file.oxl               /// comments → markdown
+oxl get <path>@<query>         fetch + pin a dependency (needs git)
+oxl mod init <path>            write a skeleton oxl.mod
+oxl mod tidy                   sync requires/oxl.sum with the imports
+oxl mod verify                 re-hash the cache against oxl.sum
+oxl mod list                   the MVS-selected module build list
+oxl lsp                        stdio LSP: diagnostics, hover, goto-definition
+```
+
+<Aside type="tip">
+	The repository's [`examples/`](https://github.com/oxidean/oxl/tree/main/examples)
+	directory is the ground truth for what works today — including the HTTP
+	CRUD + SQLite pilot.
+</Aside>

@@ -3,14 +3,17 @@ import { cn } from "@/lib/utils";
 
 type TermLine = { kind: "cmd" | "out" | "ok"; text: string };
 
-/* The real self-host eval path — clone ships deploy/selfhost, the compose
-   bundle runs from published images with no build step. */
+/* The real Ox-Agent path — init materializes .ox-agent, doctor validates,
+   start opens a work item. Output lines match binary 0.1.2. */
 const SCRIPT: TermLine[] = [
-  { kind: "cmd", text: "git clone --depth 1 https://github.com/oxidean/oxidean" },
-  { kind: "cmd", text: "cd oxidean/deploy/selfhost && cp .env.example .env" },
-  { kind: "cmd", text: "docker compose up -d" },
-  { kind: "out", text: "[+] Running 3/3 — postgres, api, web" },
-  { kind: "ok", text: "Oxidean is up — /setup walks you through the admin account" },
+  { kind: "cmd", text: "ox-agent init --integrate" },
+  { kind: "out", text: "Initialized .ox-agent" },
+  { kind: "cmd", text: "ox-agent doctor" },
+  { kind: "ok", text: "Ox-Agent doctor: healthy (binary 0.1.2)" },
+  { kind: "cmd", text: 'ox-agent start "Ship the org site"' },
+  { kind: "out", text: "WI-0001: Ship the org site" },
+  { kind: "cmd", text: "ox-agent status" },
+  { kind: "ok", text: "active: WI-0001-ship-the-org-site" },
 ];
 const LINES = SCRIPT.map((l, i) => ({ ...l, i }));
 
@@ -53,7 +56,7 @@ export function TerminalDemo({ className }: { className?: string }) @{
         <span className="size-2.5 rounded-full bg-[#ff5f57]" />
         <span className="size-2.5 rounded-full bg-[#febc2e]" />
         <span className="size-2.5 rounded-full bg-[#28c840]" />
-        <span className="ml-2 font-mono text-xs text-[#7c8692]">oxidean — self-host</span>
+        <span className="ml-2 font-mono text-xs text-[#7c8692]">oxidean — ox-agent</span>
       </div>
       <div className="min-h-[10rem] p-4 font-mono text-[13px] leading-6 sm:text-sm">
         @for (const l of LINES; key l.i) {

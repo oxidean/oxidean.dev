@@ -1,0 +1,62 @@
+---
+title: OxAgent quickstart
+description: Initialize a repository, validate the setup, and open your first work item.
+---
+
+import { Aside, Steps } from "@astrojs/starlight/components";
+
+<Steps>
+1. From the repository you want to manage:
+
+   ```bash
+   ox-agent init
+   ```
+
+   `init` is non-destructive and refuses to overwrite an existing
+   `.ox-agent/`. Add `--integrate` to also wire `AGENTS.md` and
+   `.agents/skills` so agent harnesses discover the materialized skills.
+
+2. Validate:
+
+   ```bash
+   ox-agent doctor
+   ```
+
+   Schema-level checks across the whole directory — `--fix` repairs what it
+   can.
+
+3. Open a work item and drive it:
+
+   ```bash
+   ox-agent start "Add a health-check endpoint"
+   ox-agent status
+   ```
+
+   `ox-agent transition`/`advance` move the item along legal lifecycle
+   edges; `ox-agent run` dispatches the stage-mapped skill through a
+   configured harness.
+</Steps>
+
+## What lands in the repo
+
+```text
+.ox-agent/
+├── framework.yaml     # binary and schema compatibility
+├── config.yaml        # project configuration
+├── policy.yaml        # autonomy and approval policy
+├── skills/            # repository-local skill definitions
+├── workflows/         # lifecycle stage and gate definitions
+├── pipelines/         # ordered execution plans
+├── lifecycle/         # state definitions
+├── context/           # project standards and context
+├── work/              # active and archived work items
+├── state/             # append-only event journal and snapshots
+├── integrations/      # harness configuration
+└── runtime/           # generated packets, runs, cache, and locks
+```
+
+<Aside type="tip">
+	`.ox-agent/` is meant to be committed — work items, decisions, and
+	standards are repo history like the code itself. `runtime/` output
+	(packets, runs, cache) is generated local scratch.
+</Aside>

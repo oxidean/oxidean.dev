@@ -1,0 +1,58 @@
+---
+title: OxAgent
+description: Repository-local, token-efficient AI-SDLC for coding agents — a single Go binary plus .ox-agent/ state next to the code.
+---
+
+import { CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+OxAgent (`ox-agent`) is a globally installed Go CLI that executes the
+skills, workflows, and pipelines each repository defines under `.ox-agent/`.
+Project state, standards, work items, and decisions stay local and
+version-controlled — the binary is the only runtime.
+
+## Why
+
+- **Repository-local memory** — durable state under `.ox-agent/`, not a
+  service you have to run.
+- **Token-efficient context** — workflows select only the context the
+  current stage needs (`ox-agent context compile`).
+- **Structured work items** — explicit state, progress, and lifecycle
+  records instead of chat scrollback.
+- **One binary** — no npm, Bun, or project-local runtime dependency.
+- **Fork-friendly** — organizations can ship a compatible asset set through
+  their own fork.
+
+## The model
+
+```text
+binary   = how execution works
+skill    = what a role does
+workflow = when capabilities apply
+pipeline = how work is ordered
+work     = what happened
+```
+
+## Where to next
+
+<CardGrid>
+	<LinkCard
+		title="Install"
+		href="/docs/ox-agent/install/"
+		description="One curl — the binary lands in ~/.local/bin."
+	/>
+	<LinkCard
+		title="Quickstart"
+		href="/docs/ox-agent/quickstart/"
+		description="init, doctor, and your first work item."
+	/>
+	<LinkCard
+		title="CLI surface"
+		href="/docs/ox-agent/cli/"
+		description="Work items, runs, state replay, context packets."
+	/>
+	<LinkCard
+		title="oxidean/Ox-Agent"
+		href="https://github.com/oxidean/Ox-Agent"
+		description="Source, releases, and the full docs set."
+	/>
+</CardGrid>

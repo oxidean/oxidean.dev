@@ -1,45 +1,61 @@
 ---
 import SiteShell from "@/layouts/SiteShell.astro";
-import { CopyCommand } from "@/components/copy-command";
 import { TerminalDemo } from "@/components/terminal-demo";
 
-const features = [
+const products = [
 	{
-		title: "Git hosting, batteries in",
-		body: "Repositories over SSH or HTTPS with LFS, releases, and mirrors — clone, push, tag, done.",
-		icon: '<line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>',
+		tag: "the forge",
+		name: "Oxidean",
+		blurb:
+			"A self-hostable code forge — git hosting, pull requests, issues, CI actions, and package registries in one product.",
+		points: [
+			"Cloud or self-host — same codebase",
+			"Actions CI on your own runners",
+			"npm, OCI & generic registries",
+		],
+		docs: "/docs/oxidean/",
+		repo: "https://github.com/oxidean/oxidean",
 	},
 	{
-		title: "Pull requests & review",
-		body: "Diffs, inline comments, and merge controls in a workflow you already know — no retraining your team.",
-		icon: '<circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" x2="6" y1="9" y2="21"/>',
+		tag: "the runtime",
+		name: "OxAgent",
+		blurb:
+			"Repository-local, token-efficient AI-SDLC for coding agents — one Go binary, no project-local runtime.",
+		points: [
+			"State & standards live in .ox-agent/",
+			"Skills, workflows & pipelines per repo",
+			"Work items with a real lifecycle",
+		],
+		docs: "/docs/ox-agent/",
+		repo: "https://github.com/oxidean/Ox-Agent",
 	},
 	{
-		title: "Issues & organizations",
-		body: "Labels, assignees, and org-scoped teams keep triage next to the code it tracks.",
-		icon: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/>',
+		tag: "the language",
+		name: "oxl",
+		blurb:
+			"A lean language for CLI tools and services — Go-shaped DX on a runtime with no tracing GC.",
+		points: [
+			"Dynamic ownership & borrow checks",
+			"Structured concurrency, ~96 B tasks",
+			"Ahead-of-time native binaries",
+		],
+		docs: "/docs/oxl/",
+		repo: "https://github.com/oxidean/oxl",
+		badge: "v0.0.1",
 	},
-	{
-		title: "CI actions on your runners",
-		body: "Pipelines execute on infrastructure you own — job logs, artifacts, and caches stay inside the forge.",
-		icon: '<rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/>',
-	},
-	{
-		title: "Package registries",
-		body: "npm, OCI container images, and generic artifacts served from the same origin as your git.",
-		icon: '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
-	},
-	{
-		title: "One product, two faces",
-		body: "Oxidean Cloud and self-host ship the same images — no feature fork, no second-class install.",
-		icon: '<rect width="20" height="8" x="2" y="2" rx="2"/><rect width="20" height="8" x="2" y="14" rx="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/>',
-	},
+];
+
+const forgePoints = [
+	"Repos, PRs & review, issues, orgs",
+	"Actions CI on your own runners",
+	"npm, OCI & generic registries",
+	"One codebase — cloud = self-host",
 ];
 ---
 
 <SiteShell
-	title="Oxidean — a code forge that answers to you"
-	description="Self-hostable code forge — git hosting, pull requests, issues, CI actions, and package registries in one product. The same codebase runs Oxidean Cloud and installs on your machines."
+	title="Oxidean — tools that answer to you"
+	description="Oxidean ships three open-source projects — a self-hostable code forge, a repository-local AI-SDLC runtime, and a lean systems language."
 >
 	<section class="relative overflow-hidden">
 		<div aria-hidden="true" class="hero-grid absolute inset-0"></div>
@@ -47,31 +63,31 @@ const features = [
 		<div class="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-5 pb-20 pt-16 sm:px-6 sm:pt-24 lg:grid-cols-[1.05fr_0.95fr] lg:pb-28">
 			<div>
 				<p class="oct-rise font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-primary">
-					Self-hostable forge · MIT licensed
+					The Oxidean stack · MIT licensed
 				</p>
 				<h1
 					class="oct-rise mt-4 font-display text-[2.6rem] font-bold leading-[1.05] tracking-tight sm:text-6xl"
 					style="animation-delay: 60ms"
 				>
-					A code forge that <span class="text-primary">answers to you</span>.
+					Tools that <span class="text-primary">answer to you</span>.
 				</h1>
 				<p
 					class="oct-rise mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground"
 					style="animation-delay: 120ms"
 				>
-					Git hosting, pull requests, issues, CI actions, and package registries
-					in one product. The same codebase runs Oxidean Cloud and installs on
-					your machines.
+					A code forge you can self-host, an agent runtime that lives in the
+					repository, and a language built for tools like these. Three projects,
+					one org — the same stack that runs Oxidean itself.
 				</p>
 				<div
 					class="oct-rise mt-8 flex flex-wrap items-center gap-3"
 					style="animation-delay: 180ms"
 				>
 					<a
-						href="/docs/quickstart/"
+						href="/docs/"
 						class="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 font-display text-[15px] font-semibold text-primary-foreground transition hover:brightness-110"
 					>
-						Get started
+						Explore the docs
 						<svg
 							viewBox="0 0 24 24"
 							width="16"
@@ -88,7 +104,7 @@ const features = [
 						</svg>
 					</a>
 					<a
-						href="https://github.com/oxidean/oxidean"
+						href="https://github.com/oxidean"
 						target="_blank"
 						rel="noopener"
 						class="inline-flex h-11 items-center gap-2 rounded-md border border-border bg-card px-5 font-display text-[15px] font-semibold text-foreground transition hover:border-foreground/30 hover:bg-muted"
@@ -102,18 +118,8 @@ const features = [
 						>
 							<path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
 						</svg>
-						oxidean/oxidean
+						github.com/oxidean
 					</a>
-				</div>
-				<div class="oct-rise mt-6" style="animation-delay: 240ms">
-					<CopyCommand
-						client:load
-						command="docker compose up -d"
-						className="max-w-fit"
-					/>
-					<p class="mt-2 font-mono text-[12px] text-muted-foreground">
-						One compose file. Published images. No build step.
-					</p>
 				</div>
 			</div>
 			<div class="oct-rise lg:pl-4" style="animation-delay: 200ms">
@@ -122,41 +128,60 @@ const features = [
 		</div>
 	</section>
 
-	<section class="border-t border-border">
+	<section id="products" class="border-t border-border">
 		<div class="mx-auto w-full max-w-6xl px-5 py-16 sm:px-6 sm:py-20">
 			<p class="oct-reveal font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-primary">
-				Capabilities
+				The stack
 			</p>
 			<h2 class="oct-reveal mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-				Everything a forge should be.
+				Three projects, one org.
 			</h2>
 			<p class="oct-reveal mt-3 max-w-2xl text-muted-foreground">
-				Not a git server with plugins bolted on — the whole workflow, designed
-				as one product and shipped as one codebase.
+				Each stands alone. Together they are the toolchain Oxidean builds and
+				ships on — and every repo is open.
 			</p>
-			<div class="oct-reveal mt-10 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
-				{features.map((f) => (
-					<div class="bg-background p-6 transition-colors hover:bg-card">
-						<span class="inline-flex size-9 items-center justify-center rounded-md border border-border bg-card text-primary">
-							<svg
-								viewBox="0 0 24 24"
-								width="18"
-								height="18"
-								fill="none"
-								stroke="currentColor"
-								stroke-width="2"
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								aria-hidden="true"
-								set:html={f.icon}
-							/>
-						</span>
-						<h3 class="mt-4 font-display text-[17px] font-semibold">
-							{f.title}
+			<div class="oct-reveal mt-10 grid gap-px overflow-hidden rounded-lg border border-border bg-border lg:grid-cols-3">
+				{products.map((p) => (
+					<div class="flex flex-col bg-background p-6 transition-colors hover:bg-card">
+						<div class="flex items-center justify-between gap-2">
+							<p class="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-primary">
+								{p.tag}
+							</p>
+							{p.badge && (
+								<span class="rounded-full border border-border bg-card px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+									{p.badge}
+								</span>
+							)}
+						</div>
+						<h3 class="mt-3 font-display text-xl font-bold tracking-tight">
+							{p.name}
 						</h3>
-						<p class="mt-1.5 text-[14px] leading-relaxed text-muted-foreground">
-							{f.body}
+						<p class="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+							{p.blurb}
 						</p>
+						<ul class="mt-4 space-y-1.5 text-[13px] text-muted-foreground">
+							{p.points.map((pt) => (
+								<li class="flex gap-2">
+									<span aria-hidden="true" class="text-primary">
+										·
+									</span>
+									{pt}
+								</li>
+							))}
+						</ul>
+						<div class="mt-auto flex items-center gap-4 pt-5 text-[13px] font-semibold">
+							<a href={p.docs} class="text-primary transition hover:underline">
+								Docs
+							</a>
+							<a
+								href={p.repo}
+								target="_blank"
+								rel="noopener"
+								class="text-muted-foreground transition hover:text-foreground"
+							>
+								GitHub →
+							</a>
+						</div>
 					</div>
 				))}
 			</div>
@@ -167,7 +192,7 @@ const features = [
 		<div class="mx-auto grid w-full max-w-6xl items-center gap-10 px-5 py-16 sm:px-6 sm:py-20 lg:grid-cols-2">
 			<div>
 				<p class="oct-reveal font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-primary">
-					Self-host
+					Oxidean · the forge
 				</p>
 				<h2 class="oct-reveal mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">
 					One compose file. One volume. Yours.
@@ -178,9 +203,19 @@ const features = [
 					bundled Postgres for MySQL or SQLite, add the TLS or Actions profile,
 					or take the same stack to Kubernetes with the Helm chart.
 				</p>
+				<ul class="oct-reveal mt-6 grid max-w-xl grid-cols-1 gap-2 text-[14px] text-muted-foreground sm:grid-cols-2">
+					{forgePoints.map((pt) => (
+						<li class="flex gap-2">
+							<span aria-hidden="true" class="text-primary">
+								·
+							</span>
+							{pt}
+						</li>
+					))}
+				</ul>
 				<div class="oct-reveal mt-6 flex flex-wrap gap-3">
 					<a
-						href="/docs/self-hosting/"
+						href="/docs/oxidean/self-hosting/"
 						class="inline-flex h-10 items-center rounded-md border border-border bg-card px-4 font-display text-[14px] font-semibold transition hover:border-foreground/30 hover:bg-muted"
 					>
 						Self-hosting docs
@@ -216,10 +251,133 @@ const features = [
 	</section>
 
 	<section class="border-t border-border">
+		<div class="mx-auto grid w-full max-w-6xl items-center gap-10 px-5 py-16 sm:px-6 sm:py-20 lg:grid-cols-2">
+			<div class="oct-reveal space-y-3 lg:order-last">
+				<div class="overflow-hidden rounded-lg border border-border bg-card">
+					<div class="border-b border-border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+						Install &amp; first work item
+					</div>
+					<pre class="overflow-x-auto p-4 font-mono text-[13px] leading-6"><code><span class="text-muted-foreground"># one Go binary — no npm, no project runtime</span>
+<span class="text-foreground">curl -fsSL \</span>
+<span class="text-foreground">  https://github.com/oxidean/Ox-Agent/releases/latest/download/install.sh \</span>
+<span class="text-foreground">  | bash</span>
+
+<span class="text-muted-foreground"># in any repo</span>
+<span class="text-foreground">ox-agent init --integrate</span>
+<span class="text-foreground">ox-agent start "Add a health-check endpoint"</span></code></pre>
+				</div>
+				<div class="overflow-hidden rounded-lg border border-border bg-card">
+					<div class="border-b border-border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+						The model
+					</div>
+					<pre class="overflow-x-auto p-4 font-mono text-[13px] leading-6"><code><span class="text-foreground">binary   = how execution works</span>
+<span class="text-foreground">skill    = what a role does</span>
+<span class="text-foreground">workflow = when capabilities apply</span>
+<span class="text-foreground">pipeline = how work is ordered</span>
+<span class="text-foreground">work     = what happened</span></code></pre>
+				</div>
+			</div>
+			<div class="lg:order-first">
+				<p class="oct-reveal font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-primary">
+					OxAgent · the runtime
+				</p>
+				<h2 class="oct-reveal mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">
+					The SDLC lives in the repo.
+				</h2>
+				<p class="oct-reveal mt-3 max-w-xl text-muted-foreground">
+					<code class="font-mono text-[0.9em] text-foreground">ox-agent</code>{" "}
+					executes the skills, workflows, and pipelines each repository defines
+					under{" "}
+					<code class="font-mono text-[0.9em] text-foreground">.ox-agent/</code>
+					— durable state, standards, and work items versioned next to the code
+					they describe. No daemon, no SaaS, no project-local runtime: the
+					global binary is the only thing you install.
+				</p>
+				<div class="oct-reveal mt-6 flex flex-wrap gap-3">
+					<a
+						href="/docs/ox-agent/"
+						class="inline-flex h-10 items-center rounded-md border border-border bg-card px-4 font-display text-[14px] font-semibold transition hover:border-foreground/30 hover:bg-muted"
+					>
+						OxAgent docs
+					</a>
+					<a
+						href="https://github.com/oxidean/Ox-Agent"
+						target="_blank"
+						rel="noopener"
+						class="inline-flex h-10 items-center rounded-md px-2 font-display text-[14px] font-semibold text-primary transition hover:underline"
+					>
+						oxidean/Ox-Agent →
+					</a>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="border-t border-border bg-card/40">
+		<div class="mx-auto grid w-full max-w-6xl items-center gap-10 px-5 py-16 sm:px-6 sm:py-20 lg:grid-cols-2">
+			<div>
+				<p class="oct-reveal font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-primary">
+					oxl · the language
+				</p>
+				<h2 class="oct-reveal mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">
+					Go-shaped DX. No tracing GC.
+				</h2>
+				<p class="oct-reveal mt-3 max-w-xl text-muted-foreground">
+					oxl is built for CLI tools and services: dynamic ownership and borrow
+					checking for memory safety, structured concurrency on ~96-byte task
+					frames, and ahead-of-time native binaries from one toolchain. The
+					compiler runs end to end today —{" "}
+					<span class="font-mono text-[0.9em] text-foreground">v0.0.1</span>,
+					and moving fast.
+				</p>
+				<div class="oct-reveal mt-6 flex flex-wrap gap-3">
+					<a
+						href="/docs/oxl/"
+						class="inline-flex h-10 items-center rounded-md border border-border bg-card px-4 font-display text-[14px] font-semibold transition hover:border-foreground/30 hover:bg-muted"
+					>
+						oxl docs
+					</a>
+					<a
+						href="https://github.com/oxidean/oxl"
+						target="_blank"
+						rel="noopener"
+						class="inline-flex h-10 items-center rounded-md px-2 font-display text-[14px] font-semibold text-primary transition hover:underline"
+					>
+						oxidean/oxl →
+					</a>
+				</div>
+			</div>
+			<div class="oct-reveal">
+				<div class="overflow-hidden rounded-lg border border-border bg-card">
+					<div class="border-b border-border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+						the v0 surface
+					</div>
+					<pre class="overflow-x-auto p-4 font-mono text-[13px] leading-6"><code><span class="text-foreground">fn fail(b: bool) -&gt; [int, err] {"{"}</span>
+<span class="text-foreground">    if b {"{"} return 0, 1 {"}"}</span>
+<span class="text-foreground">    return 42, nil</span>
+<span class="text-foreground">{"}"}</span>
+
+<span class="text-foreground">fn main() {"{"}</span>
+<span class="text-foreground">    [v, err] = fail(false)</span>
+<span class="text-foreground">    if err != nil {"{"} return {"}"}</span>
+<span class="text-foreground">    println(itoa(v))</span>
+
+<span class="text-foreground">    ch := mkchan()</span>
+<span class="text-foreground">    scope {"{"}</span>
+<span class="text-foreground">        spawn send(ch, 7)</span>
+<span class="text-foreground">        println(itoa(recv(ch)))</span>
+<span class="text-foreground">    {"}"}</span>
+<span class="text-foreground">{"}"}</span></code></pre>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="border-t border-border">
 		<div class="mx-auto w-full max-w-6xl px-5 py-14 text-center sm:px-6">
 			<p class="oct-reveal font-mono text-[12px] text-muted-foreground">
-				This site is Astro + Octane islands — the same UI stack that ships in
-				the forge.
+				This site is Astro + Octane islands — the UI stack that ships in the
+				forge — and the repo is managed by ox-agent.
 				<a
 					href="https://github.com/oxidean/oxidean.dev"
 					target="_blank"

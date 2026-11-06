@@ -1,56 +1,46 @@
 ---
 title: Oxidean documentation
-description: Self-hostable code forge — git hosting, pull requests, issues, CI actions, and package registries in one product.
+description: Documentation for everything Oxidean ships — the forge, the OxAgent runtime, and the oxl language.
 ---
 
 import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
 
-Oxidean is a **self-hostable code forge**: git hosting, pull requests,
-issues, CI actions, and package registries in one product. The same
-codebase runs Oxidean Cloud and installs on your own machines — there is no
-feature fork between the hosted service and what you run yourself.
+Oxidean ships three open-source projects. These docs orient you in each —
+the canonical references live in the projects' own repositories.
 
-## Pick a path
+## The stack
 
 <CardGrid>
-  <LinkCard
-    title="Quickstart"
-    href="/docs/quickstart/"
-    description="Create a repository and push your first commit — cloud or self-hosted."
-  />
-  <LinkCard
-    title="Self-hosting"
-    href="/docs/self-hosting/"
-    description="Run the full forge from a compose bundle or the Helm chart."
-  />
-  <LinkCard
-    title="ox CLI"
-    href="/docs/cli/"
-    description="Repositories, issues, PRs, and actions runs from the terminal."
-  />
-  <LinkCard
-    title="Configuration"
-    href="/docs/configuration/"
-    description="The OXIDEAN_* environment contract shared by every deployment surface."
-  />
+	<LinkCard
+		title="Oxidean — the forge"
+		href="/docs/oxidean/"
+		description="Self-hostable git hosting, pull requests, issues, CI actions, and package registries in one product."
+	/>
+	<LinkCard
+		title="OxAgent — the runtime"
+		href="/docs/ox-agent/"
+		description="Repository-local, token-efficient AI-SDLC: one Go binary plus .ox-agent/ state next to the code."
+	/>
+	<LinkCard
+		title="oxl — the language"
+		href="/docs/oxl/"
+		description="A lean language for CLI tools and services — Go-shaped DX on a runtime with no tracing GC."
+	/>
 </CardGrid>
 
-## How these docs are organized
+## Sources of truth
 
 <CardGrid stagger>
-  <Card title="Start here" icon="rocket">
-    [Quickstart](/docs/quickstart/) covers the first-repo path for both deployment modes.
-  </Card>
-  <Card title="Operate" icon="setting">
-    [Self-hosting](/docs/self-hosting/) and [configuration](/docs/configuration/) cover running your
-    own instance.
-  </Card>
-  <Card title="Contribute" icon="pencil">
-    The forge is MIT-licensed — see [contributing](/docs/contributing/) for the workflow.
-  </Card>
-  <Card title="Go deeper" icon="open-book">
-    Canonical references live in the [main
-    repository](https://github.com/oxidean/oxidean/tree/main/docs): architecture, API, deployment,
-    and testing docs.
-  </Card>
+	<Card title="oxidean/oxidean" icon="open-book">
+		The forge monorepo — [docs/](https://github.com/oxidean/oxidean/tree/main/docs) holds the
+		authoritative architecture, API, deployment, and testing references.
+	</Card>
+	<Card title="oxidean/Ox-Agent" icon="open-book">
+		The agent runtime — [docs/](https://github.com/oxidean/Ox-Agent/tree/main/docs) plus the
+		binary's own `--help` are canonical.
+	</Card>
+	<Card title="oxidean/oxl" icon="open-book">
+		The language toolchain — the [README](https://github.com/oxidean/oxl/blob/main/README.md) and
+		`docs/semantics/` define the v0 contract.
+	</Card>
 </CardGrid>

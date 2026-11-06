@@ -1,0 +1,56 @@
+---
+title: Oxidean
+description: Self-hostable code forge — git hosting, pull requests, issues, CI actions, and package registries in one product.
+---
+
+import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+Oxidean is a **self-hostable code forge**: git hosting, pull requests,
+issues, CI actions, and package registries in one product. The same
+codebase runs Oxidean Cloud and installs on your own machines — there is no
+feature fork between the hosted service and what you run yourself.
+
+## Pick a path
+
+<CardGrid>
+	<LinkCard
+		title="Quickstart"
+		href="/docs/oxidean/quickstart/"
+		description="Create a repository and push your first commit — cloud or self-hosted."
+	/>
+	<LinkCard
+		title="Self-hosting"
+		href="/docs/oxidean/self-hosting/"
+		description="Run the full forge from a compose bundle or the Helm chart."
+	/>
+	<LinkCard
+		title="ox CLI"
+		href="/docs/oxidean/cli/"
+		description="Repositories, issues, PRs, and actions runs from the terminal."
+	/>
+	<LinkCard
+		title="Configuration"
+		href="/docs/oxidean/configuration/"
+		description="The OXIDEAN_* environment contract shared by every deployment surface."
+	/>
+</CardGrid>
+
+## How these docs are organized
+
+<CardGrid stagger>
+	<Card title="Start here" icon="rocket">
+		[Quickstart](/docs/oxidean/quickstart/) covers the first-repo path for both deployment modes.
+	</Card>
+	<Card title="Operate" icon="setting">
+		[Self-hosting](/docs/oxidean/self-hosting/) and
+		[configuration](/docs/oxidean/configuration/) cover running your own instance.
+	</Card>
+	<Card title="Contribute" icon="pencil">
+		The forge is MIT-licensed — see [contributing](/docs/oxidean/contributing/) for the workflow.
+	</Card>
+	<Card title="Go deeper" icon="open-book">
+		Canonical references live in the [main
+		repository](https://github.com/oxidean/oxidean/tree/main/docs): architecture, API, deployment,
+		and testing docs.
+	</Card>
+</CardGrid>
