@@ -34,7 +34,7 @@ Before committing UI changes: `bun run lint` and `bun run format:check` (`@tsrx/
 ## Authoring `.tsrx`
 
 ```tsrx
-export function Example(props: { title: string }) {
+export function Example(props: { title: string }) @{
   const [open, setOpen] = useState(false);
 
   @{
@@ -46,8 +46,8 @@ export function Example(props: { title: string }) {
         <p>Hidden</p>
       }
       <button type="button" onClick={() => setOpen(!open)}>Toggle</button>
-    </section>
-  }
+    </section>;
+  };
 }
 ```
 

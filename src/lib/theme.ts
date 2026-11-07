@@ -10,12 +10,16 @@ export const THEME_STORAGE_KEY = "oxidean-theme";
 export const STARLIGHT_STORAGE_KEY = "starlight-theme";
 
 export function readThemePreference(): ThemePreference {
-  if (typeof localStorage === "undefined") return "system";
-  const s = localStorage.getItem(STARLIGHT_STORAGE_KEY);
-  if (s === "light" || s === "dark") return s;
-  if (s === "auto") return "system";
-  const v = localStorage.getItem(THEME_STORAGE_KEY);
-  if (v === "light" || v === "dark" || v === "system") return v;
+  try {
+    const s = localStorage.getItem(STARLIGHT_STORAGE_KEY);
+    if (s === "light" || s === "dark") return s;
+    if (s === "auto") return "system";
+    const v = localStorage.getItem(THEME_STORAGE_KEY);
+    if (v === "light" || v === "dark" || v === "system") return v;
+  } catch {
+    // Storage can throw (disabled cookies, privacy modes) — fall back to
+    // system so callers' change listeners still register.
+  }
   return "system";
 }
 
@@ -30,8 +34,13 @@ export function applyTheme(pref: ThemePreference) {
   const root = document.documentElement;
   root.classList.toggle("dark", resolved === "dark");
   root.dataset.theme = resolved;
-  localStorage.setItem(THEME_STORAGE_KEY, pref);
-  localStorage.setItem(STARLIGHT_STORAGE_KEY, pref === "system" ? "auto" : pref);
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, pref);
+    localStorage.setItem(STARLIGHT_STORAGE_KEY, pref === "system" ? "auto" : pref);
+  } catch {
+    // Persisting is best-effort — the explicit choice still applies for
+    // the session even when storage is unavailable.
+  }
 }
 
 export const THEME_OPTIONS: readonly ThemePreference[] = ["system", "light", "dark"];

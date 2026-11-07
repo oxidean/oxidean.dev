@@ -41,9 +41,13 @@ identical.
 			   add your key under **Settings → SSH keys**.
 		</Steps>
 		<Aside type="tip">
-			All state — repos, LFS, packages, action logs — lands in one named
-			volume (`oxidean_data` on the `api` service), so backups and
-			migrations stay boring.
+			Two things hold state: forge content (repos, LFS, packages, action
+			logs) in the `oxidean_data` volume on `api`, and the bundled
+			Postgres database in `postgres_data`. Back up both at one
+			consistent point — see the
+			[backup procedure](https://github.com/oxidean/oxidean/blob/main/docs/SELF-HOSTING.md#backup).
+			Enabled profiles may add their own volumes (`objectstore_data`,
+			`runner_data`, `caddy_data`).
 		</Aside>
 	</TabItem>
 </Tabs>

@@ -55,20 +55,17 @@ Bumps propagate as patch floor through `depends_on` edges — a `wire` or
    the changelog; a `docs` disguised as `feat` inflates it).
 3. Scope is a single registry alias — or omit it for cross-cutting
    commits.
-4. Self-check: `bun scripts/versioning/cli.ts commit-check --message
-"<subject>"` or `make commit-check` (recent range).
-5. The `commit-msg` hook (installed via `make setup`) rejects bad
-   subjects; `--no-verify` bypasses locally but CI `commit-lint` still
-   gates the PR range and PR title — the PR title must also carry the
-   prefix.
+4. Self-check: `scripts/commit-check.sh --message "<subject>"` or
+   `bun run commit-check` (recent range).
+5. The `commit-msg` hook (`git config core.hooksPath .githooks`) rejects
+   bad subjects; `--no-verify` bypasses locally but CI `commit-lint`
+   still gates the PR range and PR title — the PR title must also carry
+   the prefix.
 6. Doc/guidance changes themselves are `docs:`-typed commits.
 
-## Releases (automated)
+## Releases
 
-`main` is the beta channel: `release-beta.yml` tags `<component>-v<ver>-beta.N`
-on every push that bumps something (tag-only — manifests keep the last stable
-version). The production deploy (`production-deploy.yml` promote) creates the
-stable bump — changelog + `chore(release):` commit + `*-vX.Y.Z` tags — then
-deploys the bump commit. Tag pushes ride `RELEASE_TOKEN` (never
-`GITHUB_TOKEN`); ad-hoc `alpha`/`nightly`/single-component cuts go through
-`release.yml` `workflow_dispatch`. Details: `docs/VERSIONING.md`.
+No release automation in this repo yet — the site ships by merge to `main`
+(Vercel deploys the head commit). The forge-side beta/stable tag machinery
+described in `oxidean-app`'s `docs/VERSIONING.md` does not apply here; if
+versioned artifacts are added later, port that flow rather than inventing one.
