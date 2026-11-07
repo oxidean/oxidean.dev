@@ -127,3 +127,13 @@ hook so product release workflows can ping the site later.
 
 AC1 S1 tests · AC2 S2–S4 workflows · AC3 S5 + S4 tag filter ·
 AC4–6 S6 build/routes/switcher · AC7 every stage's gates.
+
+## Stage status
+
+- **S1 done 2026-11-07** — `oxidean/docs-manifest` live:
+  schema/manifest.schema.json (manifest_version 1), Go CLI
+  (`validate|pack|schema|version`), reusable `workflow_call` workflows,
+  goreleaser pipeline. Tagged **v0.1.1** (v0.1.0 released but its
+  reusable-workflow asset URLs were wrong — callers pin `@v0.1.1`).
+  Verified: `go test` covers every named failure; determinism asserted
+  byte-for-byte; release binary validates fixtures end-to-end.
