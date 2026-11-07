@@ -130,6 +130,9 @@ AC4–6 S6 build/routes/switcher · AC7 every stage's gates.
 
 ## Stage status
 
+- **2026-11-07 (S6+)** — push model added per Jesse: `docs-manifest` release.yml@v0.1.2 fires a fail-soft `workflow_dispatch` (`docs-release.yml`, inputs `{product, version, repo, tag}`) to the site after bundle attach. Site side: `scripts/docs-upsert.ts` pins the version + opens an auto-merge bump PR. Product PRs updated to `product:` + `secrets.site_dispatch_token`. Auth: org secret `DOCS_SITE_DISPATCH_TOKEN` (fine-grained PAT, Actions:write on oxidean.dev) — Jesse to install; dispatch skips until then and `docs:update` remains the poll backstop. Receiver must reach `main` (workflow_dispatch resolves on default branch) — lands with the consumer merge.
+
+
 - **S2 done 2026-11-07** — oxidean/Ox-Agent#35 (`feat/docs-site-contract`):
   curated docs/site (index/install/quickstart/cli/architecture) at v0.1.7,
   caller workflows @v0.1.1; releasing.md exclusion + version-bump note.
