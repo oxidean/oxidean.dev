@@ -1,6 +1,6 @@
 /*
   Starlight theme mapped onto the Oxidean palette. Imports tokens.css for
-  fonts + brand ramps — deliberately NOT styles.css (Tailwind's preflight
+  fonts + brand ramps. Deliberately NOT styles.css (Tailwind's preflight
   would reset Starlight's own markup). --sl-* semantics follow
   @astrojs/starlight/dist/style/props.css.
 */
@@ -23,7 +23,7 @@
   --sl-color-gray-7: #ffffff;
   --sl-color-black: #ffffff;
 
-  /* burnt oxide — darkened for text roles on white (AA) */
+  /* burnt oxide, darkened for text roles on white (AA) */
   --sl-color-accent-low: #f9dfcc;
   --sl-color-accent: #bf4b0a;
   --sl-color-accent-high: #8a3708;
@@ -75,7 +75,7 @@
   font-family: var(--font-display), var(--sl-font-system);
 }
 
-/* Brand mark next to the docs title — keep it crisp at sidebar size. */
+/* Brand mark next to the docs title; keep it crisp at sidebar size. */
 .site-title img {
   border-radius: 6px;
 }

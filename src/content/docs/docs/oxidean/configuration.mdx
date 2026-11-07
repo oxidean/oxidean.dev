@@ -5,7 +5,7 @@ description: The OXIDEAN_* environment contract shared by the compose bundle, th
 
 import { Aside } from "@astrojs/starlight/components";
 
-Every deployment surface — Compose, Helm, and Oxidean Cloud — honors the
+Every deployment surface (Compose, Helm, and Oxidean Cloud) honors the
 same `OXIDEAN_*` environment contract. No per-surface forks: a variable
 that works in `deploy/selfhost/.env` means the same thing in Helm values
 and on the hosted service.
@@ -15,9 +15,9 @@ and on the hosted service.
 | Area        | Representative variables                                               |
 | ----------- | ---------------------------------------------------------------------- |
 | Environment | `OXIDEAN_ENV` (`development` only for local eval)                      |
-| Database    | `DATABASE_URL` — Postgres default; MySQL and SQLite dialects supported |
+| Database    | `DATABASE_URL`, Postgres default; MySQL and SQLite dialects supported |
 | Storage     | `OXIDEAN_STORAGE_BACKEND=fs\|s3` plus the `OXIDEAN_S3_*` endpoint set  |
-| Git SSH     | `OXIDEAN_SSH_PORT` (default `2222`) — raw TCP to `api`                 |
+| Git SSH     | `OXIDEAN_SSH_PORT` (default `2222`), raw TCP to `api`                 |
 | Actions     | `OXIDEAN_ACTIONS_SECRETS_KEY`, runner registration settings            |
 | Origins     | `OXIDEAN_API_ORIGIN` (web→api routing, internal in the bundle)         |
 

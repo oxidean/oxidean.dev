@@ -1,7 +1,7 @@
 {
   "name": "Oxidean",
   "short_name": "Oxidean",
-  "description": "The Oxidean stack — forge, agent runtime, and language.",
+  "description": "The Oxidean stack: forge, agent toolchain, and language.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

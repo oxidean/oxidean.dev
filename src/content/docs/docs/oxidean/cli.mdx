@@ -1,16 +1,16 @@
 ---
 title: ox CLI
-description: The ox command-line client — repositories, issues, pull requests, actions runs, releases, packages, registries, and agent surfaces from the shell.
+description: "The ox command-line client: repositories, issues, pull requests, actions runs, releases, packages, registries, and agent surfaces from the shell."
 ---
 
-`ox` is the Oxidean command-line client — the same workflows the web UI
+`ox` is the Oxidean command-line client: the same workflows the web UI
 offers, scriptable from your shell. It talks to any Oxidean instance, cloud
 or self-hosted, and gates itself on the instance's capability manifest, so
 older servers get a clean "not supported" instead of a wrong request.
 
 ## Install
 
-Every forge serves its own matching build at `/cli` — install scripts and
+Every forge serves its own matching build at `/cli`, install scripts and
 binaries included:
 
 ```bash
@@ -90,7 +90,7 @@ ox pilot run|connect|status          # claim → execute → report loop for
 
 Alongside git, repositories can opt into Oxidean's own changeset-model VCS
 (`ox vcs enable`): server-side commits, diffs, blame, merges, rebases, and
-sparse checkouts — with resumable git import and export back to git refs
+sparse checkouts, with resumable git import and export back to git refs
 through the protected ref-update path.
 
 ```bash

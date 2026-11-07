@@ -51,7 +51,7 @@
     scrollbar-gutter: stable;
   }
 
-  /* Footer lives below the fold on every page — short content still pushes it
+  /* Footer lives below the fold on every page; short content still pushes it
 	   past the initial viewport, so nothing pops when taller routes load. */
   .oxidean-main {
     min-height: 100vh;
@@ -97,13 +97,13 @@
     mask-repeat: no-repeat;
   }
 
-  /* Astro islands are custom elements (inline by default) — let their children
+  /* Astro islands are custom elements (inline by default); let their children
 	   participate in the parent's flex/grid layout. */
   astro-island {
     display: contents;
   }
 
-  /* Faint engineering grid behind the hero — hairlines on the canvas, faded
+  /* Faint engineering grid behind the hero: hairlines on the canvas, faded
 	   to nothing by a radial mask so the oxide glow reads as atmosphere. */
   .hero-grid {
     background-image:
@@ -120,7 +120,7 @@
     opacity: 0.14;
   }
 
-  /* Marketing landing reveal — paired with the IntersectionObserver script
+  /* Marketing landing reveal, paired with the IntersectionObserver script
 	   on pages that want scroll-in motion. */
   .oct-rise {
     animation: octRise 320ms ease-out both;

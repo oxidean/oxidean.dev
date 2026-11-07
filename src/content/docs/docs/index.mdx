@@ -1,30 +1,30 @@
 ---
 title: Oxidean documentation
-description: Documentation for everything Oxidean ships — the forge, the OxAgent runtime, and the oxl language.
+description: "Documentation for everything Oxidean ships: the forge, the Ox-Agent toolchain, and the oxl language."
 ---
 
 import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
 
-Oxidean ships three open-source projects. These docs orient you in each —
-the canonical references live in the projects' own repositories.
+Oxidean ships three open-source projects. These docs orient you in each;
+the authoritative references live in the projects' own repositories.
 
 ## The stack
 
 <CardGrid>
 	<LinkCard
-		title="Oxidean — the forge"
+		title="Oxidean · the forge"
 		href="/docs/oxidean/"
-		description="Self-hostable git hosting, pull requests, issues, CI actions, and package registries in one product."
+		description="Self-hostable git hosting, pull requests, issues, CI actions, and package registries."
 	/>
 	<LinkCard
-		title="OxAgent — the runtime"
+		title="Ox-Agent · the agent"
 		href="/docs/ox-agent/"
 		description="Repository-local, token-efficient AI-SDLC: one Go binary plus .ox-agent/ state next to the code."
 	/>
 	<LinkCard
-		title="oxl — the language"
+		title="oxl · the language"
 		href="/docs/oxl/"
-		description="A lean language for CLI tools and services — dynamic ownership checks, no tracing GC."
+		description="A lean language for CLI tools and services: dynamic ownership checks, no tracing GC."
 	/>
 </CardGrid>
 
@@ -32,15 +32,15 @@ the canonical references live in the projects' own repositories.
 
 <CardGrid stagger>
 	<Card title="oxidean/oxidean" icon="open-book">
-		The forge monorepo — [docs/](https://github.com/oxidean/oxidean/tree/main/docs) holds the
+		The forge monorepo. [docs/](https://github.com/oxidean/oxidean/tree/main/docs) holds the
 		authoritative architecture, API, deployment, and testing references.
 	</Card>
 	<Card title="oxidean/Ox-Agent" icon="open-book">
-		The agent runtime — [docs/](https://github.com/oxidean/Ox-Agent/tree/main/docs) plus the
-		binary's own `--help` are canonical.
+		The agent toolchain. [docs/](https://github.com/oxidean/Ox-Agent/tree/main/docs) plus the
+		binary's own `--help` are the contract.
 	</Card>
 	<Card title="oxidean/oxl" icon="open-book">
-		The language toolchain — the [README](https://github.com/oxidean/oxl/blob/main/README.md) and
+		The language toolchain. The [README](https://github.com/oxidean/oxl/blob/main/README.md) and
 		`docs/semantics/` define the language contract.
 	</Card>
 </CardGrid>

@@ -17,7 +17,7 @@ export function readThemePreference(): ThemePreference {
     const v = localStorage.getItem(THEME_STORAGE_KEY);
     if (v === "light" || v === "dark" || v === "system") return v;
   } catch {
-    // Storage can throw (disabled cookies, privacy modes) — fall back to
+    // Storage can throw (disabled cookies, privacy modes); fall back to
     // system so callers' change listeners still register.
   }
   return "system";
@@ -38,14 +38,14 @@ export function applyTheme(pref: ThemePreference) {
     localStorage.setItem(THEME_STORAGE_KEY, pref);
     localStorage.setItem(STARLIGHT_STORAGE_KEY, pref === "system" ? "" : pref);
   } catch {
-    // Persisting is best-effort — the explicit choice still applies for
+    // Persisting is best-effort; the explicit choice still applies for
     // the session even when storage is unavailable.
   }
 }
 
 export const THEME_OPTIONS: readonly ThemePreference[] = ["system", "light", "dark"];
 
-// Runs in <head> before first paint. Static literal — never interpolate
+// Runs in <head> before first paint. Static literal, never interpolate
 // request data or storage values into this string.
 export const THEME_BOOT_SCRIPT =
   '(function(){try{var s=localStorage.getItem("starlight-theme");' +
@@ -61,7 +61,7 @@ export const THEME_BOOT_SCRIPT =
 /**
  * Warm webfonts into `document.fonts` so full-document navigations do not
  * paint a long stretch of metric fallbacks after CSS re-applies.
- * Static literal — no interpolation (same threat model as theme boot).
+ * Static literal, no interpolation (same threat model as theme boot).
  */
 export const FONT_WARM_SCRIPT =
   "(function(){try{if(!document.fonts||!document.fonts.load)return;" +

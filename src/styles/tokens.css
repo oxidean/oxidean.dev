@@ -1,10 +1,10 @@
 /*
-  Oxidean design tokens — framework-free. Loaded by both src/styles.css
+  Oxidean design tokens, framework-free. Loaded by both src/styles.css
   (Tailwind pages) and src/styles/starlight.css (docs pages), so this file
   must not import Tailwind or emit utilities. Starlight themes via
-  html[data-theme]; marketing pages via html.dark — both selectors covered.
+  html[data-theme]; marketing pages via html.dark. Both selectors covered.
 
-  Preloaded latin faces — font-display: swap; metric-adjusted local
+  Preloaded latin faces, font-display: swap; metric-adjusted local
   fallbacks keep metrics stable during the brief swap window.
 */
 @font-face {
@@ -98,15 +98,15 @@
   --card-foreground: #1f2328;
   --popover: #ffffff;
   --popover-foreground: #1f2328;
-  /* burnt oxide orange — ~5:1 on white (AA text; #D75F00 accent darkened
+  /* burnt oxide orange, ~5:1 on white (AA text; #D75F00 accent darkened
 	   for text roles, bright variant lives in the mark + chart-1) */
   --primary: #bf4b0a;
   --primary-foreground: #ffffff;
-  /* charcoal — neutral bordered-button/badge role */
+  /* charcoal, neutral bordered-button/badge role */
   --secondary: #2a2d33;
   --secondary-foreground: #f5f3ef;
   --muted: #f6f8fa;
-  /* ~4.6:1 on white — readable helper text */
+  /* ~4.6:1 on white, readable helper text */
   --muted-foreground: #59636e;
   --accent: #eff2f5;
   --accent-foreground: #1f2328;
@@ -136,7 +136,7 @@
 }
 
 /* html.dark is set by the landing boot script; html[data-theme='dark'] is
-   Starlight's mechanism on docs pages — both resolve to this palette. */
+   Starlight's mechanism on docs pages. Both resolve to this palette. */
 .dark,
 :root[data-theme="dark"] {
   color-scheme: dark;
@@ -147,10 +147,10 @@
   --card-foreground: #f0f3f6;
   --popover: #1b1d21;
   --popover-foreground: #f0f3f6;
-  /* bright oxide — ~7:1 on #121212 (brand accent lifted for dark canvas) */
+  /* bright oxide, ~7:1 on #121212 (brand accent lifted for dark canvas) */
   --primary: #ff7b4a;
   --primary-foreground: #1a0a04;
-  /* muted steel — neutral bordered-button/badge role on charcoal */
+  /* muted steel, neutral bordered-button/badge role on charcoal */
   --secondary: #9aa4b2;
   --secondary-foreground: #16171a;
   --muted: #23262c;

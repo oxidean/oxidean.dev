@@ -3,7 +3,7 @@ import { useEffect, useState } from "octane";
 import { cn } from "@/lib/utils";
 
 /**
- * Mono command pill with a copy affordance — used for install one-liners.
+ * Mono command pill with a copy affordance, used for install one-liners.
  * Pure clipboard UX; the command itself is passed in as a prop.
  */
 export function CopyCommand({
@@ -43,7 +43,7 @@ export function CopyCommand({
       <button
         type="button"
         onClick={copy}
-        title={failed ? "Copy failed — select the command text" : "Copy to clipboard"}
+        title={failed ? "Copy failed: select the command text" : "Copy to clipboard"}
         className={cn(
           "group inline-flex h-11 items-center gap-3 rounded-md border border-border bg-card pl-4 pr-3",
           "transition-colors duration-150 hover:border-foreground/30 hover:bg-muted",
@@ -53,24 +53,24 @@ export function CopyCommand({
       >
         <code className="font-mono text-[13px] text-foreground">{command}</code>
         @if (copied) {
-          <Check aria-hidden size={14} className="text-success" />;
+          <Check aria-hidden size={14} className="shrink-0 text-success" />;
         }
         @if (!copied && failed) {
           <span className="inline-flex items-center gap-1.5">
             <span className="text-[12px] text-destructive">copy failed</span>
-            <X aria-hidden size={14} className="text-destructive" />
+            <X aria-hidden size={14} className="shrink-0 text-destructive" />
           </span>;
         }
         @if (!copied && !failed) {
           <Copy
             aria-hidden
             size={14}
-            className="text-muted-foreground transition-opacity group-hover:text-foreground"
+            className="shrink-0 text-muted-foreground transition-opacity group-hover:text-foreground"
           />;
         }
       </button>
       <span role="status" className="sr-only">
-        {copied ? "Copied to clipboard" : failed ? "Copy failed — select the command text" : ""}
+        {copied ? "Copied to clipboard" : failed ? "Copy failed: select the command text" : ""}
       </span>
     </span>;
     };

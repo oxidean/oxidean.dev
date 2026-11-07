@@ -70,7 +70,7 @@ const fontPreloads = [
  * Marketing pages are hand-authored under src/pages; documentation is
  * Starlight-driven from src/content/docs/docs/ (nested so docs URLs land at
  * /docs/*, keeping / free for the landing tree). Octane .tsrx components
- * mount as client:load islands — everything else is static HTML.
+ * mount as client:load islands; everything else is static HTML.
  */
 export default defineConfig({
   site: "https://oxidean.dev",
@@ -81,7 +81,7 @@ export default defineConfig({
       title: "Oxidean",
       favicon: "/favicon.ico",
       description:
-        "Oxidean ships three open-source projects — a self-hostable code forge, a repository-local AI-SDLC runtime, and a lean systems language.",
+        "Oxidean ships three open-source projects: a self-hostable code forge, a repository-local AI-SDLC toolchain, and a language for CLI tools and services.",
       components: {
         SiteTitle: "./src/components/starlight/SiteTitle.astro",
       },
@@ -115,7 +115,7 @@ export default defineConfig({
           ],
         },
         {
-          label: "OxAgent",
+          label: "Ox-Agent",
           items: [
             { slug: "docs/ox-agent" },
             { slug: "docs/ox-agent/install" },

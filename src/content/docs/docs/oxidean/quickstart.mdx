@@ -1,6 +1,6 @@
 ---
 title: Quickstart
-description: Create your first repository on Oxidean — on the hosted cloud or your own install.
+description: Create your first repository on Oxidean, on the hosted cloud or your own install.
 ---
 
 import { Aside, Steps, Tabs, TabItem } from "@astrojs/starlight/components";
@@ -22,7 +22,7 @@ identical.
 			   ```
 			   or clone the fresh repo and commit as usual.
 			4. Open a pull request from a branch, turn on actions, publish a
-			   package — it all lives under the same origin.
+			   package. It all lives under the same origin.
 		</Steps>
 	</TabItem>
 	<TabItem label="Self-hosted">
@@ -33,7 +33,7 @@ identical.
 			   ```bash
 			   docker compose up -d
 			   ```
-			2. Open the instance and walk through **`/setup`** — on a fresh
+			2. Open the instance and walk through **`/setup`**. On a fresh
 			   install it creates the admin account and lets you choose auth
 			   providers.
 			3. Create a repository and push exactly as you would on the cloud.
@@ -44,7 +44,7 @@ identical.
 			Two things hold state: forge content (repos, LFS, packages, action
 			logs) in the `oxidean_data` volume on `api`, and the bundled
 			Postgres database in `postgres_data`. Back up both at one
-			consistent point — see the
+			consistent point; see the
 			[backup procedure](https://github.com/oxidean/oxidean/blob/main/docs/SELF-HOSTING.md#backup).
 			Enabled profiles may add their own volumes (`objectstore_data`,
 			`runner_data`, `caddy_data`).
@@ -54,6 +54,6 @@ identical.
 
 ## Where to next
 
-- [Self-hosting overview](/docs/oxidean/self-hosting/) — architecture and profiles
-- [`ox` CLI](/docs/oxidean/cli/) — drive the forge from your shell
-- [Configuration](/docs/oxidean/configuration/) — the `OXIDEAN_*` env contract
+- [Self-hosting overview](/docs/oxidean/self-hosting/): architecture and profiles
+- [`ox` CLI](/docs/oxidean/cli/): drive the forge from your shell
+- [Configuration](/docs/oxidean/configuration/): the `OXIDEAN_*` env contract

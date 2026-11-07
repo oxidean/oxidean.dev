@@ -1,6 +1,6 @@
 ---
-title: OxAgent CLI
-description: The ox-agent command surface — work items, runs, input requests, skill maintenance, state replay, and self-update.
+title: Ox-Agent CLI
+description: "The ox-agent command surface: work items, runs, input requests, skill maintenance, state replay, and self-update."
 ---
 
 ```text
@@ -35,7 +35,7 @@ ox-agent uninstall --yes                  Remove the binary
 ```
 
 `run` dispatches the stage-mapped skill through a configured harness
-adapter — `manual` prints packet and output paths for any agent,
+adapter. `manual` prints packet and output paths for any agent,
 `spawn-cli` executes a command template, and `webhook` POSTs the packet to
 an HTTP(S) endpoint. `run collect` is the contract boundary: output must
 match the skill's `schemas/output.schema.json` or the run is marked

@@ -1,14 +1,14 @@
 ---
 title: Oxidean
-description: Self-hostable code forge — git hosting, pull requests, issues, CI actions, and package registries in one product.
+description: "Self-hostable code forge: git hosting, pull requests, issues, CI actions, and package registries in one product."
 ---
 
-import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
+import { CardGrid, LinkCard } from "@astrojs/starlight/components";
 
 Oxidean is a **self-hostable code forge**: git hosting, pull requests,
 issues, CI actions, and package registries in one product. The same
-codebase runs Oxidean Cloud and installs on your own machines — there is no
-feature fork between the hosted service and what you run yourself.
+codebase runs Oxidean Cloud and installs on your own machines. There is
+no feature fork between the hosted service and what you run yourself.
 MIT-licensed.
 
 On the mainline today: Smart-HTTP + SSH git hosting with commit-signature
@@ -17,7 +17,7 @@ issues, CI actions on self-hosted runners, OCI/npm/generic package
 registries, Git LFS, releases, forks, repository mirroring (push, pull, and
 two-way), organizations and collaborators, notifications and webhooks,
 search and explore, OIDC / WorkOS SSO, an admin console with a first-run
-setup wizard, and Postgres / MySQL / SQLite backends — see
+setup wizard, and Postgres / MySQL / SQLite backends. See
 [what's shipped](https://github.com/oxidean/oxidean#readme) and
 [ROADMAP.md](https://github.com/oxidean/oxidean/blob/main/ROADMAP.md) for
 the rest of the distance to forge parity.
@@ -28,7 +28,7 @@ the rest of the distance to forge parity.
 	<LinkCard
 		title="Quickstart"
 		href="/docs/oxidean/quickstart/"
-		description="Create a repository and push your first commit — cloud or self-hosted."
+		description="Create a repository and push your first commit, cloud or self-hosted."
 	/>
 	<LinkCard
 		title="Self-hosting"
@@ -47,22 +47,6 @@ the rest of the distance to forge parity.
 	/>
 </CardGrid>
 
-## How these docs are organized
-
-<CardGrid stagger>
-	<Card title="Start here" icon="rocket">
-		[Quickstart](/docs/oxidean/quickstart/) covers the first-repo path for both deployment modes.
-	</Card>
-	<Card title="Operate" icon="setting">
-		[Self-hosting](/docs/oxidean/self-hosting/) and
-		[configuration](/docs/oxidean/configuration/) cover running your own instance.
-	</Card>
-	<Card title="Contribute" icon="pencil">
-		The forge is MIT-licensed — see [contributing](/docs/oxidean/contributing/) for the workflow.
-	</Card>
-	<Card title="Go deeper" icon="open-book">
-		Canonical references live in the [main
-		repository](https://github.com/oxidean/oxidean/tree/main/docs): architecture, API, deployment,
-		and testing docs.
-	</Card>
-</CardGrid>
+The deeper references live in the repository's
+[docs/](https://github.com/oxidean/oxidean/tree/main/docs) tree:
+architecture, API, deployment, and testing.

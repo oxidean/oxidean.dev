@@ -21,11 +21,11 @@ of the main repository.
 | --------------------- | ----------- | ----------------------------------------------------------------------------------- |
 | `postgres.enabled`    | `true`      | Bundled Postgres vs. external `DATABASE_URL` (Postgres, MySQL, or SQLite dialects). |
 | `objectstore.enabled` | eval bundle | Bundled RustFS object store (eval-grade).                                           |
-| `seaweedfs.enabled`   | `false`     | Production-shaped bundled store — mutually exclusive with `objectstore`.            |
+| `seaweedfs.enabled`   | `false`     | Production-shaped bundled store, mutually exclusive with `objectstore`.            |
 | `runner.enabled`      | `false`     | In-cluster Actions runner for CI jobs.                                              |
 
 External S3-compatible endpoints override the same `OXIDEAN_S3_*`
-environment contract used by the Compose surface — no per-surface config
+environment contract used by the Compose surface: no per-surface config
 fork.
 
 <Aside type="tip">
@@ -35,6 +35,6 @@ fork.
 
 ## Ingress
 
-`web` is still the single HTTP origin on Kubernetes — point your ingress at
+`web` is still the single HTTP origin on Kubernetes: point your ingress at
 the `web` service for HTTP(S), and expose `OXIDEAN_SSH_PORT` (a raw TCP
 service, not HTTP) for git-over-SSH.

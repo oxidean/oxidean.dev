@@ -5,10 +5,11 @@ description: Install the oxl toolchain from a release tarball and run your first
 
 import { Aside, Steps } from "@astrojs/starlight/components";
 
-**Requires:** a C compiler (`cc`) and pthreads — `oxl build`/`run` emit C and
+**Requires:** a C compiler (`cc`) and pthreads; `oxl build`/`run` emit C and
 link through it. Programs that use the sqlite3 shims also need sqlite3 dev
 headers. The release tarball ships for Linux (x86_64); on macOS (aarch64)
-the toolchain builds from source. Windows is not supported in v0.2.0. See the
+the toolchain builds from source. Windows is not supported in v0.2.0, but
+support (MinGW/clang) is merged on `main` and ships in the next release. See the
 [v0.2.0 README](https://github.com/oxidean/oxl/blob/v0.2.0/README.md#building-the-toolchain).
 
 <Steps>
@@ -19,15 +20,15 @@ the toolchain builds from source. Windows is not supported in v0.2.0. See the
    tar xzf oxl-toolchain-linux-x86_64.tar.gz && cd oxl-toolchain
    ```
 
-2. The tarball bundles the compiler, `stdlib/`, and `examples/` — try the
+2. The tarball bundles the compiler, `stdlib/`, and `examples/`. Try the
    bundled hello world:
 
    ```bash
    ./oxl run examples/hello.oxl    # compile + run (needs cc on PATH)
    ```
 
-3. Put the toolchain on `PATH`, then write and run your own program —
-   keep `stdlib/` next to the `oxl` binary, that is where
+3. Put the toolchain on `PATH`, then write and run your own program.
+   Keep `stdlib/` next to the `oxl` binary: that is where
    `import "std/x"` resolves:
 
    ```text title="hello.oxl"
@@ -43,7 +44,7 @@ the toolchain builds from source. Windows is not supported in v0.2.0. See the
    ```
 </Steps>
 
-`oxl build` and `oxl run` invoke a C compiler for the final link — the
+`oxl build` and `oxl run` invoke a C compiler for the final link. The
 driver probes `cc` → `gcc` → `clang` (MSVC's `cl` can't take the emitted
 C). Set `LANG_CC` to override, `LANG_LDFLAGS` to append link inputs (FFI
 shim objects, libraries), and `LANG_SQLITE_SRC` to point at an
@@ -61,7 +62,7 @@ oxl lsp                         stdio LSP: diagnostics, hover, goto-definition
 ```
 
 <Aside type="note">
-	On `main` — shipping in the next release — the toolchain grows the
+	On `main`, shipping in the next release, the toolchain grows the
 	package/module system: `oxl get <path>@<query>` to fetch and pin
 	dependencies, `oxl mod init|tidy|verify|list` to maintain `oxl.mod` /
 	`oxl.sum`, and `oxl list -m all` for the MVS-selected build list.
@@ -69,7 +70,7 @@ oxl lsp                         stdio LSP: diagnostics, hover, goto-definition
 
 <Aside type="tip">
 	The repository's [`examples/`](https://github.com/oxidean/oxl/tree/main/examples)
-	directory — also bundled in the tarball — is the ground truth for what
+	directory, also bundled in the tarball, is the ground truth for what
 	works today, including the HTTP CRUD + SQLite pilot and a GTK4 todo app
 	over `extern fn` FFI. The `bootstrap/` tree holds the self-hosting proof:
 	the language's lexer, parser, checker, and C emitter written in the

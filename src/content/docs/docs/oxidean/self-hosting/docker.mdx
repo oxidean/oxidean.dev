@@ -1,6 +1,6 @@
 ---
 title: Docker Compose
-description: Run a complete Oxidean forge with Docker Compose — published images, one volume, optional TLS and Actions profiles.
+description: "Run a complete Oxidean forge with Docker Compose: published images, one volume, optional TLS and Actions profiles."
 ---
 
 import { Aside, Steps } from "@astrojs/starlight/components";
@@ -34,7 +34,7 @@ Actions jobs).
    docker compose up -d
    ```
 
-4. Open `http://localhost:8080` — **`/setup`** walks you through the
+4. Open `http://localhost:8080`. **`/setup`** walks you through the
    admin account and auth providers.
 
 </Steps>
@@ -55,12 +55,12 @@ Tear down with `docker compose down` (add `-v` to drop the data volume).
    OXIDEAN_SSH_HOST=git.example.com
    ```
 
-   `OXIDEAN_SSH_PORT` defaults to `2222` — publish it from `api` or map
+   `OXIDEAN_SSH_PORT` defaults to `2222`; publish it from `api` or map
    it through your edge.
 
 3. Provision the web-flow signing key. Auto-generation is disabled in
    production and creating a repository with a UI-seeded initial commit
-   fails closed without it — set `OXIDEAN_WEB_FLOW_PRIVATE_KEY` in
+   fails closed without it. Set `OXIDEAN_WEB_FLOW_PRIVATE_KEY` in
    `.env`, or drop `web-flow` / `web-flow.pub` into `/var/ssh` inside
    the `oxidean_data` volume:
 
@@ -70,7 +70,7 @@ Tear down with `docker compose down` (add `-v` to drop the data volume).
 
    Details: [required secrets](https://github.com/oxidean/oxidean/blob/main/docs/SELF-HOSTING.md#required-secrets).
 
-4. Set `DOMAIN` (and the posted secrets) in `.env` — leave
+4. Set `DOMAIN` (and the posted secrets) in `.env` and leave
    `OXIDEAN_ENV` unset (production default).
 
 5. Bring the edge profile up with the stack:
@@ -84,7 +84,7 @@ Tear down with `docker compose down` (add `-v` to drop the data volume).
    web:3000` line is the whole contract.
 
 6. Enable CI capacity when you need it. Runners must register before they
-   can claim jobs — mint a **one-time** registration token under **Admin →
+   can claim jobs. Mint a **one-time** registration token under **Admin →
    Runners** in the web UI (or via `admin.actions.createRegistrationToken`),
    hand it to the runner, then start the profile:
 
@@ -95,7 +95,7 @@ Tear down with `docker compose down` (add `-v` to drop the data volume).
 
    The runner persists its registration (`/data/runner.json` on its `/data`
    volume) and the token is only needed for that first enroll. The same env
-   token is **reusable while set** on the api side — fine for local eval
+   token is **reusable while set** on the api side: fine for local eval
    (set it on both `api` and `runner`), but leave it unset on
    internet-facing instances and always prefer minted one-time tokens.
 
@@ -103,6 +103,6 @@ Tear down with `docker compose down` (add `-v` to drop the data volume).
 
 <Aside type="note">
   Prefer object storage for packages/artifacts? The `s3` profile bundles an eval-grade RustFS store;
-  `OXIDEAN_STORAGE_BACKEND` and the `OXIDEAN_S3_*` set cover external endpoints too — see
+  `OXIDEAN_STORAGE_BACKEND` and the `OXIDEAN_S3_*` set cover external endpoints too; see
   [configuration](/docs/oxidean/configuration/).
 </Aside>
