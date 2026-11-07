@@ -5,7 +5,7 @@ description: The v0 surface — types, ownership, structured concurrency, module
 
 A taste of v0:
 
-```go
+```text title="surface.oxl"
 struct Point { x: int, y: int }
 
 fn fail(b: bool) -> [int, err] {
@@ -28,7 +28,8 @@ fn main() {
 
 ## The surface
 
-- **Types** — `int float bool byte str cstr err chan`, user `struct`s,
+- **Types** — `int float bool str cstr err chan` (`byte` lands on
+  `main`), user `struct`s,
   `enum` tagged unions with `match`, slices `[]T`, function values and
   closures, and methods `fn (r T) m`.
 - **Ownership** — `own T` / `ref T` / `mut T` handles with runtime borrow
@@ -38,8 +39,8 @@ fn main() {
 - **Concurrency** — `scope`/`spawn`/`go` plus `spawnBlocking` on a worker
   and blocking pool; suspend-capable functions compile to stackless state
   machines; buffered channels `mkchan(n)` and `select` multi-channel wait.
-- **Generics** — `fn f[T any]` / `fn g[T cmp.Ordered]`, monomorphized per
-  call site; `interface` op constraints.
+- **Generics** — `fn f[T ordered](a: T, b: T)`, monomorphized per call
+  site (`interface` op constraints; `main` tightens these to `cmp.Ordered`).
 - **Control flow** — `if`/`match`/`for`, `break`/`continue`, top-level
   `let` globals (process-wide state, initialized before `main`).
 - **Builtins** — `print`, `itoa`, string ops, `mkbuf`/`poke*`,
@@ -49,20 +50,35 @@ fn main() {
 
 ## The standard library
 
-`std/` ships with the toolchain — pull in any package with
+`stdlib/` ships next to the toolchain binary — pull in a package with
 `import "std/<pkg>"` (`as` aliases and `.{name, ...}` selection
-supported):
+supported). v0.2.0 ships eight:
 
-- **Core** — `strings`, `errors`, `fmt`, `strconv`, `bytes`, `bufio`,
-  `io`, `os`, `time`, `sync`, `testing`, `unicode/utf8`, `collections`
-- **Files and paths** — `path`, `path/filepath`
-- **Encoding and crypto** — `encoding/{json,base64,hex,binary,csv}`,
-  `hash`, `crypto/{sha256,md5,hmac}`, `regexp`
-- **Algorithms and CLI** — `sort`, `slices`, `maps`, `cmp`, `math`,
-  `math/rand`, `flag`, `log`
-- **Network** — `net`, `net/http` (client)
+- **`std/strings`** — `startswith`/`endswith`/`contains`, `trim`, `split`,
+  `join`, case ops
+- **`std/collections`** — hash maps (`map_new`/`map_set`/`map_get`/
+  `map_has`/`map_del`) over an FNV hasher
+- **`std/json`** — JSON values (`jobj`/`jarr`/`jstr`/…) plus parse and
+  render
+- **`std/http`** — socket + HTTP helpers (`listen`/`accept`/`read`)
+  behind the CRUD pilot
+- **`std/os`** — `args`, `readfile`/`writefile`, `quit`
+- **`std/sync`** — `mutex` (`mlock`/`munlock`) and atomic `counter`
+- **`std/testing`** — `expect`/`expect_eq`/`expect_streq` assertions for
+  `oxl test`
+- **`std/time`** — `unix`/`unix_ms` clocks, `sleep_ms`
 
-## Modules
+On `main` the library has grown well past this — `io`, `bytes`, `bufio`,
+`fmt`, `strconv`, `errors`, `path`/`filepath`, `sort`/`slices`/`maps`/`cmp`,
+`math`/`math/rand`, `unicode/utf8`, `flag`, `log`, `net`/`net/http`,
+`encoding/{json,base64,hex,binary,csv}`, `hash`,
+`crypto/{sha256,md5,hmac}`, `regexp`, and `testing` — and moves to a
+`std/` tree resolved through the module system.
+
+## Modules (on `main`)
+
+The package/module system below is merged on `main` and ships in the next
+release — the v0.2.0 binary predates it, resolving `std/` imports only.
 
 Packages are directories of `.oxl` files that share a `package` clause;
 `package main` marks an executable. A project opts into module mode by
@@ -91,7 +107,7 @@ never references doesn't build either.
 checkout — into a read-only content-addressed cache, upserts the `require`
 line, and pins `h1:` hashes in `oxl.sum`. Every build verifies cached
 modules against `oxl.sum`; queries are `@latest`, `@vX.Y.Z`, or a
-branch/SHA recorded as a Go-style pseudo-version. `replace` directories
+branch/SHA recorded as a pseudo-version `v0.0.0-<timestamp>-<sha>`. `replace` directories
 bypass cache and sums by design, and private repos work through git's own
 auth. `oxl mod init|tidy|verify|list` keeps the manifest and sums in sync
 so neither is edited by hand.

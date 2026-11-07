@@ -1,6 +1,6 @@
 ---
 title: oxl
-description: A lean, compiled language for CLI tools and services — Go-shaped DX on a runtime with no tracing GC.
+description: A lean, compiled language for CLI tools and services — memory safety from dynamic ownership checking, no tracing GC.
 ---
 
 import { Aside, CardGrid, LinkCard } from "@astrojs/starlight/components";
@@ -11,13 +11,16 @@ from **dynamic ownership/borrow checking**, structured concurrency
 toolchain binary. MIT-licensed.
 
 <Aside type="caution" title="Status: v0.2.0">
-	v0.2.0 is released and the package/module system (`oxl.mod`, `oxl get`,
-	`oxl mod`, MVS build lists) is on `main`. The compiler works end to end —
-	the programs in `examples/` compile to native binaries today, including
-	an HTTP CRUD + SQLite service and a GTK4 todo app — and the toolchain's
-	own lexer, parser, checker, and C emitter are written in oxl and compile
-	themselves. Still v0: expect movement; the design spec is the source of
-	truth.
+	v0.2.0 is released — the released binary covers `build`/`run`/`test`/
+	`fmt`/`doc`/`lsp`; the package/module system (`oxl.mod`, `oxl get`,
+	`oxl mod`, MVS build lists) is merged on `main` and ships next. The
+	compiler works end to end — the programs in `examples/` compile to
+	native binaries today, including an HTTP CRUD + SQLite service and a
+	GTK4 todo app — and the toolchain's own lexer, parser, checker, and C
+	emitter are written in oxl and compile themselves. Still v0: dynamic
+	checking is not yet unconditional — two documented gaps remain in
+	[`docs/semantics/ownership.md`](https://github.com/oxidean/oxl/blob/main/docs/semantics/ownership.md) —
+	and the design spec is the source of truth.
 </Aside>
 
 ## Design in one breath
@@ -29,8 +32,8 @@ toolchain binary. MIT-licensed.
   ~96 B frames, not threads.
 - **Errors you can't drop** — `[v, err]` returns; dropping the error is a
   compile error.
-- **One toolchain** — `oxl build|run|test|fmt|doc|get|mod|lsp`, AOT to
-  native through a C backend. Linux (x86_64), macOS (aarch64), and Windows
+- **One toolchain** — `oxl build|run|test|fmt|doc|lsp` today (`get`/`mod`
+  on `main`), AOT to native through a C backend. Linux (x86_64), macOS (aarch64), and Windows
   (x86_64).
 
 ## Where to next
@@ -39,7 +42,7 @@ toolchain binary. MIT-licensed.
 	<LinkCard
 		title="Get the toolchain"
 		href="/docs/oxl/getting-started/"
-		description="cargo build --release, PATH, first binary."
+		description="Download the tarball, PATH, first binary."
 	/>
 	<LinkCard
 		title="The language"

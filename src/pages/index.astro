@@ -33,7 +33,7 @@ const products = [
 		tag: "the language",
 		name: "oxl",
 		blurb:
-			"A lean language for CLI tools and services — Go-shaped DX on a runtime with no tracing GC.",
+			"A lean language for CLI tools and services — dynamic ownership checks, no tracing GC.",
 		points: [
 			"Dynamic ownership & borrow checks",
 			"Structured concurrency, ~96 B tasks",
@@ -41,7 +41,7 @@ const products = [
 		],
 		docs: "/docs/oxl/",
 		repo: "https://github.com/oxidean/oxl",
-		badge: "v0.0.1",
+		badge: "v0.2.0",
 	},
 ];
 
@@ -320,15 +320,15 @@ const forgePoints = [
 					oxl · the language
 				</p>
 				<h2 class="oct-reveal mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-					Go-shaped DX. No tracing GC.
+					Dynamic ownership. No tracing GC.
 				</h2>
 				<p class="oct-reveal mt-3 max-w-xl text-muted-foreground">
 					oxl is built for CLI tools and services: dynamic ownership and borrow
 					checking for memory safety, structured concurrency on ~96-byte task
 					frames, and ahead-of-time native binaries from one toolchain. The
 					compiler runs end to end today —{" "}
-					<span class="font-mono text-[0.9em] text-foreground">v0.0.1</span>,
-					and moving fast.
+					<span class="font-mono text-[0.9em] text-foreground">v0.2.0</span>{" "}
+					released, and the toolchain compiles itself.
 				</p>
 				<div class="oct-reveal mt-6 flex flex-wrap gap-3">
 					<a
