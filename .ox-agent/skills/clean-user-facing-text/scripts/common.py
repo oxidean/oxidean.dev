@@ -1,9 +1,10 @@
-"""Shared helpers for remove-ai-marks scripts."""
+"""Shared helpers for the text-hygiene audit and clean scripts."""
 
 from __future__ import annotations
 
 import contextlib
 import json
+from collections.abc import Callable
 import os
 import stat
 import subprocess
@@ -51,7 +52,10 @@ def _reconfigure_stream(stream: Any, errors: str) -> None:
 
 def _configure_stdio() -> None:
     _reconfigure_stream(sys.stdin, "surrogateescape")
-    _reconfigure_stream(sys.stdout, "backslashreplace")
+    # stdout round-trips input bytes faithfully: bytes that arrived via
+    # surrogateescape stdin decode write back out as the original bytes.
+    # stderr keeps backslashreplace — diagnostics must stay readable.
+    _reconfigure_stream(sys.stdout, "surrogateescape")
     _reconfigure_stream(sys.stderr, "backslashreplace")
 
 
@@ -94,6 +98,115 @@ BINARY_MAGIC: tuple[tuple[bytes, str], ...] = (
 
 BINARY_SNIFF_BYTES = 8192
 
+
+def _bmp_structural(d: bytes) -> bool:
+    """BMP: size/reserved fields coherent, DIB header a defined version."""
+    if len(d) < 26:
+        return False
+    size = int.from_bytes(d[2:6], "little")
+    if size not in (0, len(d)):
+        return False
+    if int.from_bytes(d[6:10], "little") != 0:
+        return False
+    offset = int.from_bytes(d[10:14], "little")
+    if not 14 <= offset <= len(d):
+        return False
+    return int.from_bytes(d[14:18], "little") in {12, 16, 40, 52, 56, 64, 108, 124}
+
+
+def _riff_structural(d: bytes) -> bool:
+    """RIFF: declared chunk size is filesize-8 (or a streaming sentinel)."""
+    if len(d) < 12:
+        return False
+    declared = int.from_bytes(d[4:8], "little")
+    if declared not in (len(d) - 8, 0, 0xFFFFFFFF):
+        return False
+    return all(0x20 <= b <= 0x7E for b in d[8:12])
+
+
+def _sfnt_structural(d: bytes) -> bool:
+    """OTTO sfnt: plausible numTables and a printable first table tag."""
+    if len(d) < 16:
+        return False
+    num_tables = int.from_bytes(d[4:6], "big")
+    if not 1 <= num_tables <= 255 or len(d) < 12 + 16 * num_tables:
+        return False
+    return all(0x20 <= b <= 0x7E for b in d[12:16])
+
+
+def _gif_structural(d: bytes) -> bool:
+    """GIF: sane logical screen descriptor; first block byte is an introducer."""
+    if len(d) < 13:
+        return False
+    if int.from_bytes(d[6:8], "little") == 0 or int.from_bytes(d[8:10], "little") == 0:
+        return False
+    pos = 13
+    if d[10] & 0x80:
+        pos += 3 * (1 << ((d[10] & 0x07) + 1))
+        if pos > len(d):
+            return False
+    return pos == len(d) or d[pos] in (0x21, 0x2C, 0x3B)
+
+
+def _ogg_structural(d: bytes) -> bool:
+    """Ogg: capture version 0, known header type, segment table fits."""
+    return len(d) >= 27 and d[4] == 0 and d[5] in (0, 1, 2) and len(d) >= 27 + d[26]
+
+
+def _bzip2_structural(d: bytes) -> bool:
+    """bzip2: block-size digit then stream magic (block header or EOS)."""
+    return len(d) >= 10 and d[3] in b"123456789" and d[4:10] in (
+        b"1AY&SY",
+        b"\x17rE8P\x90",
+    )
+
+
+def _woff_structural(d: bytes) -> bool:
+    """WOFF/WOFF2: length field records the exact total size."""
+    return len(d) >= 44 and int.from_bytes(d[8:12], "big") == len(d)
+
+
+def _psd_structural(d: bytes) -> bool:
+    """PSD: reserved block zero, channels/depth/color-mode in spec ranges."""
+    return (
+        len(d) >= 26
+        and int.from_bytes(d[4:6], "big") in (1, 2)
+        and d[6:12] == b"\x00" * 6
+        and 1 <= int.from_bytes(d[12:14], "big") <= 56
+        and int.from_bytes(d[22:24], "big") in (1, 8, 16, 32)
+        and int.from_bytes(d[24:26], "big") <= 15
+    )
+
+
+def _pdf_structural(d: bytes) -> bool:
+    """PDF: version token '%PDF-X.Y' ends the header line."""
+    return (
+        len(d) >= 9
+        and d[5:6].isdigit()
+        and d[6:7] == b"."
+        and d[7:8].isdigit()
+        and d[8] in (0x0A, 0x0D)
+    )
+
+
+# ASCII-magics that collide with ordinary prose (a file may legitimately
+# start "BMW sales…", "RIFF containers…", "OTTO builds…") must satisfy the
+# container's header invariants before we refuse it as binary. Magics absent
+# from this table contain non-ASCII bytes and stay unconditionally decisive.
+_BINARY_STRUCTURE_CHECKS: dict[bytes, Callable[[bytes], bool]] = {
+    b"BM": _bmp_structural,
+    b"RIFF": _riff_structural,
+    b"OTTO": _sfnt_structural,
+    b"GIF87a": _gif_structural,
+    b"GIF89a": _gif_structural,
+    b"OggS": _ogg_structural,
+    b"BZh": _bzip2_structural,
+    b"wOFF": _woff_structural,
+    b"wOF2": _woff_structural,
+    b"8BPS": _psd_structural,
+    b"%PDF-": _pdf_structural,
+}
+
 # Real text runs ~0% control bytes; compressed and executable data runs far
 # above this. Tab, LF, CR, FF and ESC are excluded as legitimate in text.
 _CONTROL_RATIO_LIMIT = 0.05
@@ -110,7 +223,9 @@ def looks_binary(data: bytes) -> str | None:
         return None
     for magic, label in BINARY_MAGIC:
         if data.startswith(magic):
-            return label
+            check = _BINARY_STRUCTURE_CHECKS.get(magic)
+            if check is None or check(data):
+                return label
     head = data[:BINARY_SNIFF_BYTES]
     if b"\x00" in head:
         return "binary data (contains NUL bytes)"
@@ -120,18 +235,10 @@ def looks_binary(data: bytes) -> str | None:
     return None
 
 
-# Advice for the text-only scripts: another tool in this repo handles the file.
+# Advice for the text-only scripts: point at the inspector that ships here.
 TEXT_TOOL_ADVICE = (
-    "Use inspect_file.py / clean_file.py, which route by format,",
+    "Run inspect_text.py to see what the bytes contain,",
     "or pass --force-text to scan the raw bytes anyway.",
-)
-
-# Advice for the routers themselves. They *are* inspect_file.py / clean_file.py,
-# and classify() has already ruled out every known container, so pointing back
-# at them would be circular.
-ROUTER_ADVICE = (
-    "These bytes match no supported text, image or container format.",
-    "Pass --force-text to handle them as text anyway, or --as to force a format.",
 )
 
 
@@ -245,9 +352,12 @@ def _read_stdin_capped(
 
 def write_text_output(text: str, path: str | None) -> None:
     if path is None or path == "-":
-        sys.stdout.write(text)
-        if text and not text.endswith("\n"):
-            sys.stdout.write("\n")
+        # Byte-exact contract: write the encoded text verbatim — no appended
+        # newline and no text-layer newline translation (Windows). Flush the
+        # text layer first so earlier eprint output keeps its order.
+        sys.stdout.flush()
+        sys.stdout.buffer.write(text.encode("utf-8", "surrogateescape"))
+        sys.stdout.buffer.flush()
         return
     safe_write_text(path, text)
 
@@ -273,17 +383,37 @@ def safe_write_bytes(path: str | Path, data: bytes) -> None:
     parent.mkdir(parents=True, exist_ok=True)
     if dest.is_symlink():
         raise OSError(f"refusing to write through symlink: {dest}")
+    # An existing destination keeps its restrictions and exec bits — an
+    # in-place clean must not silently widen a 0600 file to the umask
+    # default or strip an executable bit. New files get the umask default.
+    # POSIX ACLs ride in xattrs, so they are carried best-effort too;
+    # ownership cannot survive a rename without elevated privileges.
+    preserve_mode: int | None = None
+    xattrs: dict[str, bytes] = {}
+    if dest.exists():
+        try:
+            preserve_mode = stat.S_IMODE(dest.stat().st_mode)
+        except OSError:
+            preserve_mode = None
+        if hasattr(os, "listxattr"):
+            with contextlib.suppress(OSError):
+                for name in os.listxattr(dest, follow_symlinks=False):
+                    xattrs[name] = os.getxattr(dest, name, follow_symlinks=False)
     fd, tmp_name = tempfile.mkstemp(prefix=f".{dest.name}.", suffix=".tmp", dir=str(parent))
     try:
-        # mkstemp creates 0600; restore the umask-default mode so outputs
-        # keep normal permissions. Windows has no fchmod and no POSIX mode
-        # bits to restore, so the call is skipped there.
+        # mkstemp creates 0600; restore the destination's existing mode or,
+        # for a new file, the umask default. Windows has no fchmod and no
+        # POSIX mode bits to restore, so the call is skipped there.
         if hasattr(os, "fchmod"):
-            os.fchmod(fd, _default_file_mode())
+            os.fchmod(fd, preserve_mode if preserve_mode is not None else _default_file_mode())
         with os.fdopen(fd, "wb") as f:
             f.write(data)
             f.flush()
             os.fsync(f.fileno())
+        if xattrs and hasattr(os, "setxattr"):
+            for name, value in xattrs.items():
+                with contextlib.suppress(OSError):
+                    os.setxattr(tmp_name, name, value)
         os.replace(tmp_name, dest)
     except BaseException:
         with contextlib.suppress(OSError):
@@ -349,25 +479,36 @@ def backup_path(src: Path) -> tuple[Path, bool]:
     A pre-existing ``.bak`` is preserved, not overwritten — the second run of
     an auto-fix hook (clean → commit-blocked → re-stage → clean again) used to
     back up the first run's output over the original, destroying the only
-    pristine copy (#172). The path is reserved atomically with ``O_EXCL``: only
-    one process/run creates the ``.bak``, and any later call that loses the
-    creation race keeps the already-existing pristine copy instead of backing
-    up possibly already-cleaned text. The returned tuple's second element
-    reports whether this call created the backup or kept an existing one.
+    pristine copy (#172). Instead the current input is backed up under the
+    next free ``.bakN`` slot, so the pre-overwrite state of every run is
+    recoverable. The path is reserved atomically with ``O_EXCL``: only one
+    process/run creates a given backup name. A symlinked or otherwise
+    non-regular ``.bak`` is refused rather than written through or mistaken
+    for a real backup. The returned tuple's second element reports whether
+    this call created a backup.
     """
     bak = src.with_suffix(src.suffix + ".bak")
-    if bak.exists() and not bak.is_file():
-        eprint(f"cannot create backup {bak}: target exists and is not a regular file")
-        raise SystemExit(2)
     try:
-        fd = os.open(bak, os.O_WRONLY | os.O_CREAT | os.O_EXCL, _default_file_mode())
-    except FileExistsError:
-        # Another process or a previous run reserved the backup first; it holds
-        # the pristine copy, so write nothing through the existing path.
-        return bak, False
-    except OSError as e:
-        eprint(f"cannot create backup {bak}: {e}")
-        raise SystemExit(2) from None
+        src_mode = stat.S_IMODE(src.stat().st_mode)
+    except OSError:
+        src_mode = _default_file_mode()
+    attempts = 0
+    while True:
+        if bak.is_symlink() or (bak.exists() and not bak.is_file()):
+            eprint(f"cannot create backup {bak}: target exists and is not a regular file")
+            raise SystemExit(2)
+        try:
+            fd = os.open(bak, os.O_WRONLY | os.O_CREAT | os.O_EXCL, src_mode)
+            break
+        except FileExistsError:
+            attempts += 1
+            if attempts > 1000:
+                eprint(f"cannot create backup for {src}: too many existing .bakN files")
+                raise SystemExit(2) from None
+            bak = src.with_suffix(src.suffix + f".bak{attempts + 1}")
+        except OSError as e:
+            eprint(f"cannot create backup {bak}: {e}")
+            raise SystemExit(2) from None
     try:
         with os.fdopen(fd, "wb") as f:
             f.write(src.read_bytes())

@@ -513,13 +513,18 @@ def main() -> int:
     )
     p.add_argument("--json", action="store_true", help="Emit JSON output")
     p.add_argument(
+        "--force-text",
+        action="store_true",
+        help="Score input even when it looks like a binary format",
+    )
+    p.add_argument(
         "--explain", action="store_true", help="Include detailed matched phrase breakdown"
     )
 
     args = p.parse_args()
 
     # read_text_input raises SystemExit(2) on unreadable/oversized/non-regular input.
-    text = read_text_input(args.path)
+    text = read_text_input(args.path, allow_binary=args.force_text)
 
     input_label = "<stdin>" if args.path == "-" else args.path
     report = score_text_stylometry(text, path=input_label)

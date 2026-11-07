@@ -15,7 +15,7 @@ Apply a final text-hygiene pass to prose the user owns or is authorized to proce
    - commands, paths, URLs, identifiers, API names, and exact values
    - formulas, citations, and text the user asks to quote verbatim
 3. Preserve every claim, fact, number, name, citation, and requirement. Never invent a detail, name, number, quote, or source to make the prose easier to write or more varied: if a fact is missing, flag the gap rather than fill it. The rewrite may sharpen, compress, or reorder, but it may not add or remove claims.
-4. **Measure before.** Inspect and score the input with the vendored zero-LLM stylometry estimator (see Scoring) and record the score. Read the report's `density_tier`: rewrite only when it is `high`; for `low` or `medium`, verify the text and otherwise leave the text unchanged. For a flag-only audit that never rewrites, use `--audit`:
+4. **Measure before.** Inspect and score the input with the vendored zero-LLM stylometry estimator (see Scoring) and record the score. Read the report's `density_tier`: rewrite only when it is `high`; for `low`, `medium`, or `uncalibrated` (the sample was too short to score), verify the text and otherwise leave it unchanged — `uncalibrated` is treated like `low`/`medium`, never as a rewrite trigger. For a flag-only audit that never rewrites, use `--audit`:
 
    ```bash
    PYTHON "$SCRIPTS/inspect_text.py" --stylometry --json INPUT
@@ -42,7 +42,7 @@ Apply a final text-hygiene pass to prose the user owns or is authorized to proce
    - preserve the requested language, tone, structure, and formatting; never translate unless asked
    - for non-English text, use fluent constructions native to that language rather than English sentence patterns
    - do not add or remove claims merely to increase variation
-8. **Layer A again.** Run the deterministic Unicode pass on the rewritten result to catch any artifacts the rewrite introduced (smart quotes, em dashes, homoglyphs):
+8. **Layer A again.** Run the deterministic Unicode pass on the rewritten result to catch any artifacts the rewrite introduced:
 
    ```bash
    PYTHON "$SCRIPTS/clean_text.py" OUTPUT -o FINAL --stats --no-normalize-spaces
@@ -63,8 +63,9 @@ pipeline: sentence-length burstiness (coefficient of variation), weighted AI-cad
 phrase density per 100 words, lexical diversity (MATTR), and a dampened composite
 score from 0 to 1. Exit code 1 means the score is at or above the threshold
 (default 0.65). The report also carries a `density_tier` (`low` / `medium` /
-`high`, or `uncalibrated` when not scored) that re-labels where the score sits
-so the rewrite pass engages only for `high`. `inspect_text.py --audit` produces
+`high`, or `uncalibrated` when the sample is too short to score) that re-labels where the score sits
+so the rewrite pass engages only for `high`; `uncalibrated` follows the
+`low`/`medium` rule — verify, otherwise leave unchanged. `inspect_text.py --audit` produces
 the same scoring plus the detect-only flagged-span list but never rewrites.
 Under 30 words the estimator reports `status: insufficient_length` instead of a
 score. Nothing here calls the network; the skill stays self-contained.
@@ -113,9 +114,9 @@ Statistical detectors score probability patterns: AI prose is too predictable (l
 perplexity), too even (low burstiness), and too full of stock phrases. The levers
 below target those signals, most effective first. Levers 1, 2, and 6 are
 deterministic or near-deterministic; 3 to 5 are aims, not guarantees. Engage the
-rewrite levers only when the measure-before `density_tier` is `high`; for `low`
-or `medium`, the measurable AI-density signals are weak, so verify and otherwise
-leave the text unchanged. The pass ordering below follows the pattern
+rewrite levers only when the measure-before `density_tier` is `high`; for `low`,
+`medium`, or `uncalibrated`, the measurable AI-density signals are weak or
+absent, so verify and otherwise leave the text unchanged. The pass ordering below follows the pattern
 catalogs in `references/detectors.md`.
 
 1. **Strip artifacts first (always).** Run the deterministic Unicode pass
@@ -189,3 +190,23 @@ When the user asks for an audit, distinguish:
 - **Not established:** official detector evasion, human authorship, or removal of a vendor's secret-key watermark.
 
 For technical background, read `references/watermark-notes.md`. For misuse or disclosure questions, read `references/responsible-use.md`.
+
+## Invocation contract
+
+- You run against a work-item packet (JSON): `context` carries the bounded inputs, `constraints` the limits, and `output` declares where to write your result (`output.path`, relative to `.ox-agent/`) and the schema it must satisfy (`output.schema`).
+- Write exactly one JSON object to `output.path`. `ox-agent` schema-validates it on collection, journals the outcome, and applies your declared `next_action`.
+- `next_action.type` must be one of `advance_stage` (unit of work done — move to the next stage), `retry` (needs another pass — the run does not count as done, so the skill stays dispatchable), `escalate` (blocked on work — needs a human), `await_input` (needs a human answer — the run files a durable request and stays dispatchable), or `complete` (stage/pipeline finished). Always include a `reason`.
+
+## Consumes
+
+- the work-item packet — `context.references`/`allowed_paths` naming the prose file(s) or excerpts to audit, and any `context.standards` voice rules.
+
+## Produces
+
+- the cleaned/audited file(s) plus a `findings` report: Unicode hits by kind, stylometry score and `density_tier` before/after, and which claims were verifiable vs best-effort.
+
+## Evaluation
+
+Self-report quality flags in `eval` (booleans — set each true only when
+genuinely satisfied): `unicode_reported`, `measured_before`, `preserves_facts`. `preserves_scope` reports that you stayed
+inside the supplied context and constraints.

@@ -374,16 +374,19 @@ def _is_cjk_ideograph(cp: int) -> bool:
     )
 
 
-def _is_mongolian_base(cp: int) -> bool:
-    return 0x1800 <= cp <= 0x18AF
-
-
 def _is_variation_selector(cp: int) -> bool:
     return cp in _VS_SUPPLEMENT or 0xFE00 <= cp <= 0xFE0F or cp in _MONGOLIAN_FVS
 
 
+# Emoji subdivision flags are the only legitimate use of the tag block, and
+# the RGI set is exactly three codes (England, Scotland, Wales — ISO 3166-2
+# subdivisions of GB). A black flag followed by any other tag run spells
+# arbitrary ASCII — steganography, not a flag — so it is not preserved.
+_KNOWN_FLAG_TAGS = frozenset({"gbeng", "gbsct", "gbwls"})
+
+
 def _valid_flag_tag_indices(text: str) -> set[int]:
-    """Indices in complete subdivision-flag tag sequences."""
+    """Indices in complete, recognized subdivision-flag tag sequences."""
     valid: set[int] = set()
     i = 0
     while i < len(text):
@@ -394,7 +397,9 @@ def _valid_flag_tag_indices(text: str) -> set[int]:
         while j < len(text) and 0xE0020 <= ord(text[j]) <= 0xE007E:
             j += 1
         if j > i + 1 and j < len(text) and ord(text[j]) == 0xE007F:
-            valid.update(range(i + 1, j + 1))
+            code = "".join(chr(ord(text[k]) - 0xE0000) for k in range(i + 1, j))
+            if code in _KNOWN_FLAG_TAGS:
+                valid.update(range(i + 1, j + 1))
             i = j + 1
         else:
             i += 1
@@ -459,6 +464,7 @@ def _decide(
     *,
     valid_flag_tag: bool,
     valid_bidi_embedding: bool,
+    script_glue_run: int,
     normalize_spaces: bool,
     treat_confusables: bool,
     strip_emoji_glue: bool,
@@ -479,7 +485,7 @@ def _decide(
         prev_cp = ord(prev_input)
         if cp in _VS_SUPPLEMENT and _is_cjk_ideograph(prev_cp):
             return ("keep", ch, None)
-        if cp in _MONGOLIAN_FVS and _is_mongolian_base(prev_cp):
+        if cp in _MONGOLIAN_FVS and _is_mongolian_letter(prev_cp):
             return ("keep", ch, None)
         if 0xFE00 <= cp <= 0xFE0D and _is_cjk_ideograph(prev_cp):
             return ("keep", ch, None)
@@ -503,11 +509,21 @@ def _decide(
         if cp in _TAG_RANGE and valid_flag_tag:
             return ("keep", ch, None)
         if cp in _MONGOLIAN_FVS and prev_kept is not None and _is_mongolian_letter(ord(prev_kept)):
-            return ("keep", ch, None)
+            # One FVS per letter is a valid variant choice; repeats are not.
+            if script_glue_run < 1:
+                return ("keep", ch, None)
+            return ("strip", "", "excess_script_glue")
         if cp in _KHMER_VOWELS and prev_kept is not None and _is_khmer_letter(ord(prev_kept)):
-            return ("keep", ch, None)
+            # One inherent vowel sign per consonant.
+            if script_glue_run < 1:
+                return ("keep", ch, None)
+            return ("strip", "", "excess_script_glue")
         if cp in _HANGUL_FILLERS and prev_kept is not None and _is_hangul_jamo(ord(prev_kept)):
-            return ("keep", ch, None)
+            # A legitimate empty syllable block is one choseong filler plus
+            # one jungseong filler; runs beyond the pair are payload.
+            if script_glue_run < 2:
+                return ("keep", ch, None)
+            return ("strip", "", "excess_script_glue")
         if cp in _ORTHOGRAPHIC_CF:
             return ("keep", ch, None)
         script = _layout_cf_script(cp)
@@ -583,6 +599,7 @@ def inspect_text(
 ) -> TextInspectReport:
     buckets: dict[tuple[int, str], list[int]] = {}
     prev_kept: str | None = None
+    script_glue_run = 0
     valid_flag_tags = _valid_flag_tag_indices(text)
     valid_bidi_embeddings = _valid_bidi_embedding_indices(text)
     for i, ch in enumerate(text):
@@ -593,11 +610,16 @@ def inspect_text(
             text[i + 1] if i + 1 < len(text) else None,
             valid_flag_tag=i in valid_flag_tags,
             valid_bidi_embedding=i in valid_bidi_embeddings,
+            script_glue_run=script_glue_run,
             normalize_spaces=True,
             treat_confusables=aggressive,
             strip_emoji_glue=strip_emoji_glue,
             strip_bidi=True,
         )
+        if ord(ch) in _SCRIPT_GLUE:
+            script_glue_run += 1
+        else:
+            script_glue_run = 0
         if kind is None:
             # Kept; glue (emoji/script joiner/tag) does not advance the
             # "previous kept" base so ZWJ chains and flag runs stay bound.
@@ -629,7 +651,7 @@ def inspect_text(
     notes = [
         "Layer A only: invisible/format Unicode and space homoglyphs (edit-based carriers).",
         "Statistical (token-sampling) watermarks are not detectable here; use Layer B rewrite.",
-        "Inspect kinds: strip, bidi, tag_chars, variation_selector, zwj_family, private_use, space, confusable, other_cf.",
+        "Inspect kinds: strip, bidi, tag_chars, variation_selector, zwj_family, private_use, space, confusable, excess_script_glue, other_cf.",
         "Load-bearing invisibles are preserved by default during cleaning: emoji glue, CJK/Mongolian variation selectors, script joiners, complete flag tag sequences, same-script fillers/selectors (Mongolian FVS, Khmer inherent vowels, Hangul jamo fillers), RTL directional marks/paired embeddings, orthographic Arabic/Syriac Cf marks, and visible-layout format controls next to their own script (Egyptian hieroglyph quadrat, Duployan shorthand, musical beaming). Inspection still reports bidi controls. Use explicit strip flags only after review.",
     ]
     if not hits:
@@ -654,6 +676,7 @@ def clean_text(
     replaced: Counter[str] = Counter()
     out_chars: list[str] = []
     prev_kept: str | None = None
+    script_glue_run = 0
     valid_flag_tags = _valid_flag_tag_indices(text)
     valid_bidi_embeddings = _valid_bidi_embedding_indices(text)
 
@@ -665,6 +688,7 @@ def clean_text(
             text[i + 1] if i + 1 < len(text) else None,
             valid_flag_tag=i in valid_flag_tags,
             valid_bidi_embedding=i in valid_bidi_embeddings,
+            script_glue_run=script_glue_run,
             normalize_spaces=normalize_spaces,
             treat_confusables=aggressive_homoglyphs,
             strip_emoji_glue=strip_emoji_glue,
@@ -683,6 +707,10 @@ def clean_text(
         else:  # strip
             removed[_char_label(ch)] += 1
             # prev_kept unchanged
+        if ord(ch) in _SCRIPT_GLUE:
+            script_glue_run += 1
+        else:
+            script_glue_run = 0
 
     result = "".join(out_chars)
     nfkc_changed = False
