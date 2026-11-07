@@ -138,6 +138,12 @@
     opacity: 1;
     transform: translateY(0);
   }
+  @media (scripting: none) {
+    .oct-reveal:not(.oct-reveal-in) {
+      opacity: 1;
+      transform: none;
+    }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .oct-rise {
