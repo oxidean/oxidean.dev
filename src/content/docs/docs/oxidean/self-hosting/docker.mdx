@@ -83,11 +83,21 @@ Tear down with `docker compose down` (add `-v` to drop the data volume).
    `web:3000`. Running your own edge instead? One `reverse_proxy
    web:3000` line is the whole contract.
 
-6. Enable CI capacity when you need it:
+6. Enable CI capacity when you need it. Runners must register before they
+   can claim jobs — mint a **one-time** registration token under **Admin →
+   Runners** in the web UI (or via `admin.actions.createRegistrationToken`),
+   hand it to the runner, then start the profile:
 
    ```bash
+   # .env: OXIDEAN_RUNNER_REGISTRATION_TOKEN=<one-time token>
    docker compose --profile actions up -d
    ```
+
+   The runner persists its registration (`/data/runner.json` on its `/data`
+   volume) and the token is only needed for that first enroll. The same env
+   token is **reusable while set** on the api side — fine for local eval
+   (set it on both `api` and `runner`), but leave it unset on
+   internet-facing instances and always prefer minted one-time tokens.
 
 </Steps>
 

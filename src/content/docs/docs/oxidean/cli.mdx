@@ -34,12 +34,13 @@ ox config list|get|set               # local config (tokens redacted)
 ```
 
 Scripts and CI authenticate with an access token created under **Settings →
-Applications** in the web UI.
+Personal access tokens** in the web UI.
 
 ## The everyday surface
 
 ```bash
-ox repo view|create|fork octo/demo
+ox repo view|fork octo/demo             # fork: [--into-owner o] [--into-name n]
+ox repo create demo [--org octo] [--visibility public|private]
 ox repo edit|rename|archive|transfer|delete o/n
 ox repo clone|sync o/n               # clone runs git clone locally
 ox repo star|watch o/n
@@ -107,7 +108,7 @@ shape:
 
 ```bash
 ox repo list --json | jq '.data.repos[].name'
-ox issue list octo/demo --jq '.issues[] | "\(.number)\t.title"'
+ox issue list octo/demo --jq '.issues[] | "\(.number)\t\(.title)"'
 ```
 
 [`ox api`](https://github.com/oxidean/oxidean/blob/main/docs/API.md) is the
