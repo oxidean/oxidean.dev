@@ -1,4 +1,4 @@
-import { Check, Copy } from "@octanejs/lucide";
+import { Check, Copy, X } from "@octanejs/lucide";
 import { useEffect, useState } from "octane";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +14,7 @@ export function CopyCommand({
   className?: string;
 }) @{
   const [copied, setCopied] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     if (!copied) return;
@@ -21,12 +22,19 @@ export function CopyCommand({
     return () => clearTimeout(t);
   }, [copied]);
 
+  useEffect(() => {
+    if (!failed) return;
+    const t = setTimeout(() => setFailed(false), 2400);
+    return () => clearTimeout(t);
+  }, [failed]);
+
   async function copy() {
     try {
       await navigator.clipboard.writeText(command);
       setCopied(true);
+      setFailed(false);
     } catch {
-      // clipboard API unavailable (non-secure context) — leave the pill readable
+      setFailed(true);
     }
   }
 
@@ -34,7 +42,7 @@ export function CopyCommand({
     <button
       type="button"
       onClick={copy}
-      title="Copy to clipboard"
+      title={failed ? "Copy failed — select the command text" : "Copy to clipboard"}
       className={cn(
         "group inline-flex h-11 items-center gap-3 rounded-md border border-border bg-card pl-4 pr-3",
         "transition-colors duration-150 hover:border-foreground/30 hover:bg-muted",
@@ -45,7 +53,11 @@ export function CopyCommand({
       <code className="font-mono text-[13px] text-foreground">{command}</code>
       @if (copied) {
         <Check aria-hidden size={14} className="text-success" />;
-      } @else {
+      }
+      @if (!copied && failed) {
+        <X aria-hidden size={14} className="text-destructive" />;
+      }
+      @if (!copied && !failed) {
         <Copy
           aria-hidden
           size={14}
