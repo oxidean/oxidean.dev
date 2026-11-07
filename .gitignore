@@ -7,3 +7,8 @@ tmp/
 .env
 .env.*
 !.env.example
+
+# Materialized product docs (docs:sync output — sources live in product repos)
+src/content/docs/docs/oxidean/
+src/content/docs/docs/ox-agent/
+src/content/docs/docs/oxl/

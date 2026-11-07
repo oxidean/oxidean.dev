@@ -27,12 +27,12 @@ Org site for the Oxidean GitHub org — landing + per-product docs covering the 
 
 ### Stack (do not invent alternatives)
 
-| Layer          | Tech                                                                                                                                                  |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Pages          | Astro `src/pages/**` + `src/layouts/SiteShell.astro`                                                                                                  |
-| Interactive UI | **Octane** `.tsrx` islands (`src/components/`), `client:load` — not React                                                                             |
-| Docs           | Starlight (`@astrojs/starlight`) — content in `src/content/docs/docs/` (nested dir ⇒ `/docs/*` URLs; product subdirs `oxidean/`, `ox-agent/`, `oxl/`) |
-| Styling        | Tailwind v4 via `@tailwindcss/vite`; brand tokens in `src/styles/tokens.css` (Tailwind-free — Starlight imports it too)                               |
+| Layer          | Tech                                                                                                                                                                                                    |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pages          | Astro `src/pages/**` + `src/layouts/SiteShell.astro`                                                                                                                                                    |
+| Interactive UI | **Octane** `.tsrx` islands (`src/components/`), `client:load` — not React                                                                                                                               |
+| Docs           | Starlight (`@astrojs/starlight`) — product docs materialized from release bundles into `src/content/docs/docs/<product>/<version>/` (nested dir ⇒ `/docs/*` URLs); the hub `index.mdx` is authored here |
+| Styling        | Tailwind v4 via `@tailwindcss/vite`; brand tokens in `src/styles/tokens.css` (Tailwind-free — Starlight imports it too)                                                                                 |
 
 ### Octane is not React JSX
 
@@ -45,8 +45,31 @@ bun install
 bun run dev / build / preview
 bun run lint            # type-aware oxlint (web type gate — plain tsc doesn't know .tsrx)
 bun run format:check    # oxfmt + prettier --check (fix with bun run format)
+bun run docs:sync       # fetch + unpack locked docs bundles (warns if a release lacks one)
+bun run docs:update     # discover new docs bundles on releases, rewrite the lockfile
 scripts/commit-check.sh --range origin/main..HEAD
 ```
+
+### Docs flow (docs-manifest contract)
+
+Product docs are **authored upstream**, never in this repo. Each product repo
+keeps a curated `docs/site/` subtree + `manifest.yaml` (`manifest_version: 1`;
+validator/packer: [oxidean/docs-manifest](https://github.com/oxidean/docs-manifest)),
+CI-validates it, and attaches `docs-<ver>.tar.gz` to each matching release
+(`v*` for Ox-Agent/oxl, `ox-v*` for the forge monorepo).
+
+- `docs-versions.lock.json` (committed) pins per-product versions:
+  `{source, tag_pattern, default, versions[{version, tag, url, sha256, pages}]}`
+  — `pages` is the bundle manifest's sidebar tree, captured by `docs:update`.
+- `bun run docs:sync` (postinstall) downloads + sha256-verifies + unpacks into
+  `src/content/docs/docs/<product>/<version>/` (gitignored). Version URL
+  segments are dash-joined (`0.4.2` → `0-4-2`): Starlight strips dots.
+  Soft-fail by design (warns, keeps stale content); `--strict` for CI.
+- Sidebar, `/docs/<product>/…` unversioned redirects, and the version
+  switcher (`src/components/starlight/VersionSwitcher.astro` via the
+  `Sidebar` override) all read the lockfile — they work before bundles ship.
+- Do not hand-create product doc pages here; fix them in the owning repo's
+  `docs/site/` and let the bundle flow bring them in.
 
 ### Hard conventions
 

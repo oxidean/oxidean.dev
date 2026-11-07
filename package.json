@@ -11,7 +11,10 @@
     "lint": "oxlint --type-aware --deny-warnings . \"src/**/*.tsrx\"",
     "format": "oxfmt --write . \"src/**/*.tsrx\" && prettier --write \"src/**/*.astro\"",
     "format:check": "oxfmt --check . \"src/**/*.tsrx\" && prettier --check \"src/**/*.astro\"",
-    "commit-check": "scripts/commit-check.sh --range origin/main..HEAD"
+    "commit-check": "scripts/commit-check.sh --range origin/main..HEAD",
+    "docs:sync": "bun scripts/docs-sync.ts",
+    "docs:update": "bun scripts/docs-update.ts",
+    "postinstall": "bun scripts/docs-sync.ts"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.42.10",
@@ -30,7 +33,8 @@
     "prettier-plugin-astro": "1.1.2",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
-    "vite": "^8.3.4"
+    "vite": "^8.3.4",
+    "yaml": "^2.9.1"
   },
   "volta": {
     "node": "24.20.0"
