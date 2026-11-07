@@ -2,8 +2,12 @@
 // The contract schema lives in oxidean/docs-manifest; these mirror the
 // fields the site consumes from docs-versions.lock.json.
 
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { parse } from "yaml";
 
 export interface ManifestPage {
   label: string;
@@ -84,4 +88,18 @@ export function bundleAssetName(version: string): string {
  */
 export function versionUrlSegment(version: string): string {
   return version.replaceAll(".", "-");
+}
+
+/** Extract manifest.yaml from a docs bundle and return its `pages` tree. */
+export function manifestPages(bytes: Uint8Array): ManifestPage[] {
+  const tmp = mkdtempSync(join(tmpdir(), "docs-manifest-"));
+  try {
+    const tgz = join(tmp, "bundle.tar.gz");
+    writeFileSync(tgz, bytes);
+    const raw = execFileSync("tar", ["-xzOf", tgz, "manifest.yaml"], { encoding: "utf8" });
+    const manifest = parse(raw) as { pages?: ManifestPage[] };
+    return manifest.pages ?? [];
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
 }

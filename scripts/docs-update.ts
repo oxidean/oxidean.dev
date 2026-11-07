@@ -9,20 +9,18 @@
 // Usage: bun run docs:update [--dry-run]
 
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { parse } from "yaml";
 import {
   bundleAssetName,
   compareVersions,
   fetchBytes,
+  manifestPages,
   sha256Hex,
   tagGlobToRegExp,
   versionFromTag,
   type DocsLock,
   type LockVersion,
-  type ManifestPage,
 } from "./lib/docs-manifest";
 
 const KEEP = 5;
@@ -53,20 +51,6 @@ function listReleases(repo: string): Release[] {
   throw new Error(`gh api failed for ${repo} — is gh authenticated?`);
 }
 
-/** Extract only manifest.yaml from a bundle and parse its pages tree. */
-async function manifestPages(bytes: Uint8Array): Promise<ManifestPage[]> {
-  const tmp = mkdtempSync(join(tmpdir(), "docs-update-"));
-  try {
-    const tgz = join(tmp, "bundle.tar.gz");
-    writeFileSync(tgz, bytes);
-    const raw = execFileSync("tar", ["-xzOf", tgz, "manifest.yaml"], { encoding: "utf8" });
-    const manifest = parse(raw) as { pages?: ManifestPage[] };
-    return manifest.pages ?? [];
-  } finally {
-    rmSync(tmp, { recursive: true, force: true });
-  }
-}
-
 for (const [slug, product] of Object.entries(lock.products)) {
   const tagRe = tagGlobToRegExp(product.tag_pattern);
   const releases = listReleases(product.source).filter(
@@ -91,7 +75,7 @@ for (const [slug, product] of Object.entries(lock.products)) {
     const version = versionFromTag(r.tag_name);
     const asset = r.assets.find((a) => a.name === bundleAssetName(version))!;
     const bytes = await fetchBytes(asset.browser_download_url);
-    const pages = await manifestPages(bytes);
+    const pages = manifestPages(bytes);
     versions.push({
       version,
       tag: r.tag_name,

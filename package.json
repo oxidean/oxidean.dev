@@ -14,7 +14,8 @@
     "commit-check": "scripts/commit-check.sh --range origin/main..HEAD",
     "docs:sync": "bun scripts/docs-sync.ts",
     "docs:update": "bun scripts/docs-update.ts",
-    "postinstall": "bun scripts/docs-sync.ts"
+    "postinstall": "bun scripts/docs-sync.ts",
+    "docs:upsert": "bun scripts/docs-upsert.ts"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.42.10",
