@@ -34,6 +34,7 @@ export function CopyCommand({
       setCopied(true);
       setFailed(false);
     } catch {
+      setCopied(false);
       setFailed(true);
     }
   }

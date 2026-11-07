@@ -15,7 +15,7 @@ const OPTIONS: { value: ThemePreference; label: string; Icon: typeof Monitor }[]
  * follows the visitor between the marketing pages and Starlight.
  */
 export function ThemeToggle({ className }: { className?: string }) @{
-  const [theme, setTheme] = useState<ThemePreference>("system");
+  const [theme, setTheme, getTheme] = useState<ThemePreference>("system");
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -24,7 +24,10 @@ export function ThemeToggle({ className }: { className?: string }) @{
     applyTheme(pref);
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = () => {
-      if (readThemePreference() === "system") applyTheme("system");
+      // Compare against in-memory state, not storage: if localStorage
+      // throws, readThemePreference() reports "system" and would clobber
+      // an explicit session choice.
+      if (getTheme() === "system") applyTheme("system");
     };
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
