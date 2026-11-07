@@ -69,11 +69,9 @@ export function CopyCommand({
           />;
         }
       </button>
-      ;
       <span role="status" className="sr-only">
         {copied ? "Copied to clipboard" : failed ? "Copy failed — select the command text" : ""}
       </span>
-      ;
     </span>;
     };
 }
