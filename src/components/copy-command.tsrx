@@ -51,11 +51,17 @@ export function CopyCommand({
       )}
     >
       <code className="font-mono text-[13px] text-foreground">{command}</code>
+      <span role="status" className="sr-only">
+        {copied ? "Copied to clipboard" : failed ? "Copy failed — select the command text" : ""}
+      </span>
       @if (copied) {
         <Check aria-hidden size={14} className="text-success" />;
       }
       @if (!copied && failed) {
-        <X aria-hidden size={14} className="text-destructive" />;
+        <span className="inline-flex items-center gap-1.5">
+          <span className="text-[12px] text-destructive">copy failed</span>
+          <X aria-hidden size={14} className="text-destructive" />
+        </span>;
       }
       @if (!copied && !failed) {
         <Copy
