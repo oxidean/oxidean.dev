@@ -1,6 +1,6 @@
 ---
 title: oxl
-description: A lean, fast language for CLI tools and services — Go-shaped DX on a runtime with no tracing GC.
+description: A lean, compiled language for CLI tools and services — Go-shaped DX on a runtime with no tracing GC.
 ---
 
 import { Aside, CardGrid, LinkCard } from "@astrojs/starlight/components";
@@ -8,15 +8,16 @@ import { Aside, CardGrid, LinkCard } from "@astrojs/starlight/components";
 oxl is a small language for the kind of tools Oxidean builds: memory safety
 from **dynamic ownership/borrow checking**, structured concurrency
 (`scope`/`spawn`/channels), and ahead-of-time native binaries from a single
-toolchain binary.
+toolchain binary. MIT-licensed.
 
-<Aside type="caution" title="Status: v0.0.1 bootstrap">
-	The compiler works end to end — the programs in `examples/` compile to
-	native binaries and run today, including an HTTP CRUD + SQLite pilot.
-	Two known v0 gaps: arena-backed slices stored in outer fields can be
-	read after their scope closes, and ordinary `own` dereferences don't yet
-	receive dangling checks. Expect movement; the design spec is the source
-	of truth.
+<Aside type="caution" title="Status: v0.2.0">
+	v0.2.0 is released and the package/module system (`oxl.mod`, `oxl get`,
+	`oxl mod`, MVS build lists) is on `main`. The compiler works end to end —
+	the programs in `examples/` compile to native binaries today, including
+	an HTTP CRUD + SQLite service and a GTK4 todo app — and the toolchain's
+	own lexer, parser, checker, and C emitter are written in oxl and compile
+	themselves. Still v0: expect movement; the design spec is the source of
+	truth.
 </Aside>
 
 ## Design in one breath
@@ -29,7 +30,8 @@ toolchain binary.
 - **Errors you can't drop** — `[v, err]` returns; dropping the error is a
   compile error.
 - **One toolchain** — `oxl build|run|test|fmt|doc|get|mod|lsp`, AOT to
-  native through a C backend.
+  native through a C backend. Linux (x86_64), macOS (aarch64), and Windows
+  (x86_64).
 
 ## Where to next
 
@@ -42,7 +44,7 @@ toolchain binary.
 	<LinkCard
 		title="The language"
 		href="/docs/oxl/language/"
-		description="The v0 surface — types, ownership, concurrency, modules."
+		description="The v0 surface — types, ownership, concurrency, modules, stdlib."
 	/>
 	<LinkCard
 		title="oxidean/oxl"

@@ -5,7 +5,9 @@ description: How to contribute to Oxidean — the monorepo layout, commit conven
 
 Oxidean is MIT-licensed and developed in the open at
 [oxidean/oxidean](https://github.com/oxidean/oxidean). Issues and pull
-requests are welcome on the forge itself or mirrored on GitHub.
+requests are welcome on the forge itself or mirrored on GitHub. Security
+reports follow [SECURITY.md](https://github.com/oxidean/oxidean/blob/main/SECURITY.md)
+— not public issues.
 
 ## The codebase
 
@@ -23,7 +25,8 @@ One repository, one product:
 - Commits and PR titles follow `type(scope): subject`
   (`feat`, `fix`, `docs`, `chore`, `test`, `ci`, …) — enforced by a
   `commit-msg` hook and CI `commit-lint`. Subjects drive per-component
-  SemVer bumps and changelogs.
+  SemVer bumps and changelogs — see
+  [VERSIONING.md](https://github.com/oxidean/oxidean/blob/main/docs/VERSIONING.md).
 - The web UI is **Octane** (`.tsrx`), not React — component conventions
   live in `AGENTS.md` and the repo's skills.
 - Generated code (like the TS RPC client) is never hand-edited — change

@@ -15,7 +15,7 @@ Rust or Bun toolchain, no build step. Pick your surface:
 
 | Service                        | Image                            | Role                                                                                                                                                                         |
 | ------------------------------ | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `web`                          | `ghcr.io/oxidean/oxidean-web`    | Single HTTP origin: serves the UI **and** reverse-proxies every API path — RPC, git smart-HTTP + LFS, `/v2` `/npm` `/generic` registries, `/cli`, badges, OAuth, websockets. |
+| `web`                          | `ghcr.io/oxidean/oxidean-web`    | Single HTTP origin: serves the UI **and** reverse-proxies every API path — RPC, git smart-HTTP + LFS, `/v2` `/npm` `/generic` registries, `/cli`, badges, Pages, OAuth, `/api/rpc/ws` websockets. |
 | `api`                          | `ghcr.io/oxidean/oxidean-api`    | Forge API + git backend. Owns the `/var` state volume and the raw-TCP SSH listener.                                                                                          |
 | `postgres`                     | `postgres:18-alpine`             | Bundled database — swap for an external `DATABASE_URL`, MySQL, or SQLite.                                                                                                    |
 | `caddy` _(profile `tls`)_      | `caddy:2-alpine`                 | TLS terminator for your domain (Let's Encrypt auto-HTTPS). Optional — bring your own edge instead.                                                                           |
@@ -27,7 +27,8 @@ on `OXIDEAN_SSH_PORT` (default `2222`) straight to `api`.
 
 All forge state lives in **one named volume** (`oxidean_data` at `/var` on
 `api`): bare repos, LFS objects, packages, release assets, uploads,
-template packs, action logs/artifacts/cache, and the SSH host-key dir.
+template packs, VCS objects, action logs/artifacts/cache, and the SSH
+host-key dir.
 
 ## Prerequisites
 

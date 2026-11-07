@@ -5,10 +5,10 @@ description: Build the oxl compiler from source and run your first program.
 
 import { Aside, Steps } from "@astrojs/starlight/components";
 
-**Requires:** Rust (`cargo`), a C compiler (`cc`), and pthreads. Programs
-that use the sqlite3 shims also need sqlite3 dev headers. Supported
-platforms: Linux (x86_64), macOS (aarch64), and Windows (x86_64, via MinGW
-gcc or LLVM clang).
+**Requires:** Rust (`cargo`) for the seed compiler, a C compiler (`cc`),
+and pthreads. Programs that use the sqlite3 shims also need sqlite3 dev
+headers. Supported platforms: Linux (x86_64), macOS (aarch64), and Windows
+(x86_64, via MinGW gcc or LLVM clang).
 
 <Steps>
 1. Clone and build the toolchain:
@@ -38,11 +38,12 @@ gcc or LLVM clang).
    ```
 </Steps>
 
-`oxl build` and `oxl run` invoke a C compiler for the final link. Set
-`LANG_CC` to override the probe order (`cc` → `gcc` → `clang`),
-`LANG_LDFLAGS` to append link inputs (FFI shim objects, libraries), and
-`LANG_SQLITE_SRC` to point at an amalgamation `sqlite3.c` where no dev
-package exists.
+`oxl build` and `oxl run` invoke a C compiler for the final link — the
+driver probes `cc` → `gcc` → `clang` (MSVC's `cl` can't take the emitted
+C). Set `LANG_CC` to override, `LANG_LDFLAGS` to append link inputs (FFI
+shim objects, libraries), and `LANG_SQLITE_SRC` to point at an
+amalgamation `sqlite3.c` where no dev package exists. `tests/run.sh`
+honors the same overrides.
 
 ## The toolbox
 
@@ -57,11 +58,14 @@ oxl mod init <path>            write a skeleton oxl.mod
 oxl mod tidy                   sync requires/oxl.sum with the imports
 oxl mod verify                 re-hash the cache against oxl.sum
 oxl mod list                   the MVS-selected module build list
+oxl list -m all                same build list (alias)
 oxl lsp                        stdio LSP: diagnostics, hover, goto-definition
 ```
 
 <Aside type="tip">
 	The repository's [`examples/`](https://github.com/oxidean/oxl/tree/main/examples)
 	directory is the ground truth for what works today — including the HTTP
-	CRUD + SQLite pilot.
+	CRUD + SQLite pilot and a GTK4 todo app over `extern fn` FFI. The
+	`bootstrap/` tree holds the self-hosting proof: the language's lexer and
+	parser written in the language.
 </Aside>
