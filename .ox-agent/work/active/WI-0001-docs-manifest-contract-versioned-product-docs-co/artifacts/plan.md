@@ -130,6 +130,30 @@ AC4–6 S6 build/routes/switcher · AC7 every stage's gates.
 
 ## Stage status
 
+- **S2 done 2026-11-07** — oxidean/Ox-Agent#35 (`feat/docs-site-contract`):
+  curated docs/site (index/install/quickstart/cli/architecture) at v0.1.7,
+  caller workflows @v0.1.1; releasing.md exclusion + version-bump note.
+  Bonus: fixed upstream `input answer` → `input respond`. Validate CI green.
+- **S3 done 2026-11-07** — oxidean/oxl#34: fresh docs/site
+  (index/getting-started/language) at v0.4.0 verified against the release
+  binary (modules shipped since v0.3.0, 36 stdlib pkgs, `package` required,
+  `oxl get|mod|list` in toolbox). Validate + commit-lint CI green.
+- **S4 done 2026-11-07** — oxidean/oxidean#235: curated docs/site
+  (index/quickstart/self-hosting{overview,docker,kubernetes}/cli/config/
+  contributing) at ox-v0.4.2; release workflow gated `tags: ["ox-v*"]`.
+  K8s doc enriched vs SELFHOST-KUBERNETES (ssh LoadBalancer service).
+- **S5 design deviation** — dispatch-as-specced cannot pack old tags:
+  reusable release.yml checks out `inputs.tag`, which predates docs/site.
+  Bootstrap instead packs from `origin/main` with the local CLI and
+  attaches via `gh release upload` (same deterministic binary + bundle,
+  `sha256sum -c` verified). Dispatch stays valid for re-attaching to tags
+  that already contain docs/site.
+- **S6 in flight** — oxidean.dev#2 (draft, stacked on feat/initial-site):
+  lockfile (sha256 nullable pre-bootstrap), docs:sync/docs:update, lock-
+  driven sidebar + unversioned redirects + VersionSwitcher (dash-joined
+  version segments — Starlight strips dots), hand docs removed. Verified
+  end-to-end with locally packed bundles from all three product trees.
+
 - **S1 done 2026-11-07** — `oxidean/docs-manifest` live:
   schema/manifest.schema.json (manifest_version 1), Go CLI
   (`validate|pack|schema|version`), reusable `workflow_call` workflows,
