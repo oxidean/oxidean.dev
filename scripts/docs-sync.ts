@@ -22,10 +22,16 @@ import { fetchBytes, sha256Hex, type DocsLock } from "./lib/docs-manifest";
 const root = join(import.meta.dirname, "..");
 const lockPath = join(root, "docs-versions.lock.json");
 const docsRoot = join(root, "src/content/docs/docs");
+// DOCS_SYNC_STRICT=0 overrides auto-detect — the ingest workflow's
+// install step runs soft because a stale pin is exactly what it exists
+// to repair; strict there would deadlock it. Everything else stays
+// strict under CI/Vercel.
 const strict =
-  process.argv.includes("--strict") ||
-  process.env.CI === "true" ||
-  Boolean(process.env.VERCEL);
+  process.env.DOCS_SYNC_STRICT != null
+    ? process.env.DOCS_SYNC_STRICT !== "0"
+    : process.argv.includes("--strict") ||
+      process.env.CI === "true" ||
+      Boolean(process.env.VERCEL);
 
 const lock = JSON.parse(readFileSync(lockPath, "utf8")) as DocsLock;
 

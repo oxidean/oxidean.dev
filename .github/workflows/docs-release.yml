@@ -45,7 +45,13 @@ jobs:
         with:
           node-version: 24
       - uses: oven-sh/setup-bun@v2
+      # Soft sync here: this workflow exists to refresh the pin, so a
+      # stale/broken digest in the committed lockfile must not kill the
+      # install before docs-upsert can repair it. The post-pin sync
+      # below stays strict via the CI env.
       - name: install deps
+        env:
+          DOCS_SYNC_STRICT: "0"
         run: bun install --frozen-lockfile
 
       - name: Pin bundle in lockfile
