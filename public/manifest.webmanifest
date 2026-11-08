@@ -1,7 +1,7 @@
 {
   "name": "Oxidean",
   "short_name": "Oxidean",
-  "description": "The Oxidean stack: forge, agent toolchain, and language.",
+  "description": "Oxidean ships three open-source projects: a self-hostable code forge, a repository-local AI-SDLC toolchain, and a language for CLI tools and services.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
