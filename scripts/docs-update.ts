@@ -86,6 +86,14 @@ for (const [slug, product] of Object.entries(lock.products)) {
     console.log(`  ${slug}@${version} (${r.tag_name}) — ${pages.length} top-level pages`);
   }
 
+  // Keep the pinned entry when discovery omits it (pagination, missing
+  // asset, tag-filter miss) — dropping it would remove its deployed pages.
+  const pinned = product.versions.find((v) => v.version === product.default);
+  if (pinned && !versions.some((v) => v.version === pinned.version)) {
+    versions.push(pinned);
+    versions.sort((a, b) => compareVersions(b.version, a.version));
+  }
+
   product.versions = versions;
   if (versions.length) {
     // Same rule as docs:upsert — a newer discovered version takes over as
