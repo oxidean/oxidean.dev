@@ -11,7 +11,7 @@
           "version": "0.4.2",
           "tag": "ox-v0.4.2",
           "url": "https://github.com/oxidean/oxidean/releases/download/ox-v0.4.2/docs-0.4.2.tar.gz",
-          "sha256": null,
+          "sha256": "b0a82a5ebcb49fb6afb075e6a37479f9783ecf64f3b3341a35785ec43faa533a",
           "pages": [
             {
               "label": "Oxidean",
@@ -64,7 +64,7 @@
           "version": "0.1.7",
           "tag": "v0.1.7",
           "url": "https://github.com/oxidean/Ox-Agent/releases/download/v0.1.7/docs-0.1.7.tar.gz",
-          "sha256": null,
+          "sha256": "015af459c519fb6277ecaa61ed3f8c027370529b5e3606866fa752a5bd536589",
           "pages": [
             {
               "label": "Ox-Agent",
@@ -100,7 +100,7 @@
           "version": "0.4.0",
           "tag": "v0.4.0",
           "url": "https://github.com/oxidean/oxl/releases/download/v0.4.0/docs-0.4.0.tar.gz",
-          "sha256": null,
+          "sha256": "43172c62df3afeb10bfb9719c4715c9df42dd20876742bd578b1ca3806822228",
           "pages": [
             {
               "label": "oxl",
