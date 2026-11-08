@@ -174,3 +174,12 @@ AC4–6 S6 build/routes/switcher · AC7 every stage's gates.
   next releases cut with the pipeline.
 - **S6** — oxidean.dev#2 rebased onto main post-squash, undrafted, lock
   filled with real sha256s via `docs:update` (35 pages verified).
+
+- **2026-11-08 (close-out)** — all stages landed: docs-manifest@v0.1.6
+  (guarded src-ref, input validation, published-release wait); product PRs
+  merged (Ox-Agent#35, oxl#34, oxidean#235 + #236 kind fix); consumer
+  merged (oxidean.dev#2, PR#1 site). Bootstrap ran local: bundles
+  attached to ox-v0.4.2 / v0.1.7..v0.1.9 / v0.4.0..v0.5.0. Push path armed
+  (DOCS_SITE_DISPATCH_TOKEN installed) — first live dispatch pending next
+  product tag. DNS cutover to Vercel in flight (apex A live, stale AAAA
+  flagged to Jesse).
