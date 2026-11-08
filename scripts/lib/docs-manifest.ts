@@ -97,8 +97,13 @@ export function manifestPages(bytes: Uint8Array): ManifestPage[] {
     const tgz = join(tmp, "bundle.tar.gz");
     writeFileSync(tgz, bytes);
     const raw = execFileSync("tar", ["-xzOf", tgz, "manifest.yaml"], { encoding: "utf8" });
-    const manifest = parse(raw) as { pages?: ManifestPage[] };
-    return manifest.pages ?? [];
+    const manifest = parse(raw) as { pages?: unknown } | null;
+    const pages = manifest?.pages;
+    if (pages == null) return [];
+    if (!Array.isArray(pages)) {
+      throw new Error("manifest.yaml: `pages` is not an array");
+    }
+    return pages as ManifestPage[];
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }

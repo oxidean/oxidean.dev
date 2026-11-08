@@ -18,7 +18,12 @@ let rest = "/";
 if (match) {
 	productSlug = match[1];
 	product = docsLock.products[productSlug];
-	currentVersion = match[2].replaceAll("-", ".");
+	// Map the dash-joined URL segment back to a locked version by value —
+	// a blind dash→dot replace corrupts versions containing real hyphens
+	// (0.1.0-beta-2 → 0-1-0-beta-2 → 0.1.0.beta.2).
+	currentVersion =
+		product?.versions.find((v) => v.version.replaceAll(".", "-") === match[2])
+			?.version ?? "";
 	rest = match[3] ?? "/";
 }
 

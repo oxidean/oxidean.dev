@@ -1,7 +1,7 @@
 // docs:update — refresh docs-versions.lock.json from GitHub releases.
 //
-// For each product: list releases via `gh api` (falls back to the public
-// REST API), keep releases whose tag matches the product tag_pattern and
+// For each product: list releases via `gh api`, keep releases whose tag
+// matches the product tag_pattern and
 // that carry a docs-<v>.tar.gz asset, take the newest 5 (never dropping
 // the pinned default), download each bundle for its sha256 + manifest
 // `pages` tree, and rewrite the lockfile.
@@ -45,10 +45,10 @@ function listReleases(repo: string): Release[] {
       { encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] },
     );
     return JSON.parse(out) as Release[];
-  } catch {
-    // fall through to unauthenticated REST
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new Error(`gh api failed for ${repo}: ${msg}`);
   }
-  throw new Error(`gh api failed for ${repo} — is gh authenticated?`);
 }
 
 for (const [slug, product] of Object.entries(lock.products)) {

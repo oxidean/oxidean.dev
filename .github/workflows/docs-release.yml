@@ -39,6 +39,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v6
         with:
           node-version: 24
@@ -47,12 +49,17 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Pin bundle in lockfile
+        env:
+          PRODUCT: ${{ inputs.product }}
+          VERSION: ${{ inputs.version }}
+          REPO: ${{ inputs.repo }}
+          TAG: ${{ inputs.tag }}
         run: |
           bun scripts/docs-upsert.ts \
-            --product "${{ inputs.product }}" \
-            --version "${{ inputs.version }}" \
-            --repo "${{ inputs.repo }}" \
-            --tag "${{ inputs.tag }}"
+            --product "$PRODUCT" \
+            --version "$VERSION" \
+            --repo "$REPO" \
+            --tag "$TAG"
 
       - name: Verify site builds with the pinned bundle
         run: bun run docs:sync && bun run build
@@ -69,6 +76,7 @@ jobs:
           TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
+          gh auth setup-git
           if git diff --quiet docs-versions.lock.json; then
             echo "lockfile unchanged — nothing to PR"
             exit 0

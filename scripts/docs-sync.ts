@@ -12,7 +12,7 @@
 // once every locked version has a released bundle).
 
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fetchBytes, sha256Hex, type DocsLock } from "./lib/docs-manifest";
@@ -46,17 +46,22 @@ for (const [slug, product] of Object.entries(lock.products)) {
         console.warn(`  ${slug}@${v.version}: unpinned bundle (sha256 ${digest.slice(0, 12)}…)`);
       }
 
+      // Extract + strip in a temp dir first — dest is replaced only
+      // after the whole unpack succeeds, so a tar failure keeps the
+      // stale copy the warning below claims to keep.
       const tmp = mkdtempSync(join(tmpdir(), "docs-bundle-"));
       const tgz = join(tmp, "bundle.tar.gz");
+      const extracted = join(tmp, "x");
       writeFileSync(tgz, bytes);
+      mkdirSync(extracted);
+      execFileSync("tar", ["-xzf", tgz, "-C", extracted]);
+      rmSync(join(extracted, "manifest.yaml"), { force: true });
       if (!cleaned) {
         rmSync(join(docsRoot, slug), { recursive: true, force: true });
         cleaned = true;
       }
       rmSync(dest, { recursive: true, force: true });
-      mkdirSync(dest, { recursive: true });
-      execFileSync("tar", ["-xzf", tgz, "-C", dest]);
-      rmSync(join(dest, "manifest.yaml"), { force: true });
+      cpSync(extracted, dest, { recursive: true });
       rmSync(tmp, { recursive: true, force: true });
       fetched++;
       console.log(`  ${slug}@${v.version} → ${dest}`);
