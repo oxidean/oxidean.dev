@@ -87,9 +87,17 @@ for (const [slug, product] of Object.entries(lock.products)) {
   }
 
   product.versions = versions;
-  if (versions.length && !versions.some((v) => v.version === product.default)) {
-    product.default = versions[0].version;
-    console.log(`  ${slug}: default → ${product.default}`);
+  if (versions.length) {
+    // Same rule as docs:upsert — a newer discovered version takes over as
+    // default; also heals a default that dropped out of the list.
+    const newest = versions[0].version;
+    if (
+      !versions.some((v) => v.version === product.default) ||
+      compareVersions(newest, product.default) > 0
+    ) {
+      product.default = newest;
+      console.log(`  ${slug}: default → ${product.default}`);
+    }
   }
 }
 
