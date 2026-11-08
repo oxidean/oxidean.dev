@@ -1,0 +1,43 @@
+---
+// Unversioned docs URLs redirect to the pinned default version:
+//   /docs/oxl/language/        → /docs/oxl/<default>/language/
+//   /docs/ox-agent/            → /docs/ox-agent/<default>/
+// Paths are enumerated from each version's manifest `pages` tree in
+// docs-versions.lock.json; versioned URLs are served by Starlight and
+// never emitted here. Version URL segments are dash-joined (0.4.2 →
+// 0-4-2) because Starlight strips dots from slugs.
+import docsLock from "../../../../docs-versions.lock.json";
+
+export function getStaticPaths() {
+	const paths = [];
+	const versionRe = /^\d+[.-]\d+/;
+
+	const walk = (items, fn) => {
+		for (const item of items ?? []) {
+			if (item.link) fn(item.link);
+			if (item.items) walk(item.items, fn);
+		}
+	};
+
+	for (const [slug, product] of Object.entries(docsLock.products)) {
+		const def = product.versions.find((v) => v.version === product.default);
+		if (!def) continue;
+		const vseg = def.version.replaceAll(".", "-");
+		paths.push({
+			params: { product: slug },
+			props: { target: `/docs/${slug}/${vseg}/` },
+		});
+		walk(def.pages, (link) => {
+			const rest = link.replace(/^\//, "").replace(/\/$/, "");
+			if (!rest || versionRe.test(rest)) return;
+			paths.push({
+				params: { product: slug, slug: rest },
+				props: { target: `/docs/${slug}/${vseg}/${rest}/` },
+			});
+		});
+	}
+	return paths;
+}
+
+return Astro.redirect(Astro.props.target);
+---

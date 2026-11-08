@@ -1,0 +1,106 @@
+name: docs release ingest
+
+# Receives the workflow_dispatch fired by product repos' docs-release
+# pack job (oxidean/docs-manifest release.yml) after a docs-<v>.tar.gz
+# bundle attaches to a release. Pins the version in
+# docs-versions.lock.json, verifies the site still builds, and opens a
+# bump PR (auto-merged when checks allow).
+#
+# Triggered by: gh workflow run docs-release.yml -R oxidean/oxidean.dev \
+#   -f product=oxl -f version=0.4.0 -f repo=oxidean/oxl -f tag=v0.4.0
+
+on:
+  workflow_dispatch:
+    inputs:
+      product:
+        description: Site product slug (docs-versions.lock.json key), e.g. oxl
+        required: true
+        type: string
+      version:
+        description: Docs bundle version, e.g. 0.4.0
+        required: true
+        type: string
+      repo:
+        description: Source repo that owns docs/site/, e.g. oxidean/oxl
+        required: true
+        type: string
+      tag:
+        description: Release tag carrying the bundle, e.g. v0.4.0
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  ingest:
+    name: pin ${{ inputs.product }} docs ${{ inputs.version }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: oven-sh/setup-bun@v2
+      - name: install deps
+        run: bun install --frozen-lockfile
+
+      - name: Pin bundle in lockfile
+        env:
+          PRODUCT: ${{ inputs.product }}
+          VERSION: ${{ inputs.version }}
+          REPO: ${{ inputs.repo }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          bun scripts/docs-upsert.ts \
+            --product "$PRODUCT" \
+            --version "$VERSION" \
+            --repo "$REPO" \
+            --tag "$TAG"
+
+      - name: Verify site builds with the pinned bundle
+        run: bun run docs:sync && bun run build
+
+      # GH_TOKEN prefers the dispatch PAT so the bump PR fires normal
+      # pull_request checks; falls back to GITHUB_TOKEN when the org
+      # secret is not installed on this repo.
+      - name: Open lock-bump PR
+        env:
+          GH_TOKEN: ${{ secrets.DOCS_SITE_DISPATCH_TOKEN || secrets.GITHUB_TOKEN }}
+          PRODUCT: ${{ inputs.product }}
+          VERSION: ${{ inputs.version }}
+          REPO: ${{ inputs.repo }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          gh auth setup-git
+          if git diff --quiet docs-versions.lock.json; then
+            echo "lockfile unchanged — nothing to PR"
+            exit 0
+          fi
+
+          branch="docs-bump/${PRODUCT}-${VERSION}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add docs-versions.lock.json
+          git commit -m "chore(docs): lock ${PRODUCT} docs ${VERSION}"
+          git push -f origin "$branch"
+
+          body="Pins docs-${VERSION}.tar.gz from [${REPO}@${TAG}](https://github.com/${REPO}/releases/tag/${TAG}) into docs-versions.lock.json (sha256 + sidebar pages). Dispatched by the ${REPO} docs-release workflow."
+          pr=$(gh pr list --head "$branch" --json number --jq '.[0].number' || true)
+          if [ -z "$pr" ]; then
+            gh pr create \
+              --title "chore(docs): lock ${PRODUCT} docs ${VERSION}" \
+              --body "$body" \
+              --label documentation
+            pr=$(gh pr list --head "$branch" --json number --jq '.[0].number')
+          else
+            gh pr edit "$pr" --body "$body"
+          fi
+          echo "bump PR: #$pr"
+          gh pr merge "$pr" --auto --squash || \
+            echo "::notice::auto-merge unavailable — PR #${pr} waits for manual merge"

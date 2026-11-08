@@ -1,0 +1,104 @@
+---
+// Version switcher for materialized product docs. Reads the current
+// /docs/<product>/<version-segment>/… position from the URL (segments are
+// dash-joined, 0.4.2 → 0-4-2), offers every locked version of that
+// product, and navigates to the same page at the chosen version (falling
+// back to the version index when the page does not exist there).
+import docsLock from "../../../docs-versions.lock.json";
+
+const match = Astro.url.pathname.match(
+	/^\/docs\/([a-z0-9-]+)\/(\d+-\d+-\d+[^/]*)(\/.*)?\/?$/,
+);
+
+let productSlug = "";
+let product = null;
+let currentVersion = "";
+let rest = "/";
+
+if (match) {
+	productSlug = match[1];
+	product = docsLock.products[productSlug];
+	// Map the dash-joined URL segment back to a locked version by value —
+	// a blind dash→dot replace corrupts versions containing real hyphens
+	// (0.1.0-beta-2 → 0-1-0-beta-2 → 0.1.0.beta.2).
+	currentVersion =
+		product?.versions.find((v) => v.version.replaceAll(".", "-") === match[2])
+			?.version ?? "";
+	rest = match[3] ?? "/";
+}
+
+// version → set of page paths ("/", "/install/", …) for existence checks.
+const pageSets: Record<string, string[]> = {};
+if (product) {
+	for (const v of product.versions) {
+		const paths: string[] = [];
+		const walk = (items) => {
+			for (const item of items ?? []) {
+				if (item.link) paths.push(item.link);
+				if (item.items) walk(item.items);
+			}
+		};
+		walk(v.pages);
+		pageSets[v.version] = paths;
+	}
+}
+
+const versions = product?.versions ?? [];
+---
+
+{product && versions.length > 1 && (
+	<div class="version-switcher">
+		<label>
+			<span class="sr-only">Documentation version</span>
+			<select
+				class="docs-version-select"
+				data-product={productSlug}
+				data-rest={rest}
+				data-pages={JSON.stringify(pageSets)}
+			>
+				{versions.map((v) => (
+					<option value={v.version} selected={v.version === currentVersion}>
+						v{v.version}
+						{v.version === product.default ? " (latest)" : ""}
+					</option>
+				))}
+			</select>
+		</label>
+	</div>
+)}
+
+<script>
+	document.querySelectorAll("select.docs-version-select").forEach((sel) => {
+		sel.addEventListener("change", () => {
+			const s = sel;
+			const vseg = s.value.replaceAll(".", "-");
+			const rest = s.dataset.rest ?? "/";
+			const pages = JSON.parse(s.dataset.pages ?? "{}");
+			const known = pages[s.value] ?? [];
+			const target =
+				rest === "/" || known.includes(rest)
+					? `/docs/${s.dataset.product}/${vseg}${rest}`
+					: `/docs/${s.dataset.product}/${vseg}/`;
+			window.location.href = target;
+		});
+	});
+</script>
+
+<style>
+	.version-switcher {
+		padding: 0 0 var(--sl-nav-pad-y, 0.75rem);
+	}
+	.docs-version-select {
+		width: 100%;
+		padding: 0.35rem 0.5rem;
+		font-size: var(--sl-text-sm);
+		color: var(--sl-color-text);
+		background: var(--sl-color-bg-sidebar);
+		border: 1px solid var(--sl-color-hairline);
+		border-radius: 0.4rem;
+	}
+	.docs-version-select:focus-visible {
+		outline: 2px solid var(--sl-color-accent);
+		outline-offset: 1px;
+	}
+</style>

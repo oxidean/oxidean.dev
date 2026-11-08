@@ -4,8 +4,40 @@ import { defineConfig } from "astro/config";
 import octane from "@octanejs/astro";
 import starlight from "@astrojs/starlight";
 import tailwindcss from "@tailwindcss/vite";
+import docsLock from "./docs-versions.lock.json";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
+
+/**
+ * Product docs are materialized from release bundles under
+ * src/content/docs/docs/<product>/<version>/ (see docs-versions.lock.json
+ * and `bun run docs:sync`). The sidebar mirrors each bundle's manifest
+ * `pages` tree, grouped per version; collapsed groups auto-expand around
+ * the current page.
+ */
+function mapManifestPage(slug, versionSegment, page) {
+  if (page.link) {
+    const rest = page.link === "/" ? "" : page.link.replace(/\/$/, "");
+    return { label: page.label, link: `/docs/${slug}/${versionSegment}${rest}/` };
+  }
+  return {
+    label: page.label,
+    collapsed: true,
+    items: (page.items ?? []).map((item) => mapManifestPage(slug, versionSegment, item)),
+  };
+}
+
+const docsSidebar = [
+  { slug: "docs" },
+  ...Object.entries(docsLock.products).map(([slug, product]) => ({
+    label: product.name ?? slug,
+    items: product.versions.map((v) => ({
+      label: `v${v.version}${v.version === product.default ? " (latest)" : ""}`,
+      collapsed: true,
+      items: v.pages.map((page) => mapManifestPage(slug, v.version.replaceAll(".", "-"), page)),
+    })),
+  })),
+];
 
 const fontPreloads = [
   {
@@ -84,13 +116,10 @@ export default defineConfig({
         "Oxidean ships three open-source projects: a self-hostable code forge, a repository-local AI-SDLC toolchain, and a language for CLI tools and services.",
       components: {
         SiteTitle: "./src/components/starlight/SiteTitle.astro",
+        Sidebar: "./src/components/starlight/Sidebar.astro",
       },
       customCss: ["./src/styles/starlight.css"],
       head: fontPreloads,
-      editLink: {
-        baseUrl: "https://github.com/oxidean/oxidean.dev/edit/main/",
-      },
-      lastUpdated: true,
       social: [
         {
           icon: "github",
@@ -98,40 +127,7 @@ export default defineConfig({
           href: "https://github.com/oxidean",
         },
       ],
-      sidebar: [
-        { slug: "docs" },
-        {
-          label: "Oxidean",
-          items: [
-            { slug: "docs/oxidean" },
-            { slug: "docs/oxidean/quickstart" },
-            {
-              label: "Self-hosting",
-              items: [{ autogenerate: { directory: "docs/oxidean/self-hosting" } }],
-            },
-            { slug: "docs/oxidean/cli" },
-            { slug: "docs/oxidean/configuration" },
-            { slug: "docs/oxidean/contributing" },
-          ],
-        },
-        {
-          label: "Ox-Agent",
-          items: [
-            { slug: "docs/ox-agent" },
-            { slug: "docs/ox-agent/install" },
-            { slug: "docs/ox-agent/quickstart" },
-            { slug: "docs/ox-agent/cli" },
-          ],
-        },
-        {
-          label: "oxl",
-          items: [
-            { slug: "docs/oxl" },
-            { slug: "docs/oxl/getting-started" },
-            { slug: "docs/oxl/language" },
-          ],
-        },
-      ],
+      sidebar: docsSidebar,
     }),
   ],
   prefetch: {
