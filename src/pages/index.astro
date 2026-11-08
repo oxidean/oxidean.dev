@@ -45,7 +45,7 @@ const forgePoints = [
 ---
 
 <SiteShell
-	title="Oxidean · built to be owned"
+	title="Oxidean · we build the tools we build with"
 	description="Oxidean publishes three independent open-source projects: a self-hostable code forge, an agent toolchain that lives in your repository, and a language for CLI tools and services."
 >
 	<section class="relative overflow-hidden">
@@ -60,7 +60,7 @@ const forgePoints = [
 					class="oct-rise mt-4 font-display text-[2.6rem] font-bold leading-[1.05] tracking-tight sm:text-6xl"
 					style="animation-delay: 60ms"
 				>
-					Built to be <span class="text-primary">owned</span>.
+					We build the tools we <span class="text-primary">build</span> with.
 				</h1>
 				<p
 					class="oct-rise mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground"
@@ -176,14 +176,13 @@ const forgePoints = [
 					Oxidean · the forge
 				</p>
 				<h2 class="oct-reveal mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-					One compose file. One volume. Yours.
+					Repos, review, CI, and packages behind one origin.
 				</h2>
 				<p class="oct-reveal mt-3 max-w-xl text-muted-foreground">
-					Oxidean is a code forge: git hosting, review, issues, CI, and package
-					registries behind one HTTP origin. Every artifact lives in a single
-					named volume. Swap the bundled Postgres for MySQL or SQLite, add the
-					TLS or Actions profile, or take the same stack to Kubernetes with the
-					Helm chart.
+					Oxidean is a code forge that deploys as a single Compose stack: web,
+					API, and Postgres services. Swap the bundled Postgres for MySQL or
+					SQLite, add the TLS or Actions profile, or take the same stack to
+					Kubernetes with the Helm chart.
 				</p>
 				<ul class="oct-reveal mt-6 grid max-w-xl grid-cols-1 gap-2 text-[14px] text-muted-foreground sm:grid-cols-2">
 					{forgePoints.map((pt) => (
@@ -266,7 +265,7 @@ const forgePoints = [
 					Ox-Agent · the agent
 				</p>
 				<h2 class="oct-reveal mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-					The SDLC lives in the repo.
+					Spec-driven development for agent teams.
 				</h2>
 				<p class="oct-reveal mt-3 max-w-xl text-muted-foreground">
 					<code class="font-mono text-[0.9em] text-foreground">ox-agent</code>{" "}
@@ -304,12 +303,12 @@ const forgePoints = [
 					oxl · the language
 				</p>
 				<h2 class="oct-reveal mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-					Dynamic ownership. No tracing GC.
+					Ownership checks without a garbage collector.
 				</h2>
 				<p class="oct-reveal mt-3 max-w-xl text-muted-foreground">
 					oxl is built for CLI tools and services: dynamic ownership and borrow
-					checking for memory safety, structured concurrency on ~96-byte task
-					frames, and ahead-of-time native binaries from a single toolchain.{" "}
+					checks, structured concurrency on ~96-byte task frames, and
+					ahead-of-time native binaries from a single toolchain.{" "}
 					<span class="font-mono text-[0.9em] text-foreground">
 						v{oxlVersion}
 					</span>{" "}
