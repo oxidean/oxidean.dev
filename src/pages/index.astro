@@ -179,8 +179,8 @@ const forgePoints = [
 					Repos, review, CI, and packages behind one origin.
 				</h2>
 				<p class="oct-reveal mt-3 max-w-xl text-muted-foreground">
-					Oxidean is a code forge that runs as a single service. Every artifact
-					lives in a single named volume. Swap the bundled Postgres for MySQL or
+					Oxidean is a code forge that deploys as a single Compose stack: web,
+					API, and Postgres services. Swap the bundled Postgres for MySQL or
 					SQLite, add the TLS or Actions profile, or take the same stack to
 					Kubernetes with the Helm chart.
 				</p>
@@ -303,12 +303,12 @@ const forgePoints = [
 					oxl · the language
 				</p>
 				<h2 class="oct-reveal mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-					Memory safety without a garbage collector.
+					Ownership checks without a garbage collector.
 				</h2>
 				<p class="oct-reveal mt-3 max-w-xl text-muted-foreground">
 					oxl is built for CLI tools and services: dynamic ownership and borrow
-					checking for memory safety, structured concurrency on ~96-byte task
-					frames, and ahead-of-time native binaries from a single toolchain.{" "}
+					checks, structured concurrency on ~96-byte task frames, and
+					ahead-of-time native binaries from a single toolchain.{" "}
 					<span class="font-mono text-[0.9em] text-foreground">
 						v{oxlVersion}
 					</span>{" "}
