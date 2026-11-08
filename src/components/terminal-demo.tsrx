@@ -4,12 +4,12 @@ import { cn } from "@/lib/utils";
 type TermLine = { kind: "cmd" | "out" | "ok"; text: string };
 
 /* The real Ox-Agent path: init materializes .ox-agent, doctor validates,
-   start opens a work item. Output lines match binary 0.1.7. */
+   start opens a work item. Output lines match binary 0.1.9. */
 const SCRIPT: TermLine[] = [
   { kind: "cmd", text: "ox-agent init --integrate" },
   { kind: "out", text: "Initialized .ox-agent" },
   { kind: "cmd", text: "ox-agent doctor" },
-  { kind: "ok", text: "Ox-Agent doctor: healthy (binary 0.1.7)" },
+  { kind: "ok", text: "Ox-Agent doctor: healthy (binary 0.1.9)" },
   { kind: "cmd", text: 'ox-agent start "Ship the org site"' },
   { kind: "out", text: "WI-0001: Ship the org site" },
   { kind: "cmd", text: "ox-agent status" },

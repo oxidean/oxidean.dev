@@ -2,6 +2,7 @@
 import SiteShell from "@/layouts/SiteShell.astro";
 import { CopyCommand } from "@/components/copy-command";
 import { TerminalDemo } from "@/components/terminal-demo";
+import docsLock from "../../docs-versions.lock.json";
 
 const products = [
 	{
@@ -11,6 +12,7 @@ const products = [
 			"Self-hostable git hosting, pull requests, issues, CI actions, and package registries.",
 		docs: "/docs/oxidean/",
 		repo: "https://github.com/oxidean/oxidean",
+		badge: `v${docsLock.products.oxidean.default}`,
 	},
 	{
 		tag: "the agent",
@@ -19,6 +21,7 @@ const products = [
 			"Repository-local, token-efficient AI-SDLC: one Go binary, no project-local runtime.",
 		docs: "/docs/ox-agent/",
 		repo: "https://github.com/oxidean/Ox-Agent",
+		badge: `v${docsLock.products["ox-agent"].default}`,
 	},
 	{
 		tag: "the language",
@@ -27,9 +30,11 @@ const products = [
 			"A lean language for CLI tools and services: dynamic ownership checks, no tracing GC.",
 		docs: "/docs/oxl/",
 		repo: "https://github.com/oxidean/oxl",
-		badge: "v0.2.0",
+		badge: `v${docsLock.products.oxl.default}`,
 	},
 ];
+
+const oxlVersion = docsLock.products.oxl.default;
 
 const forgePoints = [
 	"Repos, PRs & review, issues, orgs",
@@ -40,8 +45,8 @@ const forgePoints = [
 ---
 
 <SiteShell
-	title="Oxidean · own your toolchain"
-	description="Oxidean ships three open-source projects: a self-hostable code forge, a repository-local AI-SDLC toolchain, and a language for CLI tools and services."
+	title="Oxidean · built to be owned"
+	description="Oxidean publishes three independent open-source projects: a self-hostable code forge, an agent toolchain that lives in your repository, and a language for CLI tools and services."
 >
 	<section class="relative overflow-hidden">
 		<div aria-hidden="true" class="hero-grid absolute inset-0"></div>
@@ -49,21 +54,21 @@ const forgePoints = [
 		<div class="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-5 pb-20 pt-16 sm:px-6 sm:pt-24 lg:grid-cols-[1.05fr_0.95fr] lg:pb-28">
 			<div>
 				<p class="oct-rise font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-primary">
-					The Oxidean stack · MIT licensed
+					Open source · MIT licensed
 				</p>
 				<h1
 					class="oct-rise mt-4 font-display text-[2.6rem] font-bold leading-[1.05] tracking-tight sm:text-6xl"
 					style="animation-delay: 60ms"
 				>
-					Own your <span class="text-primary">toolchain</span>.
+					Built to be <span class="text-primary">owned</span>.
 				</h1>
 				<p
 					class="oct-rise mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground"
 					style="animation-delay: 120ms"
 				>
-					A code forge you can self-host, an agent toolchain that lives in the
-					repository, and a language built for tools like these. The same stack
-					runs Oxidean itself.
+					Oxidean publishes three independent open-source projects: a
+					self-hostable code forge, an agent toolchain that lives in your
+					repository, and a language for CLI tools and services.
 				</p>
 				<div
 					class="oct-rise mt-8 flex flex-wrap items-center gap-3"
@@ -117,14 +122,14 @@ const forgePoints = [
 	<section id="products" class="border-t border-border">
 		<div class="mx-auto w-full max-w-6xl px-5 py-16 sm:px-6 sm:py-20">
 			<p class="oct-reveal font-mono text-[11px] font-medium uppercase tracking-[0.22em] text-primary">
-				The stack
+				Projects
 			</p>
 			<h2 class="oct-reveal mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-				Three projects, one org.
+				Three projects.
 			</h2>
 			<p class="oct-reveal mt-3 max-w-2xl text-muted-foreground">
-				Each stands alone. Together they are the toolchain Oxidean builds and
-				ships on, and every repo is open.
+				Each ships on its own release line, docs, and repo. Take what fits;
+				leave the rest.
 			</p>
 			<div class="oct-reveal mt-10 grid gap-px overflow-hidden rounded-lg border border-border bg-border lg:grid-cols-3">
 				{products.map((p) => (
@@ -174,10 +179,11 @@ const forgePoints = [
 					One compose file. One volume. Yours.
 				</h2>
 				<p class="oct-reveal mt-3 max-w-xl text-muted-foreground">
-					Every forge artifact (repos, LFS objects, packages, action logs) lives
-					in a single named volume behind one HTTP origin. Swap the bundled
-					Postgres for MySQL or SQLite, add the TLS or Actions profile, or take
-					the same stack to Kubernetes with the Helm chart.
+					Oxidean is a code forge: git hosting, review, issues, CI, and package
+					registries behind one HTTP origin. Every artifact lives in a single
+					named volume. Swap the bundled Postgres for MySQL or SQLite, add the
+					TLS or Actions profile, or take the same stack to Kubernetes with the
+					Helm chart.
 				</p>
 				<ul class="oct-reveal mt-6 grid max-w-xl grid-cols-1 gap-2 text-[14px] text-muted-foreground sm:grid-cols-2">
 					{forgePoints.map((pt) => (
@@ -303,10 +309,12 @@ const forgePoints = [
 				<p class="oct-reveal mt-3 max-w-xl text-muted-foreground">
 					oxl is built for CLI tools and services: dynamic ownership and borrow
 					checking for memory safety, structured concurrency on ~96-byte task
-					frames, and ahead-of-time native binaries from a single toolchain. The
-					compiler runs end to end today:{" "}
-					<span class="font-mono text-[0.9em] text-foreground">v0.2.0</span> is
-					released and the toolchain compiles itself.
+					frames, and ahead-of-time native binaries from a single toolchain.{" "}
+					<span class="font-mono text-[0.9em] text-foreground">
+						v{oxlVersion}
+					</span>{" "}
+					is released, and the compiler, parser, and checker are written in oxl
+					and compile themselves.
 				</p>
 				<div class="oct-reveal mt-6 flex flex-wrap gap-3">
 					<a
@@ -330,7 +338,9 @@ const forgePoints = [
 					<div class="border-b border-border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
 						the v0 surface
 					</div>
-					<pre class="overflow-x-auto p-4 font-mono text-[13px] leading-6"><code><span class="text-foreground">fn fail(b: bool) -&gt; [int, err] {"{"}</span>
+					<pre class="overflow-x-auto p-4 font-mono text-[13px] leading-6"><code><span class="text-muted-foreground">package main</span>
+
+<span class="text-foreground">fn fail(b: bool) -&gt; [int, err] {"{"}</span>
 <span class="text-foreground">    if b {"{"} return 0, 1 {"}"}</span>
 <span class="text-foreground">    return 42, nil</span>
 <span class="text-foreground">{"}"}</span>
@@ -354,8 +364,7 @@ const forgePoints = [
 	<section class="border-t border-border">
 		<div class="mx-auto w-full max-w-6xl px-5 py-14 text-center sm:px-6">
 			<p class="oct-reveal font-mono text-[12px] text-muted-foreground">
-				This site is Astro + Octane islands, the same UI stack that ships in the
-				forge, and the repo is managed by ox-agent.
+				This site is Astro + Octane islands; docs ship from each product repo.
 				<a
 					href="https://github.com/oxidean/oxidean.dev"
 					target="_blank"
