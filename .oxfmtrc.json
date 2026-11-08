@@ -1,0 +1,13 @@
+{
+  "ignorePatterns": [
+    "dist/**",
+    "coverage/**",
+    ".astro/**",
+    ".ox-agent/**",
+    ".github/**",
+    ".githooks/**",
+    "scripts/**",
+    "public/**",
+    "src/content/**"
+  ]
+}

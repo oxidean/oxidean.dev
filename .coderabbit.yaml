@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: en
+reviews:
+  path_filters:
+    # `.ox-agent/` is ox-agent-managed scaffold plus vendored skill copies —
+    # the sources live in oxidean/Ox-Agent and oxidean/oxidean; findings on
+    # them are tracked upstream (Ox-Agent#28, oxidean#234), not patched here.
+    - "!.ox-agent/**"
+  profile: chill
+  auto_approvals:
+    enabled: true
+  pre_merge_checks:
+    docstrings:
+      # Marketing/docs site — no docstring-coverage merge gate (same policy
+      # as oxidean/oxl). Doc comments stay welcome but unmeasured.
+      mode: off
+  tools:
+    shellcheck:
+      enabled: true
+    markdownlint:
+      enabled: false
+    gitleaks:
+      enabled: true
+    actionlint:
+      enabled: true
+    github-checks:
+      enabled: false
+  high_level_summary: true
+  review_status: true
+  commit_status: true
+  collapse_walkthrough: true
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    ignore_title_keywords: []
+    drafts: false
+    base_branches: []

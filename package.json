@@ -1,0 +1,39 @@
+{
+  "name": "@oxidean/site",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "lint": "oxlint --type-aware --deny-warnings . \"src/**/*.tsrx\"",
+    "format": "oxfmt --write . \"src/**/*.tsrx\" && prettier --write \"src/**/*.astro\"",
+    "format:check": "oxfmt --check . \"src/**/*.tsrx\" && prettier --check \"src/**/*.astro\"",
+    "commit-check": "scripts/commit-check.sh --range origin/main..HEAD"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.42.10",
+    "@octanejs/astro": "0.0.46",
+    "@octanejs/lucide": "^0.1.62",
+    "astro": "^7.4.4",
+    "clsx": "^2.1.1",
+    "octane": "^0.16.4",
+    "tailwind-merge": "^3.7.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@tsrx/oxc": "^0.23.0",
+    "oxlint-tsgolint": "7.0.2002",
+    "prettier": "3.9.10",
+    "prettier-plugin-astro": "1.1.2",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4"
+  },
+  "volta": {
+    "node": "24.20.0"
+  },
+  "packageManager": "bun@1.4.0"
+}

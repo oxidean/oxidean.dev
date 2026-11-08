@@ -1,0 +1,181 @@
+/*
+  Oxidean design tokens, framework-free. Loaded by both src/styles.css
+  (Tailwind pages) and src/styles/starlight.css (docs pages), so this file
+  must not import Tailwind or emit utilities. Starlight themes via
+  html[data-theme]; marketing pages via html.dark. Both selectors covered.
+
+  Preloaded latin faces, font-display: swap; metric-adjusted local
+  fallbacks keep metrics stable during the brief swap window.
+*/
+@font-face {
+  font-family: "Sora Fallback";
+  src:
+    local("Segoe UI"), local("Arial"), local("Helvetica Neue"), local("Helvetica"),
+    local("Liberation Sans"), local("Nimbus Sans L"), local("DejaVu Sans");
+  size-adjust: 88.95%;
+  ascent-override: 92%;
+  descent-override: 23%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Source Sans 3 Fallback";
+  src:
+    local("Segoe UI"), local("Arial"), local("Helvetica Neue"), local("Helvetica"),
+    local("Liberation Sans"), local("Nimbus Sans L"), local("DejaVu Sans");
+  size-adjust: 90.97%;
+  ascent-override: 94%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Sora Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url("/fonts/sora-latin.woff2") format("woff2-variations");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Sora Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url("/fonts/sora-latin-ext.woff2") format("woff2-variations");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Source Sans 3 Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url("/fonts/source-sans-3-latin.woff2") format("woff2-variations");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Source Sans 3 Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url("/fonts/source-sans-3-latin-ext.woff2") format("woff2-variations");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+:root {
+  --font-display: "Sora Variable", "Sora Fallback", ui-sans-serif, sans-serif;
+  --font-sans: "Source Sans 3 Variable", "Source Sans 3 Fallback", ui-sans-serif, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+/*
+  Surfaces: quiet neutrals on a bright-white (light) / deep charcoal
+  (dark) canvas with WCAG-friendlier muted text. Accents are Oxidean brand:
+  primary = burnt oxide orange (#D75F00 family), secondary = charcoal (light)
+  / muted steel (dark) neutral. `success` stays a yellow-green kept visually
+  distinct from the warm primary.
+*/
+:root {
+  color-scheme: light;
+  --radius: 0.5rem;
+
+  --background: #ffffff;
+  --foreground: #1f2328;
+  --card: #f6f8fa;
+  --card-foreground: #1f2328;
+  --popover: #ffffff;
+  --popover-foreground: #1f2328;
+  /* burnt oxide orange, ~5:1 on white (AA text; #D75F00 accent darkened
+	   for text roles, bright variant lives in the mark + chart-1) */
+  --primary: #bf4b0a;
+  --primary-foreground: #ffffff;
+  /* charcoal, neutral bordered-button/badge role */
+  --secondary: #2a2d33;
+  --secondary-foreground: #f5f3ef;
+  --muted: #f6f8fa;
+  /* ~4.6:1 on white, readable helper text */
+  --muted-foreground: #59636e;
+  --accent: #eff2f5;
+  --accent-foreground: #1f2328;
+  --destructive: #cf222e;
+  --destructive-foreground: #ffffff;
+
+  /* Unified-diff line washes (commit / compare). */
+  --diff-add-bg: #eaf6ee;
+  --diff-add-fg: #0f3d24;
+  --diff-del-bg: #fceceb;
+  --diff-del-fg: #7a1f1a;
+  --diff-hunk-bg: #eef3f9;
+  --diff-hunk-fg: #334155;
+  --border: #d0d7de;
+  --input: #d0d7de;
+  --ring: #bf4b0a;
+  --header: #ffffff;
+  --success: #1a7f37;
+  --success-foreground: #ffffff;
+
+  /* Data-viz ramp: oxide → teal → neutral (charts, gradients). */
+  --chart-1: #d75f00;
+  --chart-2: #0f766e;
+  --chart-3: #1a7f37;
+  --chart-4: #8250df;
+  --chart-5: #59636e;
+}
+
+/* html.dark is set by the landing boot script; html[data-theme='dark'] is
+   Starlight's mechanism on docs pages. Both resolve to this palette. */
+.dark,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  /* Deep charcoal canvas (#121212) with elevated near-black surfaces. */
+  --background: #121212;
+  --foreground: #f0f3f6;
+  --card: #1b1d21;
+  --card-foreground: #f0f3f6;
+  --popover: #1b1d21;
+  --popover-foreground: #f0f3f6;
+  /* bright oxide, ~7:1 on #121212 (brand accent lifted for dark canvas) */
+  --primary: #ff7b4a;
+  --primary-foreground: #1a0a04;
+  /* muted steel, neutral bordered-button/badge role on charcoal */
+  --secondary: #9aa4b2;
+  --secondary-foreground: #16171a;
+  --muted: #23262c;
+  /* ~8.6:1 on #121212 */
+  --muted-foreground: #9da7b3;
+  --accent: #23262c;
+  --accent-foreground: #f0f3f6;
+  --destructive: #f85149;
+  --destructive-foreground: #ffffff;
+  --diff-add-bg: #0d1f14;
+  --diff-add-fg: #b6ebc6;
+  --diff-del-bg: #2a1515;
+  --diff-del-fg: #f0b4b0;
+  --diff-hunk-bg: #121a2b;
+  --diff-hunk-fg: #9eb6d4;
+  --border: #3f434c;
+  --input: #3f434c;
+  --ring: #ff7b4a;
+  --header: #16171a;
+  --success: #3fb950;
+  --success-foreground: #04110e;
+
+  --chart-1: #ff7b4a;
+  --chart-2: #2dd4bf;
+  --chart-3: #3fb950;
+  --chart-4: #a371f7;
+  --chart-5: #9da7b3;
+}

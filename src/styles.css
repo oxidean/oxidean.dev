@@ -1,0 +1,180 @@
+@import "tailwindcss";
+@import "./styles/tokens.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-header: var(--header);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+}
+
+@layer base {
+  html {
+    min-height: 100%;
+    scroll-behavior: auto;
+    /* Always-reserve (and always-render) the vertical scrollbar so navigating
+		   between a scrollable page and a short page never shifts layout. */
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+  }
+
+  /* Footer lives below the fold on every page; short content still pushes it
+	   past the initial viewport, so nothing pops when taller routes load. */
+  .oxidean-main {
+    min-height: 100vh;
+  }
+
+  body {
+    min-height: 100%;
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+    background-color: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-contrast: more) {
+    :root {
+      --border: #8c959f;
+      --muted-foreground: #424a53;
+    }
+    .dark {
+      --border: #6e7681;
+      --muted-foreground: #c9d1d9;
+    }
+  }
+}
+
+@layer components {
+  /* macOS app-icon squircle clip for the brand mark. */
+  .oxidean-squircle {
+    -webkit-mask-image: url("/brand/squircle.svg");
+    -webkit-mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-image: url("/brand/squircle.svg");
+    mask-size: 100% 100%;
+    mask-repeat: no-repeat;
+  }
+
+  /* Astro islands are custom elements (inline by default); let their children
+	   participate in the parent's flex/grid layout. */
+  astro-island {
+    display: contents;
+  }
+
+  /* Faint engineering grid behind the hero: hairlines on the canvas, faded
+	   to nothing by a radial mask so the oxide glow reads as atmosphere. */
+  .hero-grid {
+    background-image:
+      linear-gradient(to right, var(--border) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+    background-size: 56px 56px;
+    opacity: 0.35;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 20%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 20%, transparent 75%);
+  }
+
+  .hero-glow {
+    background: radial-gradient(ellipse 55% 45% at 50% -5%, var(--primary) 0%, transparent 70%);
+    opacity: 0.14;
+  }
+
+  /* Marketing landing reveal, paired with the IntersectionObserver script
+	   on pages that want scroll-in motion. */
+  .oct-rise {
+    animation: octRise 320ms ease-out both;
+  }
+  .oct-reveal {
+    transition:
+      opacity 320ms ease-out,
+      transform 320ms ease-out;
+  }
+  .oct-reveal:not(.oct-reveal-in) {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  .oct-reveal-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (scripting: none) {
+    .oct-reveal:not(.oct-reveal-in) {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .oct-rise {
+      animation: none !important;
+    }
+    .oct-reveal,
+    .oct-reveal-in {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+  }
+}
+
+@keyframes octRise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer base {
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation: none !important;
+    }
+  }
+}
