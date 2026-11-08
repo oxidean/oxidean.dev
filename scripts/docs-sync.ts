@@ -8,8 +8,10 @@
 // dots would be stripped (0.4.2 → 042).
 //
 // Soft by default: a fetch/verify failure warns and keeps going so builds
-// work before bundles exist upstream. Pass --strict to fail hard (CI gate
-// once every locked version has a released bundle).
+// work before bundles exist upstream. Pass --strict to fail hard. Strict
+// is implicit in CI and Vercel builds — a missing bundle there means the
+// deploy would ship sidebar links to nonexistent routes, so the build
+// goes red instead (Vercel keeps serving the last good deploy).
 
 import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -20,7 +22,16 @@ import { fetchBytes, sha256Hex, type DocsLock } from "./lib/docs-manifest";
 const root = join(import.meta.dirname, "..");
 const lockPath = join(root, "docs-versions.lock.json");
 const docsRoot = join(root, "src/content/docs/docs");
-const strict = process.argv.includes("--strict");
+// DOCS_SYNC_STRICT=0 overrides auto-detect — the ingest workflow's
+// install step runs soft because a stale pin is exactly what it exists
+// to repair; strict there would deadlock it. Everything else stays
+// strict under CI/Vercel.
+const strict =
+  process.env.DOCS_SYNC_STRICT != null
+    ? process.env.DOCS_SYNC_STRICT !== "0"
+    : process.argv.includes("--strict") ||
+      process.env.CI === "true" ||
+      Boolean(process.env.VERCEL);
 
 const lock = JSON.parse(readFileSync(lockPath, "utf8")) as DocsLock;
 

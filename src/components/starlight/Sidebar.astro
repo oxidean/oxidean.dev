@@ -1,6 +1,71 @@
 ---
 import Default from "@astrojs/starlight/components/Sidebar.astro";
 import VersionSwitcher from "./VersionSwitcher.astro";
+import docsLock from "../../../docs-versions.lock.json";
+
+// The configured sidebar lists every locked version as a collapsible
+// group per product — fine as a data source, but it clutters fast as
+// releases accumulate. Version switching is the dropdown's job, so the
+// rendered sidebar shows ONE version's page tree per product: the version
+// in the current URL (/docs/<product>/<vseg>/…), else the product's
+// default version. The configured groups stay intact in the route data;
+// we only re-point each product group's `entries` at the chosen
+// version group's children.
+const firstHref = (entry) => {
+	if (!entry) return undefined;
+	if (entry.type === "link") return entry.href;
+	return firstHref(entry.entries?.[0]);
+};
+
+const match = Astro.url.pathname.match(
+	/^\/docs\/([a-z0-9-]+)\/(\d+-\d+-\d+[^/]*)/,
+);
+const sidebar = Astro.locals.starlightRoute?.sidebar;
+
+if (Array.isArray(sidebar)) {
+	for (const [slug, product] of Object.entries(docsLock.products)) {
+		const group = sidebar.find(
+			(e) => e.type === "group" && firstHref(e)?.startsWith(`/docs/${slug}/`),
+		);
+		if (group?.type !== "group") continue;
+
+		const wantedSeg =
+			match?.[1] === slug ? match[2] : product.default.replaceAll(".", "-");
+		const pick = (seg) =>
+			group.entries.find(
+				(e) =>
+					e.type === "group" &&
+					firstHref(e)?.startsWith(`/docs/${slug}/${seg}/`),
+			);
+		const vGroup =
+			pick(wantedSeg) ?? pick(product.default.replaceAll(".", "-"));
+		if (vGroup?.type === "group") group.entries = vGroup.entries;
+		group.collapsed = false;
+	}
+
+	// Re-scope prev/next pagination to the browsed product's pruned tree —
+	// pagination was computed from the full sidebar and would otherwise
+	// step across versions (and products).
+	if (match) {
+		const productGroup = sidebar.find(
+			(e) =>
+				e.type === "group" && firstHref(e)?.startsWith(`/docs/${match[1]}/`),
+		);
+		const flat = [];
+		const walk = (entries) => {
+			for (const e of entries ?? []) {
+				if (e.type === "link") flat.push(e);
+				else walk(e.entries);
+			}
+		};
+		walk(productGroup?.entries);
+		const idx = flat.findIndex((e) => e.isCurrent);
+		Astro.locals.starlightRoute.pagination = {
+			prev: idx > 0 ? flat[idx - 1] : undefined,
+			next: idx >= 0 ? flat[idx + 1] : undefined,
+		};
+	}
+}
 ---
 
 <VersionSwitcher />
