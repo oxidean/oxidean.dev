@@ -164,3 +164,13 @@ AC4–6 S6 build/routes/switcher · AC7 every stage's gates.
   reusable-workflow asset URLs were wrong — callers pin `@v0.1.1`).
   Verified: `go test` covers every named failure; determinism asserted
   byte-for-byte; release binary validates fixtures end-to-end.
+- **2026-11-08 — merges + S5** — oxl#34, oxidean#235, oxidean#236 (kind
+  `ctr pull` fix), oxidean.dev#1 all merged. docs-manifest iterated to
+  **v0.1.6** (env pass-through + input validation + `src-ref` protected-
+  ref restriction); all callers re-pinned. S5 done via local pack +
+  `gh release upload`: `docs-0.4.0`→oxl v0.4.0, `docs-0.4.2`→ox-v0.4.2,
+  `docs-0.1.7`→Ox-Agent v0.1.7. oxl v0.4.1 and Ox-Agent v0.1.8 predate
+  the contract — no bundles; site serves the older version until the
+  next releases cut with the pipeline.
+- **S6** — oxidean.dev#2 rebased onto main post-squash, undrafted, lock
+  filled with real sha256s via `docs:update` (35 pages verified).
