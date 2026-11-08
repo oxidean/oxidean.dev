@@ -88,8 +88,17 @@ for (const [slug, product] of Object.entries(lock.products)) {
 
   // Keep the pinned entry when discovery omits it (pagination, missing
   // asset, tag-filter miss) — dropping it would remove its deployed pages.
+  // But a confirmed-deleted bundle is a hard error: sync can't fetch it and
+  // the redirects it serves would 404.
   const pinned = product.versions.find((v) => v.version === product.default);
   if (pinned && !versions.some((v) => v.version === pinned.version)) {
+    const head = await fetch(pinned.url, { method: "HEAD" });
+    if (head.status === 404) {
+      throw new Error(
+        `${slug}: locked default ${pinned.version} bundle is gone upstream ` +
+          `(${pinned.url}) — re-pin an available version or restore the asset`,
+      );
+    }
     versions.push(pinned);
     versions.sort((a, b) => compareVersions(b.version, a.version));
   }
