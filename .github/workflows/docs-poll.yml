@@ -33,6 +33,7 @@ jobs:
   poll:
     name: poll product releases for docs drift
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
@@ -109,10 +110,11 @@ jobs:
               gh pr create \
                 --title "chore(docs): sync docs-versions.lock.json (release poll)" \
                 --body "$body" \
+                --base main \
                 --label documentation || return 1
               pr=$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number') || return 1
             else
-              gh pr edit "$pr" --body "$body" || return 1
+              gh pr edit "$pr" --body "$body" --add-label documentation || return 1
             fi
             echo "bump PR: #$pr"
             # Last op: a merge failure means the PR exists but waits —
@@ -145,9 +147,26 @@ jobs:
         if: steps.diff.outputs.changed == 'false'
         env:
           GH_TOKEN: ${{ secrets.DOCS_SITE_DISPATCH_TOKEN || github.token }}
+          FALLBACK_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          pr=$(gh pr list --head "docs-poll/auto" --base main --state open --json number --jq '.[0].number' || true)
+          # A failed list must not read as "no open PR" — under a broken
+          # dispatch token that silently strands an armed bump PR, which
+          # is the failure this workflow exists to surface. Probe under
+          # the configured token, retry under GITHUB_TOKEN, and close
+          # with whichever token answered.
+          list_pr() {
+            gh pr list --head "docs-poll/auto" --base main --state open --json number --jq '.[0].number'
+          }
+          if pr=$(list_pr); then
+            :
+          elif pr=$(GH_TOKEN="$FALLBACK_TOKEN" list_pr); then
+            echo "::warning::pr list failed under DOCS_SITE_DISPATCH_TOKEN — reconciling with GITHUB_TOKEN"
+            export GH_TOKEN="$FALLBACK_TOKEN"
+          else
+            echo "::warning::pr list failed under both tokens — reconcile any stale docs-poll/auto PR manually"
+            exit 0
+          fi
           if [ -n "$pr" ]; then
             gh pr close "$pr" \
               --comment "Superseded — docs-versions.lock.json on main is already current; the drift this PR carried landed via another route. Filed by docs-poll.yml." \
