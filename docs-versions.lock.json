@@ -178,8 +178,28 @@
       "name": "oxl",
       "source": "oxidean/oxl",
       "tag_pattern": "v*",
-      "default": "0.5.0",
+      "default": "0.9.2",
       "versions": [
+        {
+          "version": "0.9.2",
+          "tag": "v0.9.2",
+          "url": "https://github.com/oxidean/oxl/releases/download/v0.9.2/docs-0.9.2.tar.gz",
+          "sha256": "0c0d730884902db43b8cc3d9d0dab51e5dc49fd4200358ab9b0a15a62616821d",
+          "pages": [
+            {
+              "label": "oxl",
+              "link": "/"
+            },
+            {
+              "label": "Getting started",
+              "link": "/getting-started/"
+            },
+            {
+              "label": "Language",
+              "link": "/language/"
+            }
+          ]
+        },
         {
           "version": "0.5.0",
           "tag": "v0.5.0",
