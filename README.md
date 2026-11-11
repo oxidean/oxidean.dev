@@ -19,9 +19,9 @@ themed onto the forge's palette (charcoal `#121212` / burnt oxide
 `#D75F00`, Sora + Source Sans 3). Product docs are not authored here — each
 product repo ships a curated `docs/site/` subtree that its release pipeline
 packs into a `docs-<version>.tar.gz` asset; this repo's
-`docs-versions.lock.json` pins up to five versions per product and the
-build unpacks them. Deploys to Vercel as a purely static build: no
-functions, no env vars.
+`docs-versions.lock.json` pins up to five versions per product and
+`bun install` unpacks them (postinstall runs `docs:sync`). Deploys to
+Vercel as a purely static build: no functions, no env vars.
 
 ## Develop
 
@@ -33,9 +33,12 @@ bun run preview      # serve the build locally
 bun run lint         # type-aware oxlint (@tsrx/oxc)
 bun run format       # oxfmt + prettier --write
 bun run format:check # oxfmt + prettier --check (what CI runs)
-bun run docs:sync    # fetch + verify + unpack locked docs bundles
+bun run docs:sync    # fetch + verify + unpack locked docs bundles (also runs on install)
 bun run docs:update  # poll product releases for new bundles, rewrite lockfile
 ```
+
+`docs:update` only rewrites the lockfile — run `bun run docs:sync` after it
+so the materialized pages match before building.
 
 ## Conventions
 
