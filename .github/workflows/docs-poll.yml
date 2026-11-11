@@ -75,8 +75,15 @@ jobs:
         if: steps.diff.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ secrets.DOCS_SITE_DISPATCH_TOKEN || secrets.GITHUB_TOKEN }}
+          HAVE_DISPATCH_TOKEN: ${{ secrets.DOCS_SITE_DISPATCH_TOKEN != '' }}
         run: |
           set -euo pipefail
+          # A GITHUB_TOKEN-authored PR never triggers pull_request checks —
+          # the bump then waits on a human. Still open it (the drift fix is
+          # the artifact), but flag the degraded path loudly.
+          if [ "$HAVE_DISPATCH_TOKEN" != "true" ]; then
+            echo "::warning::DOCS_SITE_DISPATCH_TOKEN is not set — the bump PR is opened with GITHUB_TOKEN, its checks will not self-run, and it needs a manual merge. Fix the org secret to restore unattended bumps."
+          fi
           gh auth setup-git
 
           branch="docs-poll/auto"
