@@ -16,7 +16,7 @@ same UI stack the forge itself ships. Documentation runs on
 [Starlight](https://starlight.astro.build) at `/docs/*`, one versioned
 section per product (`docs/oxidean/`, `docs/ox-agent/`, `docs/oxl/`),
 themed onto the forge's palette (charcoal `#121212` / burnt oxide
-`#D75F00`, Sora + Source Sans 3). Product docs are not authored here — each
+`#D75F00`, Sora + Source Sans 3). Product docs are not authored here: each
 product repo ships a curated `docs/site/` subtree that its release pipeline
 packs into a `docs-<version>.tar.gz` asset; this repo's
 `docs-versions.lock.json` pins the newest five releases per product
@@ -38,7 +38,7 @@ bun run docs:sync    # fetch + verify + unpack locked docs bundles (also runs on
 bun run docs:update  # poll product releases for new bundles, rewrite lockfile
 ```
 
-`docs:update` only rewrites the lockfile — run `bun run docs:sync` after it
+`docs:update` only rewrites the lockfile; run `bun run docs:sync` after it
 so the materialized pages match before building.
 
 ## Conventions

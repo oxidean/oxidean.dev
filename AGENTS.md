@@ -23,7 +23,7 @@ tracked by `assets.lock`. Add extension skills as new directories instead.
 
 ## oxidean.dev — org site
 
-Org site for the Oxidean GitHub org — landing + per-product docs covering the forge ([oxidean/oxidean](https://github.com/oxidean/oxidean)), the OxAgent runtime ([oxidean/Ox-Agent](https://github.com/oxidean/Ox-Agent)), and the oxl language ([oxidean/oxl](https://github.com/oxidean/oxl)). Static Astro output deployed to Vercel — no server runtime, no env vars.
+Org site for the Oxidean GitHub org — landing + per-product docs covering the forge ([oxidean/oxidean](https://github.com/oxidean/oxidean)), the Ox-Agent runtime ([oxidean/Ox-Agent](https://github.com/oxidean/Ox-Agent)), and the oxl language ([oxidean/oxl](https://github.com/oxidean/oxl)). Static Astro output deployed to Vercel — no server runtime, no env vars.
 
 ### Stack (do not invent alternatives)
 
