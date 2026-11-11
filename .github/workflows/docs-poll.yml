@@ -69,20 +69,41 @@ jobs:
         run: bun run docs:sync && bun run build
 
       # GH_TOKEN prefers the dispatch PAT so the bump PR fires normal
-      # pull_request checks; falls back to GITHUB_TOKEN when the org
-      # secret is not installed on this repo.
+      # pull_request checks. The env-level || only covers the secret being
+      # UNSET — a set-but-dead PAT (expired, revoked, or contents:write
+      # dropped, which once masked six failed dispatches behind green
+      # releases) still gets selected and the push fails. Probe the PAT's
+      # effective access first; degrade to GITHUB_TOKEN when it cannot
+      # push, and warn loudly since a GITHUB_TOKEN-authored PR needs a
+      # manual merge.
       - name: Open lock-bump PR
         if: steps.diff.outputs.changed == 'true'
         env:
-          GH_TOKEN: ${{ secrets.DOCS_SITE_DISPATCH_TOKEN || secrets.GITHUB_TOKEN }}
-          HAVE_DISPATCH_TOKEN: ${{ secrets.DOCS_SITE_DISPATCH_TOKEN != '' }}
+          DISPATCH_TOKEN: ${{ secrets.DOCS_SITE_DISPATCH_TOKEN }}
+          FALLBACK_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          # A GITHUB_TOKEN-authored PR never triggers pull_request checks —
-          # the bump then waits on a human. Still open it (the drift fix is
-          # the artifact), but flag the degraded path loudly.
-          if [ "$HAVE_DISPATCH_TOKEN" != "true" ]; then
-            echo "::warning::DOCS_SITE_DISPATCH_TOKEN is not set — the bump PR is opened with GITHUB_TOKEN, its checks will not self-run, and it needs a manual merge. Fix the org secret to restore unattended bumps."
+
+          dispatch_usable=false
+          if [ -n "$DISPATCH_TOKEN" ]; then
+            # Probe before trusting: the PAT must see this repo with push
+            # permission and read PRs. Any dead/reduced scope fails closed
+            # into the fallback instead of dying mid-publish.
+            if [ "$(GH_TOKEN="$DISPATCH_TOKEN" gh api "repos/$GITHUB_REPOSITORY" --jq '.permissions.push' 2>/dev/null || true)" = "true" ] \
+               && GH_TOKEN="$DISPATCH_TOKEN" gh pr list --limit 1 >/dev/null 2>&1; then
+              dispatch_usable=true
+            fi
+          fi
+
+          if [ "$dispatch_usable" = "true" ]; then
+            export GH_TOKEN="$DISPATCH_TOKEN"
+          else
+            export GH_TOKEN="$FALLBACK_TOKEN"
+            if [ -n "$DISPATCH_TOKEN" ]; then
+              echo "::warning::DOCS_SITE_DISPATCH_TOKEN is set but cannot push to $GITHUB_REPOSITORY (expired, revoked, or missing contents:write) — the bump PR is opened with GITHUB_TOKEN, its checks will not self-run, and it needs a manual merge. Fix the org secret to restore unattended bumps."
+            else
+              echo "::warning::DOCS_SITE_DISPATCH_TOKEN is not set — the bump PR is opened with GITHUB_TOKEN, its checks will not self-run, and it needs a manual merge. Fix the org secret to restore unattended bumps."
+            fi
           fi
           gh auth setup-git
 
