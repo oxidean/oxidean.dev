@@ -21,6 +21,13 @@ permissions:
   contents: write
   pull-requests: write
 
+# Both triggers write the same fixed docs-poll/auto branch — serialize so a
+# slower run can't push -f an older release snapshot over a newer one.
+# Never cancel a running poll: its commit may already be the open PR's head.
+concurrency:
+  group: docs-poll
+  cancel-in-progress: false
+
 jobs:
   poll:
     name: poll product releases for docs drift
