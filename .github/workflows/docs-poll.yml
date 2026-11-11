@@ -35,8 +35,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      # Pin the tree, not just the base: a workflow_dispatch run can select
+      # any ref, and checkout defaults to it — a bump PR would then carry
+      # that branch's commits into an armed auto-merge against main.
       - uses: actions/checkout@v7
         with:
+          ref: main
           persist-credentials: false
       - uses: actions/setup-node@v6
         with:
@@ -168,9 +172,16 @@ jobs:
             exit 0
           fi
           if [ -n "$pr" ]; then
-            gh pr close "$pr" \
-              --comment "Superseded — docs-versions.lock.json on main is already current; the drift this PR carried landed via another route. Filed by docs-poll.yml." \
-              || echo "::warning::could not close stale bump PR #$pr — close it manually"
+            close_msg="Superseded — docs-versions.lock.json on main is already current; the drift this PR carried landed via another route. Filed by docs-poll.yml."
+            if ! gh pr close "$pr" --comment "$close_msg"; then
+              if [ "$GH_TOKEN" != "$FALLBACK_TOKEN" ]; then
+                echo "::warning::pr close failed under DOCS_SITE_DISPATCH_TOKEN — retrying with GITHUB_TOKEN"
+                GH_TOKEN="$FALLBACK_TOKEN" gh pr close "$pr" --comment "$close_msg" \
+                  || echo "::warning::could not close stale bump PR #$pr under either token — close it manually"
+              else
+                echo "::warning::could not close stale bump PR #$pr — close it manually"
+              fi
+            fi
           else
             echo "no open docs-poll/auto PR — nothing to reconcile"
           fi
