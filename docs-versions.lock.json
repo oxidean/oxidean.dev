@@ -58,8 +58,36 @@
       "name": "Ox-Agent",
       "source": "oxidean/Ox-Agent",
       "tag_pattern": "v*",
-      "default": "0.1.9",
+      "default": "0.1.15",
       "versions": [
+        {
+          "version": "0.1.15",
+          "tag": "v0.1.15",
+          "url": "https://github.com/oxidean/Ox-Agent/releases/download/v0.1.15/docs-0.1.15.tar.gz",
+          "sha256": "96cf7add227acfffd0e499150176f23ebe4ccfddec0f48cff566d8b8f55395a6",
+          "pages": [
+            {
+              "label": "Ox-Agent",
+              "link": "/"
+            },
+            {
+              "label": "Install",
+              "link": "/install/"
+            },
+            {
+              "label": "Quickstart",
+              "link": "/quickstart/"
+            },
+            {
+              "label": "CLI",
+              "link": "/cli/"
+            },
+            {
+              "label": "Architecture",
+              "link": "/architecture/"
+            }
+          ]
+        },
         {
           "version": "0.1.9",
           "tag": "v0.1.9",
