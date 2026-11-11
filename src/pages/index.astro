@@ -1,6 +1,4 @@
 ---
-import { readFileSync } from "node:fs";
-
 import SiteShell from "@/layouts/SiteShell.astro";
 import { CopyCommand } from "@/components/copy-command";
 import { TerminalDemo } from "@/components/terminal-demo";
@@ -38,13 +36,6 @@ const products = [
 
 const oxlVersion = docsLock.products.oxl.default;
 const oxAgentVersion = docsLock.products["ox-agent"].default;
-
-// Landing code samples ship inside the product docs bundles — always
-// released, compiled syntax, never hand-maintained site copy.
-const oxlExample = readFileSync(
-	`src/content/docs/docs/oxl/${oxlVersion.replaceAll(".", "-")}/examples/http-server.oxl`,
-	"utf-8",
-).trim();
 
 const forgePoints = [
 	"Repos, PRs & review, issues, orgs",
@@ -345,9 +336,26 @@ const forgePoints = [
 			<div class="oct-reveal">
 				<div class="overflow-hidden rounded-lg border border-border bg-card">
 					<div class="border-b border-border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
-						an http service
+						the v0 surface
 					</div>
-					<pre class="overflow-x-auto p-4 font-mono text-[13px] leading-6"><code>{oxlExample}</code></pre>
+					<pre class="overflow-x-auto p-4 font-mono text-[13px] leading-6"><code><span class="text-muted-foreground">package main</span>
+
+<span class="text-foreground">fn fail(b: bool) -&gt; [int, err] {"{"}</span>
+<span class="text-foreground">    if b {"{"} return 0, 1 {"}"}</span>
+<span class="text-foreground">    return 42, nil</span>
+<span class="text-foreground">{"}"}</span>
+
+<span class="text-foreground">fn main() {"{"}</span>
+<span class="text-foreground">    [v, err] = fail(false)</span>
+<span class="text-foreground">    if err != nil {"{"} return {"}"}</span>
+<span class="text-foreground">    println(itoa(v))</span>
+
+<span class="text-foreground">    ch := mkchan()</span>
+<span class="text-foreground">    scope {"{"}</span>
+<span class="text-foreground">        spawn send(ch, 7)</span>
+<span class="text-foreground">        println(itoa(recv(ch)))</span>
+<span class="text-foreground">    {"}"}</span>
+<span class="text-foreground">{"}"}</span></code></pre>
 				</div>
 			</div>
 		</div>
