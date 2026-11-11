@@ -47,6 +47,7 @@ bun run lint            # type-aware oxlint (web type gate — plain tsc doesn't
 bun run format:check    # oxfmt + prettier --check (fix with bun run format)
 bun run docs:sync       # fetch + unpack locked docs bundles (warns if a release lacks one)
 bun run docs:update     # discover new docs bundles on releases, rewrite the lockfile
+bun run docs:upsert     # single-release lock upsert (driven by docs-release.yml)
 scripts/commit-check.sh --range origin/main..HEAD
 ```
 
@@ -61,11 +62,13 @@ CI-validates it, and attaches `docs-<ver>.tar.gz` to each matching release
 - `docs-versions.lock.json` (committed) pins per-product versions:
   `{source, tag_pattern, default, versions[{version, tag, url, sha256, pages}]}`
   — `pages` is the bundle manifest's sidebar tree, captured by `docs:update`.
-- Lock bumps arrive two ways: push — a product release dispatches
+- Lock bumps arrive three ways: push — a product release dispatches
   `docs-release.yml` (`workflow_dispatch {product, version, repo, tag}`),
-  which runs `bun scripts/docs-upsert.ts` and opens a bump PR; and pull —
-  `bun run docs:update` polls release assets for drift. The token wiring:
-  org secret `DOCS_SITE_DISPATCH_TOKEN` (Actions:write on this repo).
+  which runs `bun scripts/docs-upsert.ts` and opens a bump PR; scheduled
+  pull — `docs-poll.yml` runs `docs:update` every 6h as a backstop for
+  dropped dispatches; and manual pull — `bun run docs:update` polls
+  release assets for drift. The token wiring: org secret
+  `DOCS_SITE_DISPATCH_TOKEN` (Actions:write on this repo).
 - `bun run docs:sync` (postinstall) downloads + sha256-verifies + unpacks into
   `src/content/docs/docs/<product>/<version>/` (gitignored). Version URL
   segments are dash-joined (`0.4.2` → `0-4-2`): Starlight strips dots.
