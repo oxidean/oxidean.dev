@@ -117,10 +117,10 @@
           ]
         },
         {
-          "version": "0.1.9",
-          "tag": "v0.1.9",
-          "url": "https://github.com/oxidean/Ox-Agent/releases/download/v0.1.9/docs-0.1.9.tar.gz",
-          "sha256": "5e6c713a515443dd9f68f607570530fa8ddd05bdb24d68c63c8d1c131c51d652",
+          "version": "0.1.14",
+          "tag": "v0.1.14",
+          "url": "https://github.com/oxidean/Ox-Agent/releases/download/v0.1.14/docs-0.1.14.tar.gz",
+          "sha256": "26cb6a5922b387c09ae465936305de4137abebdf1cc1db568857a3341542218a",
           "pages": [
             {
               "label": "Ox-Agent",
@@ -145,10 +145,38 @@
           ]
         },
         {
-          "version": "0.1.7",
-          "tag": "v0.1.7",
-          "url": "https://github.com/oxidean/Ox-Agent/releases/download/v0.1.7/docs-0.1.7.tar.gz",
-          "sha256": "015af459c519fb6277ecaa61ed3f8c027370529b5e3606866fa752a5bd536589",
+          "version": "0.1.13",
+          "tag": "v0.1.13",
+          "url": "https://github.com/oxidean/Ox-Agent/releases/download/v0.1.13/docs-0.1.13.tar.gz",
+          "sha256": "fcb9c7640ee14f9f9209733507bb9e60387de4f3812bc383d91339e9b63996dd",
+          "pages": [
+            {
+              "label": "Ox-Agent",
+              "link": "/"
+            },
+            {
+              "label": "Install",
+              "link": "/install/"
+            },
+            {
+              "label": "Quickstart",
+              "link": "/quickstart/"
+            },
+            {
+              "label": "CLI",
+              "link": "/cli/"
+            },
+            {
+              "label": "Architecture",
+              "link": "/architecture/"
+            }
+          ]
+        },
+        {
+          "version": "0.1.12",
+          "tag": "v0.1.12",
+          "url": "https://github.com/oxidean/Ox-Agent/releases/download/v0.1.12/docs-0.1.12.tar.gz",
+          "sha256": "d6acc18948370c201c16dba2205ad6a38185fc44b044053c713579ab7750e0a6",
           "pages": [
             {
               "label": "Ox-Agent",
@@ -201,10 +229,10 @@
           ]
         },
         {
-          "version": "0.5.0",
-          "tag": "v0.5.0",
-          "url": "https://github.com/oxidean/oxl/releases/download/v0.5.0/docs-0.5.0.tar.gz",
-          "sha256": "5256ddebfca8208dadc97c2e561014a03f57e1013c559f6d06b60f75dd3c4bd4",
+          "version": "0.9.1",
+          "tag": "v0.9.1",
+          "url": "https://github.com/oxidean/oxl/releases/download/v0.9.1/docs-0.9.1.tar.gz",
+          "sha256": "3a5e97e6d3f4870ac50bbc7c30547275b3f3b99fd5c647b540869bb19696725f",
           "pages": [
             {
               "label": "oxl",
@@ -221,10 +249,10 @@
           ]
         },
         {
-          "version": "0.4.2",
-          "tag": "v0.4.2",
-          "url": "https://github.com/oxidean/oxl/releases/download/v0.4.2/docs-0.4.2.tar.gz",
-          "sha256": "7ce71a5da00abeb4756690e1e50c9a1c4b45c1c6f511bb07e525df8f31b5beda",
+          "version": "0.9.0",
+          "tag": "v0.9.0",
+          "url": "https://github.com/oxidean/oxl/releases/download/v0.9.0/docs-0.9.0.tar.gz",
+          "sha256": "2a173088e1a9e3d35e72fcd0283957c3d3ae6279a738e98f9b713104222ff286",
           "pages": [
             {
               "label": "oxl",
@@ -241,10 +269,30 @@
           ]
         },
         {
-          "version": "0.4.0",
-          "tag": "v0.4.0",
-          "url": "https://github.com/oxidean/oxl/releases/download/v0.4.0/docs-0.4.0.tar.gz",
-          "sha256": "43172c62df3afeb10bfb9719c4715c9df42dd20876742bd578b1ca3806822228",
+          "version": "0.8.2",
+          "tag": "v0.8.2",
+          "url": "https://github.com/oxidean/oxl/releases/download/v0.8.2/docs-0.8.2.tar.gz",
+          "sha256": "29adff9f72176691a51d06127a932bde596d01c862d5d0aaf959b8ee390f0d70",
+          "pages": [
+            {
+              "label": "oxl",
+              "link": "/"
+            },
+            {
+              "label": "Getting started",
+              "link": "/getting-started/"
+            },
+            {
+              "label": "Language",
+              "link": "/language/"
+            }
+          ]
+        },
+        {
+          "version": "0.8.1",
+          "tag": "v0.8.1",
+          "url": "https://github.com/oxidean/oxl/releases/download/v0.8.1/docs-0.8.1.tar.gz",
+          "sha256": "1e80beff94d2d9431bb74849a9478ece3ccc708014a5a10214f40955004b0825",
           "pages": [
             {
               "label": "oxl",
