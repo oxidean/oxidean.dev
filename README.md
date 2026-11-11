@@ -19,8 +19,9 @@ themed onto the forge's palette (charcoal `#121212` / burnt oxide
 `#D75F00`, Sora + Source Sans 3). Product docs are not authored here — each
 product repo ships a curated `docs/site/` subtree that its release pipeline
 packs into a `docs-<version>.tar.gz` asset; this repo's
-`docs-versions.lock.json` pins up to five versions per product and
-`bun install` unpacks them (postinstall runs `docs:sync`). Deploys to
+`docs-versions.lock.json` pins the newest five releases per product
+(plus anything at or above the pinned default) and `bun install`
+unpacks them (postinstall runs `docs:sync`). Deploys to
 Vercel as a purely static build: no functions, no env vars.
 
 ## Develop
