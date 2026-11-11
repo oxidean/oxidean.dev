@@ -1,0 +1,187 @@
+name: docs lock poll
+
+# Pull-side backstop for the versioned-docs contract. Product repos push
+# lock updates by dispatching docs-release.yml after each release, but a
+# broken or under-scoped DOCS_SITE_DISPATCH_TOKEN drops that push
+# silently (the product-side step is deliberately fail-soft). This job
+# re-runs the pull path on a schedule: `bun run docs:update` polls every
+# product repo's published releases for docs-<v>.tar.gz assets, keeps the
+# newest 5 per product, refreshes sha256 + sidebar pages in
+# docs-versions.lock.json, verifies the site still builds, and opens a
+# bump PR on a fixed branch (auto-merged when checks allow).
+#
+# Manual run: gh workflow run docs-poll.yml -R oxidean/oxidean.dev
+
+on:
+  schedule:
+    - cron: "17 */6 * * *" # every 6h, off the top-of-hour rush
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+# Both triggers write the same fixed docs-poll/auto branch — serialize so a
+# slower run can't push -f an older release snapshot over a newer one.
+# Never cancel a running poll: its commit may already be the open PR's head.
+concurrency:
+  group: docs-poll
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    name: poll product releases for docs drift
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # Pin the tree, not just the base: a workflow_dispatch run can select
+      # any ref, and checkout defaults to it — a bump PR would then carry
+      # that branch's commits into an armed auto-merge against main.
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: oven-sh/setup-bun@v2
+      # Same reasoning as docs-release.yml: this workflow exists to repair
+      # the lockfile, so a stale/broken digest must not kill the install.
+      # The post-update sync below stays strict via the CI env.
+      - name: install deps
+        env:
+          DOCS_SYNC_STRICT: "0"
+        run: bun install --frozen-lockfile
+
+      - name: Poll product releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run docs:update
+
+      - name: Lockfile changed?
+        id: diff
+        run: |
+          if git diff --quiet docs-versions.lock.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "lockfile already current — nothing to do"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat docs-versions.lock.json
+          fi
+
+      - name: Verify site builds with the refreshed lock
+        if: steps.diff.outputs.changed == 'true'
+        run: bun run docs:sync && bun run build
+
+      # GH_TOKEN prefers the dispatch PAT so the bump PR fires normal
+      # pull_request checks. A role-read probe can't vet the token:
+      # /repos/<repo> .permissions.push reflects the token OWNER's repo
+      # role, not the PAT's granted scopes — a live PAT with only
+      # actions:write (the documented dispatch contract) still reads
+      # push=true, then dies at git push under set -e. So publish
+      # attempt-first: any failure under the PAT re-runs the whole
+      # publish under GITHUB_TOKEN with a loud warning — that path's PR
+      # needs a manual merge because its checks never self-run.
+      - name: Open lock-bump PR
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          DISPATCH_TOKEN: ${{ secrets.DOCS_SITE_DISPATCH_TOKEN }}
+          FALLBACK_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          branch="docs-poll/auto"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add docs-versions.lock.json
+          git commit -m "chore(docs): sync lockfile from release poll"
+
+          # Remote half, retryable under a second token. Every op exits
+          # nonzero on failure via || return 1 — required because the
+          # caller (`if ! publish_remote`) suppresses errexit inside the
+          # function body. All steps are idempotent: push -f of the same
+          # commit is a no-op, and an already-open PR is edited, not
+          # duplicated.
+          publish_remote() {
+            git push -f origin "$branch" || return 1
+
+            local body="Scheduled \`bun run docs:update\` picked up docs-versions.lock.json drift ([run](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})). Filed by docs-poll.yml — the pull-side backstop for the product-release dispatch."
+            local pr
+            pr=$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number' || true)
+            if [ -z "$pr" ]; then
+              gh pr create \
+                --title "chore(docs): sync docs-versions.lock.json (release poll)" \
+                --body "$body" \
+                --base main \
+                --label documentation || return 1
+              pr=$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number') || return 1
+            else
+              gh pr edit "$pr" --body "$body" --add-label documentation || return 1
+            fi
+            echo "bump PR: #$pr"
+            # Last op: a merge failure means the PR exists but waits —
+            # not worth a token retry, so notice (don't return 1).
+            gh pr merge "$pr" --auto --squash || \
+              echo "::notice::auto-merge unavailable — PR #${pr} waits for manual merge"
+          }
+
+          if [ -n "$DISPATCH_TOKEN" ]; then
+            export GH_TOKEN="$DISPATCH_TOKEN"
+            gh auth setup-git
+            if ! publish_remote; then
+              echo "::warning::docs-poll publish under DOCS_SITE_DISPATCH_TOKEN failed (expired, revoked, or missing contents/pull-requests/issues write) — retrying with GITHUB_TOKEN; that PR's checks will not self-run and it needs a manual merge. Fix the org secret to restore unattended bumps."
+              export GH_TOKEN="$FALLBACK_TOKEN"
+              publish_remote
+            fi
+          else
+            echo "::warning::DOCS_SITE_DISPATCH_TOKEN is not set — the bump PR is opened with GITHUB_TOKEN, its checks will not self-run, and it needs a manual merge. Fix the org secret to restore unattended bumps."
+            export GH_TOKEN="$FALLBACK_TOKEN"
+            gh auth setup-git
+            publish_remote
+          fi
+
+      # A bump PR left open after the drift resolves through another
+      # route (a docs-release.yml ingest or a manual update landing
+      # first) sits conflicting with armed auto-merge that can never
+      # fire — silently, forever. Close it when the lockfile is already
+      # current. Fail-soft: an unclosable PR is cosmetic, not a red run.
+      - name: Close superseded bump PR
+        if: steps.diff.outputs.changed == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.DOCS_SITE_DISPATCH_TOKEN || github.token }}
+          FALLBACK_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # A failed list must not read as "no open PR" — under a broken
+          # dispatch token that silently strands an armed bump PR, which
+          # is the failure this workflow exists to surface. Probe under
+          # the configured token, retry under GITHUB_TOKEN, and close
+          # with whichever token answered.
+          list_pr() {
+            gh pr list --head "docs-poll/auto" --base main --state open --json number --jq '.[0].number'
+          }
+          if pr=$(list_pr); then
+            :
+          elif pr=$(GH_TOKEN="$FALLBACK_TOKEN" list_pr); then
+            echo "::warning::pr list failed under DOCS_SITE_DISPATCH_TOKEN — reconciling with GITHUB_TOKEN"
+            export GH_TOKEN="$FALLBACK_TOKEN"
+          else
+            echo "::warning::pr list failed under both tokens — reconcile any stale docs-poll/auto PR manually"
+            exit 0
+          fi
+          if [ -n "$pr" ]; then
+            close_msg="Superseded — docs-versions.lock.json on main is already current; the drift this PR carried landed via another route. Filed by docs-poll.yml."
+            if ! gh pr close "$pr" --comment "$close_msg"; then
+              if [ "$GH_TOKEN" != "$FALLBACK_TOKEN" ]; then
+                echo "::warning::pr close failed under DOCS_SITE_DISPATCH_TOKEN — retrying with GITHUB_TOKEN"
+                GH_TOKEN="$FALLBACK_TOKEN" gh pr close "$pr" --comment "$close_msg" \
+                  || echo "::warning::could not close stale bump PR #$pr under either token — close it manually"
+              else
+                echo "::warning::could not close stale bump PR #$pr — close it manually"
+              fi
+            fi
+          else
+            echo "no open docs-poll/auto PR — nothing to reconcile"
+          fi
