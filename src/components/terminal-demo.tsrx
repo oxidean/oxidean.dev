@@ -3,28 +3,35 @@ import { cn } from "@/lib/utils";
 
 type TermLine = { kind: "cmd" | "out" | "ok"; text: string };
 
-/* The real Ox-Agent path: init materializes .ox-agent, doctor validates,
-   start opens a work item. Output lines match binary 0.1.9. */
-const SCRIPT: TermLine[] = [
-  { kind: "cmd", text: "ox-agent init --integrate" },
-  { kind: "out", text: "Initialized .ox-agent" },
-  { kind: "cmd", text: "ox-agent doctor" },
-  { kind: "ok", text: "Ox-Agent doctor: healthy (binary 0.1.9)" },
-  { kind: "cmd", text: 'ox-agent start "Ship the org site"' },
-  { kind: "out", text: "WI-0001: Ship the org site" },
-  { kind: "cmd", text: "ox-agent status" },
-  { kind: "ok", text: "active: WI-0001-ship-the-org-site" },
-];
-const LINES = SCRIPT.map((l, i) => ({ ...l, i }));
-
 /**
  * One-shot typing terminal for the hero. Always-dark chrome: a terminal
  * window reads correctly on both palettes. Reduced-motion renders the full
- * transcript instantly.
+ * transcript instantly. `version` comes from docs-versions.lock.json, so the
+ * demo tracks the latest Ox-Agent release automatically.
  */
-export function TerminalDemo({ className }: { className?: string }) @{
+export function TerminalDemo({
+  className,
+  version,
+}: {
+  className?: string;
+  version: string;
+}) @{
   const [line, setLine] = useState(0);
   const [chars, setChars] = useState(0);
+
+  /* The real Ox-Agent path: init materializes .ox-agent, doctor validates,
+     start opens a work item. Output shapes verified against binary 0.1.16. */
+  const SCRIPT: TermLine[] = [
+    { kind: "cmd", text: "ox-agent init --integrate" },
+    { kind: "out", text: "Initialized .ox-agent" },
+    { kind: "cmd", text: "ox-agent doctor" },
+    { kind: "ok", text: `Ox-Agent doctor: healthy (binary ${version})` },
+    { kind: "cmd", text: 'ox-agent start "Ship the org site"' },
+    { kind: "out", text: "WI-0001: Ship the org site" },
+    { kind: "cmd", text: "ox-agent status" },
+    { kind: "ok", text: "active: WI-0001-ship-the-org-site" },
+  ];
+  const LINES = SCRIPT.map((l, i) => ({ ...l, i }));
 
   useEffect(() => {
     if (line >= LINES.length) return;

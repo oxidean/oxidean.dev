@@ -35,6 +35,7 @@ const products = [
 ];
 
 const oxlVersion = docsLock.products.oxl.default;
+const oxAgentVersion = docsLock.products["ox-agent"].default;
 
 const forgePoints = [
 	"Repos, PRs & review, issues, orgs",
@@ -114,7 +115,7 @@ const forgePoints = [
 				</div>
 			</div>
 			<div class="oct-rise lg:pl-4" style="animation-delay: 200ms">
-				<TerminalDemo client:load />
+				<TerminalDemo client:load version={oxAgentVersion} />
 			</div>
 		</div>
 	</section>

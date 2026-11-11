@@ -6,9 +6,10 @@ name: docs lock poll
 # silently (the product-side step is deliberately fail-soft). This job
 # re-runs the pull path on a schedule: `bun run docs:update` polls every
 # product repo's published releases for docs-<v>.tar.gz assets, keeps the
-# newest 5 per product, refreshes sha256 + sidebar pages in
-# docs-versions.lock.json, verifies the site still builds, and opens a
-# bump PR on a fixed branch (auto-merged when checks allow).
+# newest 5 per product (plus anything at or above the pinned default),
+# refreshes sha256 + sidebar pages in docs-versions.lock.json, verifies
+# the site still builds, and opens a bump PR on a fixed branch
+# (auto-merged when checks allow).
 #
 # Manual run: gh workflow run docs-poll.yml -R oxidean/oxidean.dev
 
