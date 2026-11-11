@@ -89,14 +89,22 @@ jobs:
           fi
 
           branch="docs-bump/${PRODUCT}-${VERSION}"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Commit as the token's owner, not a hardcoded bot: GitHub
+          # squash merges append a Co-authored-by trailer for the branch
+          # author whenever it differs from the merger, and commit-check
+          # bans bot trailers on main. Under the dispatch PAT the author
+          # is a real user — a same-user merge adds no trailer at all,
+          # and a cross-human merge adds an allowed human trailer.
+          token_user=$(gh api user --jq '"\(.id) \(.login)"' 2>/dev/null) \
+            || token_user="41898282 github-actions[bot]"
+          git config user.name "${token_user#* }"
+          git config user.email "${token_user%% *}+${token_user#* }@users.noreply.github.com"
           git checkout -B "$branch"
           git add docs-versions.lock.json
           git commit -m "chore(docs): lock ${PRODUCT} docs ${VERSION}"
           git push -f origin "$branch"
 
-          body="Pins docs-${VERSION}.tar.gz from [${REPO}@${TAG}](https://github.com/${REPO}/releases/tag/${TAG}) into docs-versions.lock.json (sha256 + sidebar pages). Dispatched by the ${REPO} docs-release workflow."
+          body="Pins docs-${VERSION}.tar.gz from [${REPO}@${TAG}](https://github.com/${REPO}/releases/tag/${TAG}) into docs-versions.lock.json (sha256 + sidebar pages). Dispatched by the ${REPO} docs-release workflow. Merge note: if the squash dialog adds a \`Co-authored-by\` trailer for a bot, remove it — commit-check fails main on bot trailers."
           pr=$(gh pr list --head "$branch" --json number --jq '.[0].number' || true)
           if [ -z "$pr" ]; then
             gh pr create \

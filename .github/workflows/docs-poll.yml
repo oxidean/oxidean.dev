@@ -92,8 +92,29 @@ jobs:
           set -euo pipefail
 
           branch="docs-poll/auto"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Pick the publish token up front: the bump commit is authored
+          # as that token's owner (see below), so the identity must be
+          # resolved under the same credential that will push it.
+          if [ -n "$DISPATCH_TOKEN" ]; then
+            export GH_TOKEN="$DISPATCH_TOKEN"
+          else
+            export GH_TOKEN="$FALLBACK_TOKEN"
+          fi
+          gh auth setup-git
+
+          # Commit as the token's owner, not a hardcoded bot: GitHub
+          # squash merges append a Co-authored-by trailer for the branch
+          # author whenever it differs from the merger, and commit-check
+          # bans bot trailers on main. Under the dispatch PAT the author
+          # is a real user — a same-user merge adds no trailer at all,
+          # and a cross-human merge adds an allowed human trailer. If the
+          # PAT can't even read /user it is useless for publishing too,
+          # so resolve under the fallback token straight away.
+          token_user=$(gh api user --jq '"\(.id) \(.login)"' 2>/dev/null) \
+            || token_user=$(GH_TOKEN="$FALLBACK_TOKEN" gh api user --jq '"\(.id) \(.login)"' 2>/dev/null) \
+            || token_user="41898282 github-actions[bot]"
+          git config user.name "${token_user#* }"
+          git config user.email "${token_user%% *}+${token_user#* }@users.noreply.github.com"
           git checkout -B "$branch"
           git add docs-versions.lock.json
           git commit -m "chore(docs): sync lockfile from release poll"
@@ -107,7 +128,7 @@ jobs:
           publish_remote() {
             git push -f origin "$branch" || return 1
 
-            local body="Scheduled \`bun run docs:update\` picked up docs-versions.lock.json drift ([run](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})). Filed by docs-poll.yml — the pull-side backstop for the product-release dispatch."
+            local body="Scheduled \`bun run docs:update\` picked up docs-versions.lock.json drift ([run](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})). Filed by docs-poll.yml — the pull-side backstop for the product-release dispatch. Merge note: if the squash dialog adds a \`Co-authored-by\` trailer for a bot, remove it — commit-check fails main on bot trailers."
             local pr
             pr=$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number' || true)
             if [ -z "$pr" ]; then
@@ -128,8 +149,6 @@ jobs:
           }
 
           if [ -n "$DISPATCH_TOKEN" ]; then
-            export GH_TOKEN="$DISPATCH_TOKEN"
-            gh auth setup-git
             if ! publish_remote; then
               echo "::warning::docs-poll publish under DOCS_SITE_DISPATCH_TOKEN failed (expired, revoked, or missing contents/pull-requests/issues write) — retrying with GITHUB_TOKEN; that PR's checks will not self-run and it needs a manual merge. Fix the org secret to restore unattended bumps."
               export GH_TOKEN="$FALLBACK_TOKEN"
@@ -137,8 +156,6 @@ jobs:
             fi
           else
             echo "::warning::DOCS_SITE_DISPATCH_TOKEN is not set — the bump PR is opened with GITHUB_TOKEN, its checks will not self-run, and it needs a manual merge. Fix the org secret to restore unattended bumps."
-            export GH_TOKEN="$FALLBACK_TOKEN"
-            gh auth setup-git
             publish_remote
           fi
 
