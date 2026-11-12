@@ -41,10 +41,17 @@ const oxAgentVersion = docsLock.products["ox-agent"].default;
 
 // Landing code samples ship inside the product docs bundles — always
 // released, compiled syntax, never hand-maintained site copy.
-const oxlExample = readFileSync(
-	`src/content/docs/docs/oxl/${oxlVersion.replaceAll(".", "-")}/examples/http-server.oxl`,
-	"utf-8",
-).trim();
+let oxlExample: string;
+try {
+	oxlExample = readFileSync(
+		`${process.cwd()}/src/content/docs/docs/oxl/${oxlVersion.replaceAll(".", "-")}/examples/http-server.oxl`,
+		"utf-8",
+	).trim();
+} catch {
+	throw new Error(
+		`missing oxl ${oxlVersion} docs bundle; run \`bun run docs:sync\``,
+	);
+}
 
 const forgePoints = [
 	"Repos, PRs & review, issues, orgs",
