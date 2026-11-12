@@ -38,15 +38,13 @@ check_attribution() {
     _msg=$1
     # One vendor alternation shared by every pattern below — extend it
     # here, never in a single rule, or the rules drift apart.
-    _VENDOR='claude|cursor|copilot|chatgpt|codex|gemini|devin|openai|anthropic|codeium|windsurf|github[[:space:]]+copilot|(claude|gemini)[[:space:]]+(opus|sonnet|pro|ultra)|swe-[0-9a-z.-]*'
+    _VENDOR='claude|cursor|copilot|chatgpt|codex|gemini|devin|openai|anthropic|codeium|windsurf|github[[:space:]]+copilot|claude[[:space:]]+code|(claude|gemini)[[:space:]]+(opus|sonnet|pro|ultra)|swe-[0-9a-z.-]*' 
     # AI co-author / bot trailers. A human Co-authored-by is fine; the
     # ban is on AI vendors, bots, and *-ai-* / [bot] addresses.
     _co=$(printf '%s\n' "$_msg" | grep -iE '^[[:space:]]*co-?authored-by:' || :)
     # Unambiguous machine signals anywhere in the trailer: [bot] tags,
-    # bot@ addresses, *-ai-integration logins, AI-vendor domains, and a
-    # vendor token inside a bare email (no <display name>) — bot forms like
-    # "Co-authored-by: 175728472+Copilot@users.noreply.github.com".
-    if printf '%s\n' "$_co" | grep -qiE '\[bot\]|(^|[<.[:space:]_-])bot@|ai-integration|noreply@(anthropic|openai)\.|@('"$_VENDOR"')\.(com|ai|dev|io)([[:space:]>]|$)|:[[:space:]]*[^<[:space:]]*('"$_VENDOR"')[^<[:space:]]*@'; then
+    # bot@ addresses, *-ai-integration logins, and AI-vendor domains.
+    if printf '%s\n' "$_co" | grep -qiE '\[bot\]|(^|[<.[:space:]_-])bot@|ai-integration|noreply@(anthropic|openai)\.|@(anthropic|openai|cognition|devin|codeium|windsurf|claude-code)\.(com|ai|dev|io)([[:space:]>]|$)'; then
         err "AI Co-authored-by trailer"
     # A bare vendor identity as the display name — "Co-authored-by:
     # Claude <noreply@anthropic.com>" hits the domain rule above; this
@@ -54,7 +52,7 @@ check_attribution() {
     # CONTAIN a vendor token ("Claude Martin <claude.martin@…>") stay
     # legal per .cursor/rules/no-ai-attribution.mdc.
     elif printf '%s\n' "$_co" | sed 's/^[^:]*:[[:space:]]*//; s/<.*//' \
-        | grep -qiE '^('"$_VENDOR"')([[:space:]-]?ai)?[[:space:]]*$'; then
+        | grep -qiE '^\[?('"$_VENDOR"')\]?(\([^)]*\))?([[:space:]-]ai)?[[:space:]]*$'; then
         err "AI Co-authored-by trailer"
     fi
     # generator footers: "Generated with <tool>", "Made with: X",
@@ -70,7 +68,7 @@ check_attribution() {
     fi
     # standalone "via <tool>" / "by <tool>" / "with <tool>" lines — the
     # footer regex above needs a leading verb, so a lone via-line slips.
-    if printf '%s\n' "$_msg" | grep -qiE '^[[:space:]]*(via|by|using|with)[[:space:]]+('"$_VENDOR"')([[:space:]-]?ai)?[[:space:].!]*$'; then
+    if printf '%s\n' "$_msg" | grep -qiE '^[[:space:]]*(via|by|using|with)[[:space:]]+\[?('"$_VENDOR"')\]?(\([^)]*\))?([[:space:]-]ai)?[[:space:].!]*$'; then
         err "attribution via-line"
     fi
     # bot-emoji signature: a bare 🤖 line, or 🤖 sharing a line with
@@ -81,7 +79,7 @@ check_attribution() {
     fi
     # AI named as the author/agent — not as the subject of the change.
     # (kept narrow on purpose: "add Copilot webhook" must stay legal)
-    if printf '%s\n' "$_msg" | grep -iqE '\b(as an ai|i generated this|authored by ('"$_VENDOR"'))\b'; then
+    if printf '%s\n' "$_msg" | grep -iqE '\b(as an ai|i generated this|authored by \[?('"$_VENDOR"'))\b'; then
         err "AI self-attribution"
     fi
     # vendor-stamped HTML comments smuggled into the message
