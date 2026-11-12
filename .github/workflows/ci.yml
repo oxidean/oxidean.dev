@@ -19,6 +19,8 @@ jobs:
   commit-lint:
     name: commit-lint
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,7 +38,11 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: scripts/commit-check.sh --pr-title "$PR_TITLE"
       - name: scan PR body for attribution markers
-        if: github.event_name == 'pull_request'
+        # Bot-authored bodies (dependabot, renovate) are platform-
+        # generated boilerplate — GitHub injects zero-width spaces into
+        # @-mentions for anti-ping, which this scan exists to catch.
+        # Not a human attribution surface; commits/title still lint.
+        if: github.event_name == 'pull_request' && github.event.pull_request.user.type != 'Bot'
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
@@ -81,6 +87,14 @@ jobs:
             echo "new branch push — no commit range to lint"
             exit 0
           fi
+          # a force-pushed before-SHA can be unreachable from every ref;
+          # fetch it best-effort — if it stays unresolvable the script
+          # fails the check rather than silently linting zero commits.
+          # Never --depth: a shallow boundary hides PUSH_BEFORE's
+          # ancestry, and rev-list would then lint all of history. The
+          # fetch-depth:0 checkout already has it for normal pushes —
+          # fetch only when absent, without a depth limit.
+          git cat-file -e "$PUSH_BEFORE^{commit}" 2>/dev/null             || git fetch --no-tags origin "$PUSH_BEFORE" 2>/dev/null             || true
           scripts/commit-check.sh --range "$PUSH_BEFORE..$PUSH_AFTER"
 
   # Site gate: type-aware oxlint + oxfmt/prettier check + full static build.
