@@ -206,8 +206,32 @@
       "name": "oxl",
       "source": "oxidean/oxl",
       "tag_pattern": "v*",
-      "default": "0.12.4",
+      "default": "0.12.5",
       "versions": [
+        {
+          "version": "0.12.5",
+          "tag": "v0.12.5",
+          "url": "https://github.com/oxidean/oxl/releases/download/v0.12.5/docs-0.12.5.tar.gz",
+          "sha256": "bced13e67ff6c7d477fa7c93ff0e45bacdb59f61c5138ea69d53e05f43831415",
+          "pages": [
+            {
+              "label": "oxl",
+              "link": "/"
+            },
+            {
+              "label": "Install",
+              "link": "/install/"
+            },
+            {
+              "label": "Getting started",
+              "link": "/getting-started/"
+            },
+            {
+              "label": "Language",
+              "link": "/language/"
+            }
+          ]
+        },
         {
           "version": "0.12.4",
           "tag": "v0.12.4",
@@ -285,30 +309,6 @@
           "tag": "v0.12.1",
           "url": "https://github.com/oxidean/oxl/releases/download/v0.12.1/docs-0.12.1.tar.gz",
           "sha256": "954d39041bdf8eeb35e2904aa83b30473a07edf3ca6308042d1adfaf569ed2d8",
-          "pages": [
-            {
-              "label": "oxl",
-              "link": "/"
-            },
-            {
-              "label": "Install",
-              "link": "/install/"
-            },
-            {
-              "label": "Getting started",
-              "link": "/getting-started/"
-            },
-            {
-              "label": "Language",
-              "link": "/language/"
-            }
-          ]
-        },
-        {
-          "version": "0.12.0",
-          "tag": "v0.12.0",
-          "url": "https://github.com/oxidean/oxl/releases/download/v0.12.0/docs-0.12.0.tar.gz",
-          "sha256": "760cc1e3b69e4bf0386af183fdf6918720f89de64e733401b4f261157747c69d",
           "pages": [
             {
               "label": "oxl",
