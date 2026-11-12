@@ -2,6 +2,9 @@ name: ci
 
 on:
   pull_request:
+    # edited re-fires the gate on title/body changes — otherwise a
+    # post-green metadata edit could land attribution unchecked.
+    types: [opened, synchronize, reopened, edited]
   push:
     branches: [main]
 
@@ -16,6 +19,8 @@ jobs:
   commit-lint:
     name: commit-lint
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,7 +38,11 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: scripts/commit-check.sh --pr-title "$PR_TITLE"
       - name: scan PR body for attribution markers
-        if: github.event_name == 'pull_request'
+        # Bot-authored bodies (dependabot, renovate) are platform-
+        # generated boilerplate — GitHub injects zero-width spaces into
+        # @-mentions for anti-ping, which this scan exists to catch.
+        # Not a human attribution surface; commits/title still lint.
+        if: github.event_name == 'pull_request' && github.event.pull_request.user.type != 'Bot'
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
@@ -45,8 +54,10 @@ jobs:
           # a stray start marker could hide attribution after it.
           open_m='<!-- This is an auto-generated comment: release notes by coderabbit.ai -->'
           close_m='<!-- end of auto-generated comment: release notes by coderabbit.ai -->'
-          opens=$(grep -cF "$open_m" pr-body.txt || :)
-          closes=$(grep -cF "$close_m" pr-body.txt || :)
+          # -oF counts occurrences, not matching lines — same-line
+          # pairs would read as one open and one close to -c.
+          opens=$(grep -oF "$open_m" pr-body.txt | wc -l || :)
+          closes=$(grep -oF "$close_m" pr-body.txt | wc -l || :)
           if [ "$opens" != "$closes" ]; then
             echo "commit-check: unbalanced CodeRabbit release-notes markers in PR body" >&2
             exit 1
@@ -67,6 +78,12 @@ jobs:
               }
               printf "%s", out rest
             }' pr-body.txt > pr-body-clean.txt
+          # equal counts but wrong order leave markers behind in the
+          # cleaned body — a stray open/close is not a managed block.
+          if grep -qF "$open_m" pr-body-clean.txt || grep -qF "$close_m" pr-body-clean.txt; then
+            echo "commit-check: misordered CodeRabbit release-notes markers in PR body" >&2
+            exit 1
+          fi
           scripts/commit-check.sh --scan-file pr-body-clean.txt
       - name: lint push range
         if: github.event_name == 'push'
@@ -78,6 +95,14 @@ jobs:
             echo "new branch push — no commit range to lint"
             exit 0
           fi
+          # a force-pushed before-SHA can be unreachable from every ref;
+          # fetch it best-effort — if it stays unresolvable the script
+          # fails the check rather than silently linting zero commits.
+          # Never --depth: a shallow boundary hides PUSH_BEFORE's
+          # ancestry, and rev-list would then lint all of history. The
+          # fetch-depth:0 checkout already has it for normal pushes —
+          # fetch only when absent, without a depth limit.
+          git cat-file -e "$PUSH_BEFORE^{commit}" 2>/dev/null             || git fetch --no-tags origin "$PUSH_BEFORE" 2>/dev/null             || true
           scripts/commit-check.sh --range "$PUSH_BEFORE..$PUSH_AFTER"
 
   # Site gate: type-aware oxlint + oxfmt/prettier check + full static build.
