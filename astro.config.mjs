@@ -27,16 +27,34 @@ function mapManifestPage(slug, versionSegment, page) {
   };
 }
 
+const versionGroup = (slug, label, versionSegment, pages) => ({
+  label,
+  collapsed: true,
+  items: (pages ?? []).map((page) => mapManifestPage(slug, versionSegment, page)),
+});
+
 const docsSidebar = [
   { slug: "docs" },
-  ...Object.entries(docsLock.products).map(([slug, product]) => ({
-    label: product.name ?? slug,
-    items: product.versions.map((v) => ({
-      label: `v${v.version}${v.version === product.default ? " (latest)" : ""}`,
-      collapsed: true,
-      items: v.pages.map((page) => mapManifestPage(slug, v.version.replaceAll(".", "-"), page)),
-    })),
-  })),
+  ...Object.entries(docsLock.products).map(([slug, product]) => {
+    const def = product.versions.find((v) => v.version === product.default);
+    return {
+      label: product.name ?? slug,
+      items: [
+        // `latest` aliases the default version — docs:sync materializes a
+        // matching content tree, so these links keep browsers inside the
+        // /docs/<slug>/latest/ space.
+        versionGroup(slug, `latest (v${product.default})`, "latest", def?.pages),
+        ...product.versions.map((v) =>
+          versionGroup(
+            slug,
+            `v${v.version}${v.version === product.default ? " (latest)" : ""}`,
+            v.version.replaceAll(".", "-"),
+            v.pages,
+          ),
+        ),
+      ],
+    };
+  }),
 ];
 
 const fontPreloads = [

@@ -76,8 +76,11 @@ CI-validates it, and attaches `docs-<ver>.tar.gz` to each matching release
 - Sidebar and the version switcher
   (`src/components/starlight/VersionSwitcher.astro` via the `Sidebar`
   override) read the lockfile — they work before bundles ship. Docs routes
-  are versioned only; internal links resolve to the pinned default at build
-  time via `docsHref` (`src/lib/docs.ts`), and unversioned product URLs 404.
+  are `/docs/<product>/<vseg>/…` plus a `latest` segment aliasing the
+  pinned default (docs:sync copies the default tree into
+  `src/content/docs/docs/<product>/latest/`). Internal links resolve to
+  `latest` at build time via `docsHref` (`src/lib/docs.ts`); unversioned
+  product URLs 404.
 - Do not hand-create product doc pages here; fix them in the owning repo's
   `docs/site/` and let the bundle flow bring them in.
 

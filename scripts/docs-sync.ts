@@ -83,6 +83,22 @@ for (const [slug, product] of Object.entries(lock.products)) {
       console[strict ? "error" : "warn"](`  ${slug}@${v.version}: ${verb}: ${msg}`);
     }
   }
+
+  // `latest` aliases the pinned default: materialize it as a real content
+  // tree so /docs/<slug>/latest/… routes serve the default's pages directly
+  // — no redirect layer, and internal links (docsHref) can target stable
+  // latest URLs. Re-copied every sync, so it tracks `default` on each
+  // lockfile bump. A missing default tree keeps any stale latest copy.
+  const defSeg = product.default.replaceAll(".", "-");
+  const defDir = join(docsRoot, slug, defSeg);
+  const latestDir = join(docsRoot, slug, "latest");
+  if (existsSync(defDir)) {
+    rmSync(latestDir, { recursive: true, force: true });
+    cpSync(defDir, latestDir, { recursive: true });
+    console.log(`  ${slug}@latest → ${latestDir} (alias of ${defSeg})`);
+  } else {
+    console.warn(`  ${slug}: default ${defSeg} tree missing — latest alias skipped`);
+  }
 }
 
 console.log(`docs:sync — ${fetched} materialized, ${skipped} skipped, ${failed} failed`);
