@@ -4,6 +4,7 @@ description: "Documentation for everything Oxidean ships: the forge, the Ox-Agen
 ---
 
 import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
+import { docsHref } from "@/lib/docs";
 
 Oxidean ships three open-source projects. These docs orient you in each;
 the authoritative references live in the projects' own repositories.
@@ -13,17 +14,17 @@ the authoritative references live in the projects' own repositories.
 <CardGrid>
 	<LinkCard
 		title="Oxidean · the forge"
-		href="/docs/oxidean/"
+		href={docsHref("oxidean")}
 		description="Self-hostable git hosting, pull requests, issues, CI actions, and package registries."
 	/>
 	<LinkCard
 		title="Ox-Agent · the agent"
-		href="/docs/ox-agent/"
+		href={docsHref("ox-agent")}
 		description="Repository-local, token-efficient AI-SDLC: one Go binary plus .ox-agent/ state next to the code."
 	/>
 	<LinkCard
 		title="oxl · the language"
-		href="/docs/oxl/"
+		href={docsHref("oxl")}
 		description="A lean language for CLI tools and services: dynamic ownership checks, no tracing GC."
 	/>
 </CardGrid>
