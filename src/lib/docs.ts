@@ -22,9 +22,13 @@ const products = docsLock.products as unknown as Record<string, LockProduct>;
 
 const trimSlashes = (s: string) => s.replace(/^\/+|\/+$/g, "");
 
-function pageLinks(product: LockProduct): Set<string> {
+const linksCache = new Map<string, Set<string>>();
+
+function defaultPageLinks(slug: string, product: LockProduct): Set<string> {
+  let links = linksCache.get(slug);
+  if (links) return links;
+  links = new Set<string>();
   const def = product.versions.find((v) => v.version === product.default);
-  const links = new Set<string>();
   const walk = (items?: PageTreeItem[]) => {
     for (const item of items ?? []) {
       if (item.link) links.add(trimSlashes(item.link));
@@ -32,6 +36,7 @@ function pageLinks(product: LockProduct): Set<string> {
     }
   };
   walk(def?.pages);
+  linksCache.set(slug, links);
   return links;
 }
 
@@ -39,10 +44,15 @@ function pageLinks(product: LockProduct): Set<string> {
 export function docsHref(slug: string, rest = ""): string {
   const product = products[slug];
   const def = product?.versions.find((v) => v.version === product.default);
-  if (!def) return `/docs/${slug}/`;
+  if (!def) {
+    console.warn(`[docsHref] no lockfile entry for "${slug}"; emitting unversioned link`);
+    return `/docs/${slug}/`;
+  }
   const r = trimSlashes(rest);
-  if (r && !pageLinks(product).has(r)) {
-    console.warn(`[docsHref] ${slug}@${def.version} has no page "/${r}/"`);
+  if (r && !defaultPageLinks(slug, product).has(r)) {
+    const msg = `[docsHref] ${slug}@${def.version} has no page "/${r}/"`;
+    if (process.env.CI || process.env.VERCEL) throw new Error(msg);
+    console.warn(msg);
   }
   const base = `/docs/${slug}/${def.version.replaceAll(".", "-")}`;
   return r ? `${base}/${r}/` : `${base}/`;
