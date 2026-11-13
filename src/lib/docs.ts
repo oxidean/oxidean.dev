@@ -45,7 +45,9 @@ export function docsHref(slug: string, rest = ""): string {
   const product = products[slug];
   const def = product?.versions.find((v) => v.version === product.default);
   if (!def) {
-    console.warn(`[docsHref] no lockfile entry for "${slug}"; emitting unversioned link`);
+    const msg = `[docsHref] no lockfile entry for "${slug}"`;
+    if (process.env.CI || process.env.VERCEL) throw new Error(msg);
+    console.warn(msg);
     return `/docs/${slug}/`;
   }
   const r = trimSlashes(rest);
