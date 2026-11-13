@@ -48,7 +48,7 @@ export function docsHref(slug: string, rest = ""): string {
     const msg = `[docsHref] no lockfile entry for "${slug}"`;
     if (process.env.CI || process.env.VERCEL) throw new Error(msg);
     console.warn(msg);
-    return `/docs/${slug}/`;
+    return `/docs/${slug}/latest/`;
   }
   const r = trimSlashes(rest);
   if (r && !defaultPageLinks(slug, product).has(r)) {

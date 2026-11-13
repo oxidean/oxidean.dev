@@ -36,7 +36,6 @@ const strict =
 const lock = JSON.parse(readFileSync(lockPath, "utf8")) as DocsLock;
 
 let fetched = 0;
-let skipped = 0;
 let failed = 0;
 
 for (const [slug, product] of Object.entries(lock.products)) {
@@ -73,6 +72,15 @@ for (const [slug, product] of Object.entries(lock.products)) {
       }
       rmSync(dest, { recursive: true, force: true });
       cpSync(extracted, dest, { recursive: true });
+      // `latest` aliases the pinned default — materialize it here, from the
+      // just-verified bundle, so a wiped product dir still lands a correct
+      // alias and a failed default fetch keeps the stale copy.
+      if (v.version === product.default) {
+        const latestDir = join(docsRoot, slug, "latest");
+        rmSync(latestDir, { recursive: true, force: true });
+        cpSync(dest, latestDir, { recursive: true });
+        console.log(`  ${slug}@latest → ${latestDir} (alias of ${v.version})`);
+      }
       rmSync(tmp, { recursive: true, force: true });
       fetched++;
       console.log(`  ${slug}@${v.version} → ${dest}`);
@@ -84,22 +92,18 @@ for (const [slug, product] of Object.entries(lock.products)) {
     }
   }
 
-  // `latest` aliases the pinned default: materialize it as a real content
-  // tree so /docs/<slug>/latest/… routes serve the default's pages directly
-  // — no redirect layer, and internal links (docsHref) can target stable
-  // latest URLs. Re-copied every sync, so it tracks `default` on each
-  // lockfile bump. A missing default tree keeps any stale latest copy.
+  // The default tree is the `latest` alias's source — if it never
+  // materialized (failed fetch, or a lock whose `default` names no locked
+  // version) every /docs/<slug>/latest/* link on the site 404s. That is a
+  // build-fatal state under strict; soft mode warns and keeps any stale
+  // copy the wipe didn't already remove.
   const defSeg = product.default.replaceAll(".", "-");
-  const defDir = join(docsRoot, slug, defSeg);
-  const latestDir = join(docsRoot, slug, "latest");
-  if (existsSync(defDir)) {
-    rmSync(latestDir, { recursive: true, force: true });
-    cpSync(defDir, latestDir, { recursive: true });
-    console.log(`  ${slug}@latest → ${latestDir} (alias of ${defSeg})`);
-  } else {
-    console.warn(`  ${slug}: default ${defSeg} tree missing — latest alias skipped`);
+  if (!existsSync(join(docsRoot, slug, defSeg))) {
+    failed++;
+    const msg = `${slug}: default ${defSeg} tree missing — latest alias unavailable`;
+    console[strict ? "error" : "warn"](`  ${msg}`);
   }
 }
 
-console.log(`docs:sync — ${fetched} materialized, ${skipped} skipped, ${failed} failed`);
+console.log(`docs:sync — ${fetched} materialized, ${failed} failed`);
 if (strict && failed > 0) process.exit(1);

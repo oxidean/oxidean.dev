@@ -27,7 +27,7 @@ if (match) {
 			: (product?.versions.find(
 					(v) => v.version.replaceAll(".", "-") === match[2],
 				)?.version ?? "");
-	rest = match[3] ?? "/";
+	rest = match[3] ? (match[3].endsWith("/") ? match[3] : `${match[3]}/`) : "/";
 }
 
 // version → set of page paths ("/", "/install/", …) for existence checks.

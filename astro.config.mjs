@@ -1,6 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
+import sitemap from "@astrojs/sitemap";
 import octane from "@octanejs/astro";
 import starlight from "@astrojs/starlight";
 import tailwindcss from "@tailwindcss/vite";
@@ -32,6 +33,14 @@ const versionGroup = (slug, label, versionSegment, pages) => ({
   collapsed: true,
   items: (pages ?? []).map((page) => mapManifestPage(slug, versionSegment, page)),
 });
+
+// Each product's pinned default is served twice: at its numbered route
+// (/docs/<p>/<vseg>/…) for pinning, and under the `latest` alias that all
+// internal links target. The sitemap is the crawl signal for which space
+// is canonical — drop the numbered default tree so `latest` wins.
+const defaultVersionSegs = Object.entries(docsLock.products).map(
+  ([slug, product]) => `/docs/${slug}/${product.default.replaceAll(".", "-")}/`,
+);
 
 const docsSidebar = [
   { slug: "docs" },
@@ -127,6 +136,12 @@ export default defineConfig({
   output: "static",
   integrations: [
     octane(),
+    // Registered ahead of Starlight so its deferred sitemap setup yields —
+    // the filter keeps only the canonical `latest` space for each product's
+    // default version; numbered default pages stay reachable, just unlisted.
+    sitemap({
+      filter: (page) => !defaultVersionSegs.some((seg) => page.includes(seg)),
+    }),
     starlight({
       title: "Oxidean",
       favicon: "/favicon.ico",
