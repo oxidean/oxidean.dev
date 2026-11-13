@@ -18,7 +18,7 @@ const firstHref = (entry) => {
 };
 
 const match = Astro.url.pathname.match(
-	/^\/docs\/([a-z0-9-]+)\/(\d+-\d+-\d+[^/]*)/,
+	/^\/docs\/([a-z0-9-]+)\/(latest|\d+-\d+-\d+[^/]*)/,
 );
 const sidebar = Astro.locals.starlightRoute?.sidebar;
 
@@ -29,8 +29,7 @@ if (Array.isArray(sidebar)) {
 		);
 		if (group?.type !== "group") continue;
 
-		const wantedSeg =
-			match?.[1] === slug ? match[2] : product.default.replaceAll(".", "-");
+		const wantedSeg = match?.[1] === slug ? match[2] : "latest";
 		const pick = (seg) =>
 			group.entries.find(
 				(e) =>

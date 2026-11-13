@@ -7,7 +7,7 @@
 import docsLock from "../../../docs-versions.lock.json";
 
 const match = Astro.url.pathname.match(
-	/^\/docs\/([a-z0-9-]+)\/(\d+-\d+-\d+[^/]*)(\/.*)?\/?$/,
+	/^\/docs\/([a-z0-9-]+)\/(latest|\d+-\d+-\d+[^/]*)(\/.*)?\/?$/,
 );
 
 let productSlug = "";
@@ -22,9 +22,12 @@ if (match) {
 	// a blind dash→dot replace corrupts versions containing real hyphens
 	// (0.1.0-beta-2 → 0-1-0-beta-2 → 0.1.0.beta.2).
 	currentVersion =
-		product?.versions.find((v) => v.version.replaceAll(".", "-") === match[2])
-			?.version ?? "";
-	rest = match[3] ?? "/";
+		match[2] === "latest"
+			? (product?.default ?? "")
+			: (product?.versions.find(
+					(v) => v.version.replaceAll(".", "-") === match[2],
+				)?.version ?? "");
+	rest = match[3] ? (match[3].endsWith("/") ? match[3] : `${match[3]}/`) : "/";
 }
 
 // version → set of page paths ("/", "/install/", …) for existence checks.
@@ -53,6 +56,7 @@ const versions = product?.versions ?? [];
 			<select
 				class="docs-version-select"
 				data-product={productSlug}
+				data-default={product.default}
 				data-rest={rest}
 				data-pages={JSON.stringify(pageSets)}
 			>
@@ -71,7 +75,11 @@ const versions = product?.versions ?? [];
 	document.querySelectorAll("select.docs-version-select").forEach((sel) => {
 		sel.addEventListener("change", () => {
 			const s = sel;
-			const vseg = s.value.replaceAll(".", "-");
+			// The pinned default's canonical route is the `latest` alias —
+			// picking it navigates back into /latest/ space, other versions
+			// go to their numbered (pinned) URLs.
+			const vseg =
+				s.value === s.dataset.default ? "latest" : s.value.replaceAll(".", "-");
 			const rest = s.dataset.rest ?? "/";
 			const pages = JSON.parse(s.dataset.pages ?? "{}");
 			const known = pages[s.value] ?? [];

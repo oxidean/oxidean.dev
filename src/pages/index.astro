@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import SiteShell from "@/layouts/SiteShell.astro";
 import { CopyCommand } from "@/components/copy-command";
 import { TerminalDemo } from "@/components/terminal-demo";
+import { docsHref } from "@/lib/docs";
 import docsLock from "../../docs-versions.lock.json";
 
 const products = [
@@ -12,7 +13,7 @@ const products = [
 		name: "Oxidean",
 		blurb:
 			"Self-hostable git hosting, pull requests, issues, CI actions, and package registries.",
-		docs: "/docs/oxidean/",
+		docs: docsHref("oxidean"),
 		repo: "https://github.com/oxidean/oxidean",
 		badge: `v${docsLock.products.oxidean.default}`,
 	},
@@ -21,7 +22,7 @@ const products = [
 		name: "Ox-Agent",
 		blurb:
 			"Repository-local, token-efficient AI-SDLC: one Go binary, no project-local runtime.",
-		docs: "/docs/ox-agent/",
+		docs: docsHref("ox-agent"),
 		repo: "https://github.com/oxidean/Ox-Agent",
 		badge: `v${docsLock.products["ox-agent"].default}`,
 	},
@@ -30,7 +31,7 @@ const products = [
 		name: "oxl",
 		blurb:
 			"A lean language for CLI tools and services: dynamic ownership checks, no tracing GC.",
-		docs: "/docs/oxl/",
+		docs: docsHref("oxl"),
 		repo: "https://github.com/oxidean/oxl",
 		badge: `v${docsLock.products.oxl.default}`,
 	},
@@ -213,7 +214,7 @@ const forgePoints = [
 				</ul>
 				<div class="oct-reveal mt-6 flex flex-wrap gap-3">
 					<a
-						href="/docs/oxidean/self-hosting/"
+						href={docsHref("oxidean", "self-hosting")}
 						class="inline-flex h-10 items-center rounded-md border border-border bg-card px-4 font-display text-[14px] font-semibold transition hover:border-foreground/30 hover:bg-muted"
 					>
 						Self-hosting docs
@@ -295,7 +296,7 @@ const forgePoints = [
 				</p>
 				<div class="oct-reveal mt-6 flex flex-wrap gap-3">
 					<a
-						href="/docs/ox-agent/"
+						href={docsHref("ox-agent")}
 						class="inline-flex h-10 items-center rounded-md border border-border bg-card px-4 font-display text-[14px] font-semibold transition hover:border-foreground/30 hover:bg-muted"
 					>
 						Ox-Agent docs
@@ -334,7 +335,7 @@ const forgePoints = [
 				</p>
 				<div class="oct-reveal mt-6 flex flex-wrap gap-3">
 					<a
-						href="/docs/oxl/"
+						href={docsHref("oxl")}
 						class="inline-flex h-10 items-center rounded-md border border-border bg-card px-4 font-display text-[14px] font-semibold transition hover:border-foreground/30 hover:bg-muted"
 					>
 						oxl docs
