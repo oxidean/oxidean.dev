@@ -58,8 +58,36 @@
       "name": "Ox-Agent",
       "source": "oxidean/Ox-Agent",
       "tag_pattern": "v*",
-      "default": "0.1.19",
+      "default": "0.1.20",
       "versions": [
+        {
+          "version": "0.1.20",
+          "tag": "v0.1.20",
+          "url": "https://github.com/oxidean/Ox-Agent/releases/download/v0.1.20/docs-0.1.20.tar.gz",
+          "sha256": "e9d48badc4cfcdc59488a9f02c7484024d672636c6f3e9cc34fcf9b4b81e8e07",
+          "pages": [
+            {
+              "label": "Ox-Agent",
+              "link": "/"
+            },
+            {
+              "label": "Install",
+              "link": "/install/"
+            },
+            {
+              "label": "Quickstart",
+              "link": "/quickstart/"
+            },
+            {
+              "label": "CLI",
+              "link": "/cli/"
+            },
+            {
+              "label": "Architecture",
+              "link": "/architecture/"
+            }
+          ]
+        },
         {
           "version": "0.1.19",
           "tag": "v0.1.19",
@@ -149,34 +177,6 @@
           "tag": "v0.1.16",
           "url": "https://github.com/oxidean/Ox-Agent/releases/download/v0.1.16/docs-0.1.16.tar.gz",
           "sha256": "47c45cedbc294547cbbbe5ef48c968ff574db433c7e5bba9a337e6edb623deb3",
-          "pages": [
-            {
-              "label": "Ox-Agent",
-              "link": "/"
-            },
-            {
-              "label": "Install",
-              "link": "/install/"
-            },
-            {
-              "label": "Quickstart",
-              "link": "/quickstart/"
-            },
-            {
-              "label": "CLI",
-              "link": "/cli/"
-            },
-            {
-              "label": "Architecture",
-              "link": "/architecture/"
-            }
-          ]
-        },
-        {
-          "version": "0.1.15",
-          "tag": "v0.1.15",
-          "url": "https://github.com/oxidean/Ox-Agent/releases/download/v0.1.15/docs-0.1.15.tar.gz",
-          "sha256": "96cf7add227acfffd0e499150176f23ebe4ccfddec0f48cff566d8b8f55395a6",
           "pages": [
             {
               "label": "Ox-Agent",
