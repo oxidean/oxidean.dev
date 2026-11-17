@@ -6,16 +6,15 @@ import octane from "@octanejs/astro";
 import starlight from "@astrojs/starlight";
 import tailwindcss from "@tailwindcss/vite";
 import docsLock from "./docs-versions.lock.json";
-import oxlGrammarJson from "./src/lib/grammars/oxl.tmLanguage.json";
+import oxlGrammarPkg from "@oxidean/shiki-oxl";
 import { oxlFences } from "./src/lib/ec-oxl-fences.mjs";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
-// Vendored pending @oxidean/shiki-oxl (oxidean/oxl#122) — then this
-// becomes `import oxlGrammar from "@oxidean/shiki-oxl"`. The grammar's
-// own `name` is "OXL"; register lowercase so ```oxl fences match, and
-// alias the `oxl.mod` manifest filename to the same grammar.
-const oxlGrammar = { ...oxlGrammarJson, name: "oxl", aliases: ["oxl.mod"] };
+// @oxidean/shiki-oxl ships the LanguageInput ready-made (lowercase
+// `oxl` name, no embedded langs); the `oxl.mod` manifest file shares
+// oxl syntax, so it rides as an alias.
+const oxlGrammar = { ...oxlGrammarPkg, aliases: ["oxl.mod"] };
 
 /**
  * Product docs are materialized from release bundles under
@@ -160,7 +159,7 @@ export default defineConfig({
         Sidebar: "./src/components/starlight/Sidebar.astro",
       },
       customCss: ["./src/styles/starlight.css"],
-      // Registers the vendored oxl grammar alongside shiki's bundled
+      // Registers the packaged oxl grammar alongside shiki's bundled
       // langs (deep-merged, not replaced) so every docs version can use
       // ```oxl fences; the plugin retitles the historical `text` fences
       // that carried a *.oxl/oxl.mod title instead.
