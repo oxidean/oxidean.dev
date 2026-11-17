@@ -6,6 +6,11 @@
 // plus every still-locked entry the scan omits, download each bundle
 // for its sha256 + manifest `pages` tree, and rewrite the lockfile.
 //
+// Also bumps the @oxidean/shiki-oxl grammar dep when the scan discovers
+// a newer oxl release carrying its tarball — the grammar tracks the
+// newest language tag, not the docs-lock default, so highlighting
+// follows current syntax even before that release's doc bundle ships.
+//
 // Usage: bun run docs:update [--dry-run]
 
 import { execFileSync } from "node:child_process";
@@ -36,6 +41,33 @@ const lockPath = join(root, "docs-versions.lock.json");
 const dryRun = process.argv.includes("--dry-run");
 
 const lock = JSON.parse(readFileSync(lockPath, "utf8")) as DocsLock;
+
+// @oxidean/shiki-oxl is a release-tarball URL dep (see the package
+// README in oxidean/oxl) — the spec itself encodes the grammar's repo
+// and pinned tag, so this script self-locates both from package.json.
+// A missing or non-URL dep disables grammar sync with a warning —
+// warn-and-keep applies end to end.
+const GRAMMAR_PKG = "@oxidean/shiki-oxl";
+const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+const grammarSpec: string =
+  pkg?.dependencies?.[GRAMMAR_PKG] ?? pkg?.devDependencies?.[GRAMMAR_PKG] ?? "";
+const specMatch =
+  /^https:\/\/github\.com\/([^/]+\/[^/]+)\/releases\/download\/(v[^/]+)\/[^/]+\.tgz$/.exec(
+    grammarSpec,
+  );
+const grammarSrc: { repo: string; tag: string } | null = specMatch
+  ? { repo: specMatch[1], tag: specMatch[2] }
+  : null;
+if (grammarSrc === null) {
+  console.warn(
+    `  oxl grammar: ${GRAMMAR_PKG} dep missing or not a GitHub release ` +
+      `tarball URL — grammar sync disabled`,
+  );
+}
+// Newest matching release for the grammar's repo, captured during the
+// scan (first non-empty match wins — products sharing one source repo
+// don't overwrite each other's capture).
+let newestGrammarRelease: Release | undefined;
 
 interface Release {
   tag_name: string;
@@ -80,6 +112,13 @@ for (const [slug, product] of Object.entries(lock.products)) {
   const releases = listReleases(product.source).filter(
     (r) => !r.draft && !r.prerelease && tagRe.test(r.tag_name),
   );
+
+  if (grammarSrc && product.source === grammarSrc.repo) {
+    const byVersion = [...releases].sort((a, b) =>
+      compareVersions(versionFromTag(b.tag_name), versionFromTag(a.tag_name)),
+    );
+    newestGrammarRelease ??= byVersion[0];
+  }
 
   const withDocs = releases.filter((r) =>
     r.assets.some((a) => a.name === bundleAssetName(versionFromTag(r.tag_name))),
@@ -145,6 +184,75 @@ for (const [slug, product] of Object.entries(lock.products)) {
     ) {
       product.default = newest;
       console.log(`  ${slug}: default → ${product.default}`);
+    }
+  }
+}
+
+// Grammar package bump. Warn-and-keep on any failure: stale
+// highlighting must never block a docs-lock update — the next poll
+// retries anyway. Only a newer upstream tag re-pins; an equal tag is
+// already current (the package manager owns the bytes — a missing
+// node_modules copy is `bun install`'s job, not this script's).
+if (grammarSrc === null) {
+  // Dep missing/malformed — warning already logged above.
+} else if (newestGrammarRelease === undefined) {
+  console.warn(
+    `  oxl grammar: no matching releases on ${grammarSrc.repo} — ` +
+      `keeping ${grammarSrc.tag}`,
+  );
+} else {
+  const newestTag = newestGrammarRelease.tag_name;
+  const newestVer = versionFromTag(newestTag);
+  const drift = compareVersions(newestVer, versionFromTag(grammarSrc.tag));
+  if (drift < 0) {
+    console.warn(
+      `  oxl grammar: upstream newest ${newestTag} is older than ` +
+        `pinned ${grammarSrc.tag} — keeping pinned`,
+    );
+  } else if (drift === 0) {
+    console.log(`  oxl grammar: already current (${grammarSrc.tag})`);
+  } else {
+    // The versioned asset is the pinned unit — the fixed-name
+    // shiki-oxl.tgz on the same release floats, so it never lands in a
+    // dependency spec.
+    const assetName = `oxidean-shiki-oxl-${newestVer}.tgz`;
+    const asset = newestGrammarRelease.assets.find((a) => a.name === assetName);
+    if (!asset) {
+      console.warn(
+        `  oxl grammar: ${newestTag} carries no ${assetName} — ` +
+          `keeping ${grammarSrc.tag}`,
+      );
+    } else if (dryRun) {
+      console.log(`  oxl grammar: would bump ${grammarSrc.tag} → ${newestTag}`);
+    } else {
+      try {
+        execFileSync(
+          "bun",
+          ["add", `${GRAMMAR_PKG}@${asset.browser_download_url}`],
+          {
+            cwd: root,
+            stdio: ["pipe", "pipe", "pipe"],
+            // bun add runs postinstall → docs:sync, which is strict
+            // under CI — an unrelated broken bundle pin would then
+            // fail the bump even though the dep files already changed.
+            // The poll's own install step softens it the same way.
+            env: { ...process.env, DOCS_SYNC_STRICT: "0" },
+          },
+        );
+        console.log(`  oxl grammar: bumped ${grammarSrc.tag} → ${newestTag}`);
+      } catch (err) {
+        // Surface stderr (e.g. the HTTP status) — err.message alone is
+        // just "Command failed: bun add …".
+        const stderr =
+          err && typeof err === "object" && "stderr" in err
+            ? String(err.stderr).split("\n")[0]
+            : "";
+        const msg = err instanceof Error ? err.message : String(err);
+        console.warn(
+          `  oxl grammar: bump to ${newestTag} failed — keeping ` +
+            `${grammarSrc.tag} (${stderr || msg.split("\n")[0]})`,
+        );
+      }
     }
   }
 }

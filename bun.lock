@@ -8,6 +8,7 @@
         "@astrojs/starlight": "^0.42.10",
         "@octanejs/astro": "0.0.46",
         "@octanejs/lucide": "^0.1.62",
+        "@oxidean/shiki-oxl": "https://github.com/oxidean/oxl/releases/download/v0.15.0/oxidean-shiki-oxl-0.15.0.tgz",
         "astro": "^7.4.4",
         "clsx": "^2.1.1",
         "octane": "^0.16.4",
@@ -233,6 +234,8 @@
     "@oxfmt/binding-win32-ia32-msvc": ["@oxfmt/binding-win32-ia32-msvc@0.68.0", "", { "os": "win32", "cpu": "ia32" }, "sha512-n09SjEk5VH7z8Hl4WVP7hho+cCwGViENkQFiM45vbW85dJd7kEhWaHRUobaPzEmrWyu6uumd4EuNfNyDKLtzDA=="],
 
     "@oxfmt/binding-win32-x64-msvc": ["@oxfmt/binding-win32-x64-msvc@0.68.0", "", { "os": "win32", "cpu": "x64" }, "sha512-gPe+dJLXaPuWPWqlpklDAJp0k+K9KhQPYiQLHfb+i2rmFuUGfJ/5Qlj6tr1mO6of5g0DiLjG/XCFHIaPhotqqA=="],
+
+    "@oxidean/shiki-oxl": ["@oxidean/shiki-oxl@https://github.com/oxidean/oxl/releases/download/v0.15.0/oxidean-shiki-oxl-0.15.0.tgz", {}, "sha512-Ztk27roQRquYskff0WSsQvI+n3dlPUoXz2anQFpX39FXD/gNg8DwRcY4l/M1iSMHasVLX2XgkPu9vx6gmuIIzw=="],
 
     "@oxlint-tsgolint/darwin-arm64": ["@oxlint-tsgolint/darwin-arm64@7.0.2002", "", { "os": "darwin", "cpu": "arm64" }, "sha512-E3yYb/tI+5M3SqGgKwrwUD0nmjA2FMGD1xFbma46qi8Y7+nPTlGY6bZk/hqxijc9Vda/tdtUxQ2d5zGIEX9qlg=="],
 
