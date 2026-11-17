@@ -14,13 +14,16 @@
 // the Text Markers plugin uses to re-alias `diff` — so it works under
 // both the satteri and unified markdown processors.
 const OXL_FILENAME = /^(?:oxl\.mod|.+\.oxl)$/i;
+// Shiki's plain-text lang IDs — anything else is a real language and
+// stays untouched.
+const PLAIN_LANGS = new Set(["text", "txt", "plain", "plaintext"]);
 
 export function oxlFences() {
   return {
     name: "oxl-fences",
     hooks: {
       preprocessLanguage: ({ codeBlock }) => {
-        if (codeBlock.language !== "text" && codeBlock.language !== "plaintext") {
+        if (!PLAIN_LANGS.has((codeBlock.language ?? "").toLowerCase())) {
           return;
         }
         const title = codeBlock.metaOptions.getString("title");

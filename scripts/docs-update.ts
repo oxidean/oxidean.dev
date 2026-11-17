@@ -45,16 +45,21 @@ const lock = JSON.parse(readFileSync(lockPath, "utf8")) as DocsLock;
 
 // Vendored oxl grammar (interim for @oxidean/shiki-oxl — oxidean/oxl#122;
 // see src/lib/grammars/README.md). The source marker lives next to the
-// vendored file so this script can self-locate both.
+// vendored file so this script can self-locate both. An unreadable
+// marker disables grammar sync with a warning — it must never take
+// down the docs-lock update (warn-and-keep applies end to end).
 const grammarDir = join(root, "src/lib/grammars");
 const grammarJsonPath = join(grammarDir, "oxl.tmLanguage.json");
 const grammarSrcPath = join(grammarDir, "oxl-source.json");
-const grammarSrc = JSON.parse(readFileSync(grammarSrcPath, "utf8")) as {
-  repo: string;
-  path: string;
-  tag: string;
-};
-// Newest matching tag for the grammar's repo, captured during the scan.
+let grammarSrc: { repo: string; path: string; tag: string } | null = null;
+try {
+  grammarSrc = JSON.parse(readFileSync(grammarSrcPath, "utf8"));
+} catch {
+  console.warn(`  oxl grammar: ${grammarSrcPath} unreadable — grammar sync disabled`);
+}
+// Newest matching tag for the grammar's repo, captured during the scan
+// (first non-empty match wins — products sharing one source repo don't
+// overwrite each other's capture).
 let newestGrammarTag: string | undefined;
 
 interface Release {
@@ -101,11 +106,11 @@ for (const [slug, product] of Object.entries(lock.products)) {
     (r) => !r.draft && !r.prerelease && tagRe.test(r.tag_name),
   );
 
-  if (product.source === grammarSrc.repo) {
+  if (grammarSrc && product.source === grammarSrc.repo) {
     const byVersion = [...releases].sort((a, b) =>
       compareVersions(versionFromTag(b.tag_name), versionFromTag(a.tag_name)),
     );
-    newestGrammarTag = byVersion[0]?.tag_name;
+    newestGrammarTag = byVersion[0]?.tag_name ?? newestGrammarTag;
   }
 
   const withDocs = releases.filter((r) =>
@@ -177,54 +182,75 @@ for (const [slug, product] of Object.entries(lock.products)) {
 }
 
 // Grammar sync. Warn-and-keep on any failure: stale highlighting must
-// never block a docs-lock update — the next poll retries anyway.
-if (newestGrammarTag === undefined) {
+// never block a docs-lock update — the next poll retries anyway. Only
+// a newer upstream tag re-pins (a released tag can't go stale); a same
+// tag re-fetches only a missing vendored file.
+if (grammarSrc === null) {
+  // Marker unreadable — warning already logged above.
+} else if (newestGrammarTag === undefined) {
   console.warn(
     `  oxl grammar: no matching releases on ${grammarSrc.repo} — ` +
       `keeping ${grammarSrc.tag}`,
   );
-} else if (newestGrammarTag === grammarSrc.tag && existsSync(grammarJsonPath)) {
-  console.log(`  oxl grammar: already current (${grammarSrc.tag})`);
 } else {
-  const reason =
-    newestGrammarTag === grammarSrc.tag
-      ? "vendored file missing — re-fetching"
-      : `${grammarSrc.tag} → ${newestGrammarTag}`;
-  try {
-    const raw = execFileSync(
-      "gh",
-      [
-        "api",
-        `repos/${grammarSrc.repo}/contents/${grammarSrc.path}?ref=${newestGrammarTag}`,
-        "-H",
-        "Accept: application/vnd.github.raw",
-      ],
-      { encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] },
-    );
-    // Guard against a moved/renamed upstream path returning a 200 body
-    // that isn't the grammar — only a real grammar JSON gets vendored.
-    const parsed = JSON.parse(raw) as { scopeName?: string };
-    if (parsed.scopeName !== "source.oxl") {
-      throw new Error(`unexpected scopeName ${parsed.scopeName ?? "<missing>"}`);
-    }
-    if (dryRun) {
-      console.log(`  oxl grammar: would sync ${reason}`);
-    } else {
-      // Byte-exact vendoring: write the upstream bytes verbatim so the
-      // file stays identical to `path` at `tag` in the source repo.
-      writeFileSync(grammarJsonPath, raw);
-      writeFileSync(
-        grammarSrcPath,
-        JSON.stringify({ ...grammarSrc, tag: newestGrammarTag }, null, 2) + "\n",
-      );
-      console.log(`  oxl grammar: synced ${reason}`);
-    }
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+  const drift = compareVersions(
+    versionFromTag(newestGrammarTag),
+    versionFromTag(grammarSrc.tag),
+  );
+  if (drift < 0) {
     console.warn(
-      `  oxl grammar: sync to ${newestGrammarTag} failed — keeping ` +
-        `${grammarSrc.tag} (${msg.split("\n")[0]})`,
+      `  oxl grammar: upstream newest ${newestGrammarTag} is older than ` +
+        `pinned ${grammarSrc.tag} — keeping pinned`,
     );
+  } else if (drift === 0 && existsSync(grammarJsonPath)) {
+    console.log(`  oxl grammar: already current (${grammarSrc.tag})`);
+  } else {
+    const reason =
+      drift === 0
+        ? "vendored file missing — re-fetching"
+        : `${grammarSrc.tag} → ${newestGrammarTag}`;
+    try {
+      const raw = execFileSync(
+        "gh",
+        [
+          "api",
+          `repos/${grammarSrc.repo}/contents/${grammarSrc.path}?ref=${newestGrammarTag}`,
+          "-H",
+          "Accept: application/vnd.github.raw",
+        ],
+        { encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] },
+      );
+      // Guard against a moved/renamed upstream path returning a 200 body
+      // that isn't the grammar — only a real grammar JSON gets vendored.
+      const parsed = JSON.parse(raw) as { scopeName?: string };
+      if (parsed.scopeName !== "source.oxl") {
+        throw new Error(`unexpected scopeName ${parsed.scopeName ?? "<missing>"}`);
+      }
+      if (dryRun) {
+        console.log(`  oxl grammar: would sync ${reason}`);
+      } else {
+        // Byte-exact vendoring: write the upstream bytes verbatim so the
+        // file stays identical to `path` at `tag` in the source repo.
+        writeFileSync(grammarJsonPath, raw);
+        writeFileSync(
+          grammarSrcPath,
+          JSON.stringify({ ...grammarSrc, tag: newestGrammarTag }, null, 2) + "\n",
+        );
+        console.log(`  oxl grammar: synced ${reason}`);
+      }
+    } catch (err) {
+      // Surface stderr (e.g. the HTTP status) — err.message alone is
+      // just "Command failed: gh api …".
+      const stderr =
+        err && typeof err === "object" && "stderr" in err
+          ? String(err.stderr).split("\n")[0]
+          : "";
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn(
+        `  oxl grammar: sync to ${newestGrammarTag} failed — keeping ` +
+          `${grammarSrc.tag} (${stderr || msg.split("\n")[0]})`,
+      );
+    }
   }
 }
 

@@ -43,7 +43,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: main
-          persist-credentials: ***
+          persist-credentials: false
       - uses: actions/setup-node@v6
         with:
           node-version: 24
@@ -61,7 +61,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun run docs:update
 
-      - name: Lockfile changed?
+      - name: Docs drift?
         id: diff
         run: |
           # status --porcelain covers the vendored grammar too (a plain
@@ -121,7 +121,11 @@ jobs:
           git config user.name "${token_user#* }"
           git config user.email "${token_user%% *}+${token_user#* }@users.noreply.github.com"
           git checkout -B "$branch"
-          git add docs-versions.lock.json src/lib/grammars/
+          # Stage only what docs:update owns — never sweep stray files
+          # left in the grammars dir into a bump commit.
+          git add docs-versions.lock.json \
+            src/lib/grammars/oxl.tmLanguage.json \
+            src/lib/grammars/oxl-source.json
           git commit -m "chore(docs): sync lockfile + oxl grammar from release poll"
 
           # Remote half, retryable under a second token. Every op exits
