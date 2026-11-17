@@ -54,6 +54,9 @@ const grammarSrcPath = join(grammarDir, "oxl-source.json");
 let grammarSrc: { repo: string; path: string; tag: string } | null = null;
 try {
   grammarSrc = JSON.parse(readFileSync(grammarSrcPath, "utf8"));
+  if (!grammarSrc?.repo || !grammarSrc?.path || !grammarSrc?.tag) {
+    throw new Error("missing repo/path/tag");
+  }
 } catch {
   console.warn(`  oxl grammar: ${grammarSrcPath} unreadable — grammar sync disabled`);
 }
@@ -110,7 +113,7 @@ for (const [slug, product] of Object.entries(lock.products)) {
     const byVersion = [...releases].sort((a, b) =>
       compareVersions(versionFromTag(b.tag_name), versionFromTag(a.tag_name)),
     );
-    newestGrammarTag = byVersion[0]?.tag_name ?? newestGrammarTag;
+    newestGrammarTag ??= byVersion[0]?.tag_name;
   }
 
   const withDocs = releases.filter((r) =>

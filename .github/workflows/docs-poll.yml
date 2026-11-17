@@ -66,13 +66,13 @@ jobs:
         run: |
           # status --porcelain covers the vendored grammar too (a plain
           # git diff --quiet would miss an untracked grammar file).
-          if [ -z "$(git status --porcelain -- docs-versions.lock.json src/lib/grammars/)" ]; then
+          if [ -z "$(git status --porcelain -- docs-versions.lock.json src/lib/grammars/oxl.tmLanguage.json src/lib/grammars/oxl-source.json)" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "lockfile + grammar already current — nothing to do"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
-            git status --short -- docs-versions.lock.json src/lib/grammars/
-            git diff --stat -- docs-versions.lock.json src/lib/grammars/
+            git status --short -- docs-versions.lock.json src/lib/grammars/oxl.tmLanguage.json src/lib/grammars/oxl-source.json
+            git diff --stat -- docs-versions.lock.json src/lib/grammars/oxl.tmLanguage.json src/lib/grammars/oxl-source.json
           fi
 
       - name: Verify site builds with the refreshed lock
