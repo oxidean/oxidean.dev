@@ -6,16 +6,15 @@
 // plus every still-locked entry the scan omits, download each bundle
 // for its sha256 + manifest `pages` tree, and rewrite the lockfile.
 //
-// Also re-vendors the oxl TextMate grammar when the scan discovers a
-// newer oxl release — the grammar tracks the newest language tag
-// (fetched from that tag's git tree), not the docs-lock default, so
-// highlighting follows current syntax even before its doc bundle
-// ships. See src/lib/grammars/README.md.
+// Also bumps the @oxidean/shiki-oxl grammar dep when the scan discovers
+// a newer oxl release carrying its tarball — the grammar tracks the
+// newest language tag, not the docs-lock default, so highlighting
+// follows current syntax even before that release's doc bundle ships.
 //
 // Usage: bun run docs:update [--dry-run]
 
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   bundleAssetName,
@@ -43,27 +42,32 @@ const dryRun = process.argv.includes("--dry-run");
 
 const lock = JSON.parse(readFileSync(lockPath, "utf8")) as DocsLock;
 
-// Vendored oxl grammar (interim for @oxidean/shiki-oxl — oxidean/oxl#122;
-// see src/lib/grammars/README.md). The source marker lives next to the
-// vendored file so this script can self-locate both. An unreadable
-// marker disables grammar sync with a warning — it must never take
-// down the docs-lock update (warn-and-keep applies end to end).
-const grammarDir = join(root, "src/lib/grammars");
-const grammarJsonPath = join(grammarDir, "oxl.tmLanguage.json");
-const grammarSrcPath = join(grammarDir, "oxl-source.json");
-let grammarSrc: { repo: string; path: string; tag: string } | null = null;
-try {
-  grammarSrc = JSON.parse(readFileSync(grammarSrcPath, "utf8"));
-  if (!grammarSrc?.repo || !grammarSrc?.path || !grammarSrc?.tag) {
-    throw new Error("missing repo/path/tag");
-  }
-} catch {
-  console.warn(`  oxl grammar: ${grammarSrcPath} unreadable — grammar sync disabled`);
+// @oxidean/shiki-oxl is a release-tarball URL dep (see the package
+// README in oxidean/oxl) — the spec itself encodes the grammar's repo
+// and pinned tag, so this script self-locates both from package.json.
+// A missing or non-URL dep disables grammar sync with a warning —
+// warn-and-keep applies end to end.
+const GRAMMAR_PKG = "@oxidean/shiki-oxl";
+const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+const grammarSpec: string =
+  pkg?.dependencies?.[GRAMMAR_PKG] ?? pkg?.devDependencies?.[GRAMMAR_PKG] ?? "";
+const specMatch =
+  /^https:\/\/github\.com\/([^/]+\/[^/]+)\/releases\/download\/(v[^/]+)\/[^/]+\.tgz$/.exec(
+    grammarSpec,
+  );
+const grammarSrc: { repo: string; tag: string } | null = specMatch
+  ? { repo: specMatch[1], tag: specMatch[2] }
+  : null;
+if (grammarSrc === null) {
+  console.warn(
+    `  oxl grammar: ${GRAMMAR_PKG} dep missing or not a GitHub release ` +
+      `tarball URL — grammar sync disabled`,
+  );
 }
-// Newest matching tag for the grammar's repo, captured during the scan
-// (first non-empty match wins — products sharing one source repo don't
-// overwrite each other's capture).
-let newestGrammarTag: string | undefined;
+// Newest matching release for the grammar's repo, captured during the
+// scan (first non-empty match wins — products sharing one source repo
+// don't overwrite each other's capture).
+let newestGrammarRelease: Release | undefined;
 
 interface Release {
   tag_name: string;
@@ -113,7 +117,7 @@ for (const [slug, product] of Object.entries(lock.products)) {
     const byVersion = [...releases].sort((a, b) =>
       compareVersions(versionFromTag(b.tag_name), versionFromTag(a.tag_name)),
     );
-    newestGrammarTag ??= byVersion[0]?.tag_name;
+    newestGrammarRelease ??= byVersion[0];
   }
 
   const withDocs = releases.filter((r) =>
@@ -184,75 +188,63 @@ for (const [slug, product] of Object.entries(lock.products)) {
   }
 }
 
-// Grammar sync. Warn-and-keep on any failure: stale highlighting must
-// never block a docs-lock update — the next poll retries anyway. Only
-// a newer upstream tag re-pins (a released tag can't go stale); a same
-// tag re-fetches only a missing vendored file.
+// Grammar package bump. Warn-and-keep on any failure: stale
+// highlighting must never block a docs-lock update — the next poll
+// retries anyway. Only a newer upstream tag re-pins; an equal tag is
+// already current (the package manager owns the bytes — a missing
+// node_modules copy is `bun install`'s job, not this script's).
 if (grammarSrc === null) {
-  // Marker unreadable — warning already logged above.
-} else if (newestGrammarTag === undefined) {
+  // Dep missing/malformed — warning already logged above.
+} else if (newestGrammarRelease === undefined) {
   console.warn(
     `  oxl grammar: no matching releases on ${grammarSrc.repo} — ` +
       `keeping ${grammarSrc.tag}`,
   );
 } else {
-  const drift = compareVersions(
-    versionFromTag(newestGrammarTag),
-    versionFromTag(grammarSrc.tag),
-  );
+  const newestTag = newestGrammarRelease.tag_name;
+  const newestVer = versionFromTag(newestTag);
+  const drift = compareVersions(newestVer, versionFromTag(grammarSrc.tag));
   if (drift < 0) {
     console.warn(
-      `  oxl grammar: upstream newest ${newestGrammarTag} is older than ` +
+      `  oxl grammar: upstream newest ${newestTag} is older than ` +
         `pinned ${grammarSrc.tag} — keeping pinned`,
     );
-  } else if (drift === 0 && existsSync(grammarJsonPath)) {
+  } else if (drift === 0) {
     console.log(`  oxl grammar: already current (${grammarSrc.tag})`);
   } else {
-    const reason =
-      drift === 0
-        ? "vendored file missing — re-fetching"
-        : `${grammarSrc.tag} → ${newestGrammarTag}`;
-    try {
-      const raw = execFileSync(
-        "gh",
-        [
-          "api",
-          `repos/${grammarSrc.repo}/contents/${grammarSrc.path}?ref=${newestGrammarTag}`,
-          "-H",
-          "Accept: application/vnd.github.raw",
-        ],
-        { encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] },
-      );
-      // Guard against a moved/renamed upstream path returning a 200 body
-      // that isn't the grammar — only a real grammar JSON gets vendored.
-      const parsed = JSON.parse(raw) as { scopeName?: string };
-      if (parsed.scopeName !== "source.oxl") {
-        throw new Error(`unexpected scopeName ${parsed.scopeName ?? "<missing>"}`);
-      }
-      if (dryRun) {
-        console.log(`  oxl grammar: would sync ${reason}`);
-      } else {
-        // Byte-exact vendoring: write the upstream bytes verbatim so the
-        // file stays identical to `path` at `tag` in the source repo.
-        writeFileSync(grammarJsonPath, raw);
-        writeFileSync(
-          grammarSrcPath,
-          JSON.stringify({ ...grammarSrc, tag: newestGrammarTag }, null, 2) + "\n",
-        );
-        console.log(`  oxl grammar: synced ${reason}`);
-      }
-    } catch (err) {
-      // Surface stderr (e.g. the HTTP status) — err.message alone is
-      // just "Command failed: gh api …".
-      const stderr =
-        err && typeof err === "object" && "stderr" in err
-          ? String(err.stderr).split("\n")[0]
-          : "";
-      const msg = err instanceof Error ? err.message : String(err);
+    // The versioned asset is the pinned unit — the fixed-name
+    // shiki-oxl.tgz on the same release floats, so it never lands in a
+    // dependency spec.
+    const assetName = `oxidean-shiki-oxl-${newestVer}.tgz`;
+    const asset = newestGrammarRelease.assets.find((a) => a.name === assetName);
+    if (!asset) {
       console.warn(
-        `  oxl grammar: sync to ${newestGrammarTag} failed — keeping ` +
-          `${grammarSrc.tag} (${stderr || msg.split("\n")[0]})`,
+        `  oxl grammar: ${newestTag} carries no ${assetName} — ` +
+          `keeping ${grammarSrc.tag}`,
       );
+    } else if (dryRun) {
+      console.log(`  oxl grammar: would bump ${grammarSrc.tag} → ${newestTag}`);
+    } else {
+      try {
+        execFileSync(
+          "bun",
+          ["add", `${GRAMMAR_PKG}@${asset.browser_download_url}`],
+          { cwd: root, stdio: ["pipe", "pipe", "pipe"] },
+        );
+        console.log(`  oxl grammar: bumped ${grammarSrc.tag} → ${newestTag}`);
+      } catch (err) {
+        // Surface stderr (e.g. the HTTP status) — err.message alone is
+        // just "Command failed: bun add …".
+        const stderr =
+          err && typeof err === "object" && "stderr" in err
+            ? String(err.stderr).split("\n")[0]
+            : "";
+        const msg = err instanceof Error ? err.message : String(err);
+        console.warn(
+          `  oxl grammar: bump to ${newestTag} failed — keeping ` +
+            `${grammarSrc.tag} (${stderr || msg.split("\n")[0]})`,
+        );
+      }
     }
   }
 }

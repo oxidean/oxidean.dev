@@ -7,8 +7,8 @@ name: docs lock poll
 # re-runs the pull path on a schedule: `bun run docs:update` polls every
 # product repo's published releases for docs-<v>.tar.gz assets, keeps the
 # newest 5 per product (plus anything at or above the pinned default),
-# refreshes sha256 + sidebar pages in docs-versions.lock.json, re-vendors
-# the oxl syntax grammar on newer language releases, verifies the site
+# refreshes sha256 + sidebar pages in docs-versions.lock.json, bumps the
+# @oxidean/shiki-oxl grammar dep on newer language releases, verifies the site
 # still builds, and opens a bump PR on a fixed branch (auto-merged when
 # checks allow).
 #
@@ -64,15 +64,15 @@ jobs:
       - name: Docs drift?
         id: diff
         run: |
-          # status --porcelain covers the vendored grammar too (a plain
-          # git diff --quiet would miss an untracked grammar file).
-          if [ -z "$(git status --porcelain -- docs-versions.lock.json src/lib/grammars/oxl.tmLanguage.json src/lib/grammars/oxl-source.json)" ]; then
+          # status --porcelain covers package.json + bun.lock too (a
+          # plain git diff --quiet would miss a fresh dep entry).
+          if [ -z "$(git status --porcelain -- docs-versions.lock.json package.json bun.lock)" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "lockfile + grammar already current — nothing to do"
+            echo "lockfile + grammar dep already current — nothing to do"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
-            git status --short -- docs-versions.lock.json src/lib/grammars/oxl.tmLanguage.json src/lib/grammars/oxl-source.json
-            git diff --stat -- docs-versions.lock.json src/lib/grammars/oxl.tmLanguage.json src/lib/grammars/oxl-source.json
+            git status --short -- docs-versions.lock.json package.json bun.lock
+            git diff --stat -- docs-versions.lock.json package.json bun.lock
           fi
 
       - name: Verify site builds with the refreshed lock
@@ -121,12 +121,10 @@ jobs:
           git config user.name "${token_user#* }"
           git config user.email "${token_user%% *}+${token_user#* }@users.noreply.github.com"
           git checkout -B "$branch"
-          # Stage only what docs:update owns — never sweep stray files
-          # left in the grammars dir into a bump commit.
-          git add docs-versions.lock.json \
-            src/lib/grammars/oxl.tmLanguage.json \
-            src/lib/grammars/oxl-source.json
-          git commit -m "chore(docs): sync lockfile + oxl grammar from release poll"
+          # Stage only what docs:update owns — never sweep stray
+          # working-tree files into a bump commit.
+          git add docs-versions.lock.json package.json bun.lock
+          git commit -m "chore(docs): sync lockfile + oxl grammar dep from release poll"
 
           # Remote half, retryable under a second token. Every op exits
           # nonzero on failure via || return 1 — required because the
@@ -137,12 +135,12 @@ jobs:
           publish_remote() {
             git push -f origin "$branch" || return 1
 
-            local body="Scheduled \`bun run docs:update\` picked up docs lock / oxl grammar drift ([run](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})). Filed by docs-poll.yml — the pull-side backstop for the product-release dispatch. Merge note: if the squash dialog adds a \`Co-authored-by\` trailer for a bot, remove it — commit-check fails main on bot trailers."
+            local body="Scheduled \`bun run docs:update\` picked up docs lock / oxl grammar dep drift ([run](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})). Filed by docs-poll.yml — the pull-side backstop for the product-release dispatch. Merge note: if the squash dialog adds a \`Co-authored-by\` trailer for a bot, remove it — commit-check fails main on bot trailers."
             local pr
             pr=$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number' || true)
             if [ -z "$pr" ]; then
               gh pr create \
-                --title "chore(docs): sync docs lock + oxl grammar (release poll)" \
+                --title "chore(docs): sync docs lock + oxl grammar dep (release poll)" \
                 --body "$body" \
                 --base main \
                 --label documentation || return 1
@@ -198,7 +196,7 @@ jobs:
             exit 0
           fi
           if [ -n "$pr" ]; then
-            close_msg="Superseded — docs lock + oxl grammar on main are already current; the drift this PR carried landed via another route. Filed by docs-poll.yml."
+            close_msg="Superseded — docs lock + oxl grammar dep on main are already current; the drift this PR carried landed via another route. Filed by docs-poll.yml."
             if ! gh pr close "$pr" --comment "$close_msg"; then
               if [ "$GH_TOKEN" != "$FALLBACK_TOKEN" ]; then
                 echo "::warning::pr close failed under DOCS_SITE_DISPATCH_TOKEN — retrying with GITHUB_TOKEN"
