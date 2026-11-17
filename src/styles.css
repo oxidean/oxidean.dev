@@ -178,3 +178,24 @@
     }
   }
 }
+
+/* oxl sample on the landing: an Expressive Code <Code frame="none"> block
+   restyled onto the hand-rolled card chrome — EC ships its rules inside
+   @layer starlight.components, so this unlayered rule wins. Its Starlight
+   overrides point fonts/surfaces at --sl-* and --__sl-* vars that only
+   exist on docs pages; map them to the landing tokens instead (same
+   metrics as the other pre cards: p-4, 13px, leading-6). Token colors
+   still come from EC's themed variants, which flip on the shared
+   data-theme attr. */
+.landing-oxl {
+  margin: 0;
+  --ec-brdWd: 0px;
+  --ec-codeBg: transparent;
+  --ec-frm-edBg: transparent;
+  --ec-codePadBlk: 1rem;
+  --ec-codePadInl: 1rem;
+  --ec-codeFontFml: var(--font-mono);
+  --ec-codeFontSize: 0.8125rem;
+  --ec-codeLineHt: 1.5rem;
+  --ec-frm-inlBtnFg: var(--muted-foreground);
+}

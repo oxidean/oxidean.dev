@@ -1,6 +1,8 @@
 ---
 import { readFileSync } from "node:fs";
 
+import { Code } from "astro-expressive-code/components";
+
 import SiteShell from "@/layouts/SiteShell.astro";
 import { CopyCommand } from "@/components/copy-command";
 import { TerminalDemo } from "@/components/terminal-demo";
@@ -357,7 +359,7 @@ const forgePoints = [
 					<div class="border-b border-border px-4 py-2 font-mono text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
 						an http service
 					</div>
-					<pre class="overflow-x-auto p-4 font-mono text-[13px] leading-6"><code>{oxlExample}</code></pre>
+					<Code code={oxlExample} lang="oxl" frame="none" class="landing-oxl" />
 				</div>
 			</div>
 		</div>

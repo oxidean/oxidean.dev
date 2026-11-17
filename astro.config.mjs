@@ -6,15 +6,8 @@ import octane from "@octanejs/astro";
 import starlight from "@astrojs/starlight";
 import tailwindcss from "@tailwindcss/vite";
 import docsLock from "./docs-versions.lock.json";
-import oxlGrammarPkg from "@oxidean/shiki-oxl";
-import { oxlFences } from "./src/lib/ec-oxl-fences.mjs";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
-
-// @oxidean/shiki-oxl ships the LanguageInput ready-made (lowercase
-// `oxl` name, no embedded langs); the `oxl.mod` manifest file shares
-// oxl syntax, so it rides as an alias.
-const oxlGrammar = { ...oxlGrammarPkg, aliases: ["oxl.mod"] };
 
 /**
  * Product docs are materialized from release bundles under
@@ -159,14 +152,9 @@ export default defineConfig({
         Sidebar: "./src/components/starlight/Sidebar.astro",
       },
       customCss: ["./src/styles/starlight.css"],
-      // Registers the packaged oxl grammar alongside shiki's bundled
-      // langs (deep-merged, not replaced) so every docs version can use
-      // ```oxl fences; the plugin retitles the historical `text` fences
-      // that carried a *.oxl/oxl.mod title instead.
-      expressiveCode: {
-        shiki: { langs: [oxlGrammar] },
-        plugins: [oxlFences()],
-      },
+      // Expressive Code options (oxl grammar + fence retitle plugin)
+      // live in ec.config.mjs — the <Code> component requires the
+      // integration's own options to stay JSON-serializable.
       head: fontPreloads,
       social: [
         {
