@@ -210,7 +210,9 @@ if (newestGrammarTag === undefined) {
     if (dryRun) {
       console.log(`  oxl grammar: would sync ${reason}`);
     } else {
-      writeFileSync(grammarJsonPath, raw.endsWith("\n") ? raw : raw + "\n");
+      // Byte-exact vendoring: write the upstream bytes verbatim so the
+      // file stays identical to `path` at `tag` in the source repo.
+      writeFileSync(grammarJsonPath, raw);
       writeFileSync(
         grammarSrcPath,
         JSON.stringify({ ...grammarSrc, tag: newestGrammarTag }, null, 2) + "\n",
