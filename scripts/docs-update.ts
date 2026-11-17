@@ -6,10 +6,16 @@
 // plus every still-locked entry the scan omits, download each bundle
 // for its sha256 + manifest `pages` tree, and rewrite the lockfile.
 //
+// Also re-vendors the oxl TextMate grammar when the scan discovers a
+// newer oxl release — the grammar tracks the newest language tag
+// (fetched from that tag's git tree), not the docs-lock default, so
+// highlighting follows current syntax even before its doc bundle
+// ships. See src/lib/grammars/README.md.
+//
 // Usage: bun run docs:update [--dry-run]
 
 import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   bundleAssetName,
@@ -36,6 +42,20 @@ const lockPath = join(root, "docs-versions.lock.json");
 const dryRun = process.argv.includes("--dry-run");
 
 const lock = JSON.parse(readFileSync(lockPath, "utf8")) as DocsLock;
+
+// Vendored oxl grammar (interim for @oxidean/shiki-oxl — oxidean/oxl#122;
+// see src/lib/grammars/README.md). The source marker lives next to the
+// vendored file so this script can self-locate both.
+const grammarDir = join(root, "src/lib/grammars");
+const grammarJsonPath = join(grammarDir, "oxl.tmLanguage.json");
+const grammarSrcPath = join(grammarDir, "oxl-source.json");
+const grammarSrc = JSON.parse(readFileSync(grammarSrcPath, "utf8")) as {
+  repo: string;
+  path: string;
+  tag: string;
+};
+// Newest matching tag for the grammar's repo, captured during the scan.
+let newestGrammarTag: string | undefined;
 
 interface Release {
   tag_name: string;
@@ -80,6 +100,13 @@ for (const [slug, product] of Object.entries(lock.products)) {
   const releases = listReleases(product.source).filter(
     (r) => !r.draft && !r.prerelease && tagRe.test(r.tag_name),
   );
+
+  if (product.source === grammarSrc.repo) {
+    const byVersion = [...releases].sort((a, b) =>
+      compareVersions(versionFromTag(b.tag_name), versionFromTag(a.tag_name)),
+    );
+    newestGrammarTag = byVersion[0]?.tag_name;
+  }
 
   const withDocs = releases.filter((r) =>
     r.assets.some((a) => a.name === bundleAssetName(versionFromTag(r.tag_name))),
@@ -146,6 +173,56 @@ for (const [slug, product] of Object.entries(lock.products)) {
       product.default = newest;
       console.log(`  ${slug}: default → ${product.default}`);
     }
+  }
+}
+
+// Grammar sync. Warn-and-keep on any failure: stale highlighting must
+// never block a docs-lock update — the next poll retries anyway.
+if (newestGrammarTag === undefined) {
+  console.warn(
+    `  oxl grammar: no matching releases on ${grammarSrc.repo} — ` +
+      `keeping ${grammarSrc.tag}`,
+  );
+} else if (newestGrammarTag === grammarSrc.tag && existsSync(grammarJsonPath)) {
+  console.log(`  oxl grammar: already current (${grammarSrc.tag})`);
+} else {
+  const reason =
+    newestGrammarTag === grammarSrc.tag
+      ? "vendored file missing — re-fetching"
+      : `${grammarSrc.tag} → ${newestGrammarTag}`;
+  try {
+    const raw = execFileSync(
+      "gh",
+      [
+        "api",
+        `repos/${grammarSrc.repo}/contents/${grammarSrc.path}?ref=${newestGrammarTag}`,
+        "-H",
+        "Accept: application/vnd.github.raw",
+      ],
+      { encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] },
+    );
+    // Guard against a moved/renamed upstream path returning a 200 body
+    // that isn't the grammar — only a real grammar JSON gets vendored.
+    const parsed = JSON.parse(raw) as { scopeName?: string };
+    if (parsed.scopeName !== "source.oxl") {
+      throw new Error(`unexpected scopeName ${parsed.scopeName ?? "<missing>"}`);
+    }
+    if (dryRun) {
+      console.log(`  oxl grammar: would sync ${reason}`);
+    } else {
+      writeFileSync(grammarJsonPath, raw.endsWith("\n") ? raw : raw + "\n");
+      writeFileSync(
+        grammarSrcPath,
+        JSON.stringify({ ...grammarSrc, tag: newestGrammarTag }, null, 2) + "\n",
+      );
+      console.log(`  oxl grammar: synced ${reason}`);
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(
+      `  oxl grammar: sync to ${newestGrammarTag} failed — keeping ` +
+        `${grammarSrc.tag} (${msg.split("\n")[0]})`,
+    );
   }
 }
 
