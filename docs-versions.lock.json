@@ -51,6 +51,51 @@
               "link": "/contributing/"
             }
           ]
+        },
+        {
+          "version": "0.4.2",
+          "tag": "ox-v0.4.2",
+          "url": "https://github.com/oxidean/oxidean/releases/download/ox-v0.4.2/docs-0.4.2.tar.gz",
+          "sha256": "6646c55012536af34b5fe1bb2be0c6b649dc437d830b274542dc948fa7c35bd7",
+          "pages": [
+            {
+              "label": "Oxidean",
+              "link": "/"
+            },
+            {
+              "label": "Quickstart",
+              "link": "/quickstart/"
+            },
+            {
+              "label": "Self-hosting",
+              "items": [
+                {
+                  "label": "Overview",
+                  "link": "/self-hosting/"
+                },
+                {
+                  "label": "Docker",
+                  "link": "/self-hosting/docker/"
+                },
+                {
+                  "label": "Kubernetes",
+                  "link": "/self-hosting/kubernetes/"
+                }
+              ]
+            },
+            {
+              "label": "ox CLI",
+              "link": "/cli/"
+            },
+            {
+              "label": "Configuration",
+              "link": "/configuration/"
+            },
+            {
+              "label": "Contributing",
+              "link": "/contributing/"
+            }
+          ]
         }
       ]
     },
