@@ -69,7 +69,8 @@ CI-validates it, and attaches `docs-<ver>.tar.gz` to each matching release
   dropped dispatches; and manual pull — `bun run docs:update` polls
   release assets for drift. It also bumps the
   `@oxidean/shiki-oxl` dep (release-tarball URL) to the newest oxl tag
-  carrying its package — bump drift rides the same poll PR via
+  (warn-and-keep when that release carries no package) — bump drift
+  rides the same poll PR via
   `package.json`/`bun.lock`. The token wiring: org secret
   `DOCS_SITE_DISPATCH_TOKEN` (Actions:write on this repo).
 - `bun run docs:sync` (postinstall) downloads + sha256-verifies + unpacks into

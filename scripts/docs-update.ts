@@ -229,7 +229,15 @@ if (grammarSrc === null) {
         execFileSync(
           "bun",
           ["add", `${GRAMMAR_PKG}@${asset.browser_download_url}`],
-          { cwd: root, stdio: ["pipe", "pipe", "pipe"] },
+          {
+            cwd: root,
+            stdio: ["pipe", "pipe", "pipe"],
+            // bun add runs postinstall → docs:sync, which is strict
+            // under CI — an unrelated broken bundle pin would then
+            // fail the bump even though the dep files already changed.
+            // The poll's own install step softens it the same way.
+            env: { ...process.env, DOCS_SYNC_STRICT: "0" },
+          },
         );
         console.log(`  oxl grammar: bumped ${grammarSrc.tag} → ${newestTag}`);
       } catch (err) {
