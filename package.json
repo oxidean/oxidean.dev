@@ -21,7 +21,7 @@
     "@astrojs/starlight": "^0.42.10",
     "@octanejs/astro": "0.0.46",
     "@octanejs/lucide": "^0.1.62",
-    "@oxidean/shiki-oxl": "https://github.com/oxidean/oxl/releases/download/v0.19.2/oxidean-shiki-oxl-0.19.2.tgz",
+    "@oxidean/shiki-oxl": "https://github.com/oxidean/oxl/releases/download/v0.22.0/oxidean-shiki-oxl-0.22.0.tgz",
     "astro": "^7.4.4",
     "clsx": "^2.1.1",
     "octane": "^0.16.4",
