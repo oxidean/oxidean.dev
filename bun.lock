@@ -8,7 +8,7 @@
         "@astrojs/starlight": "^0.42.10",
         "@octanejs/astro": "0.0.46",
         "@octanejs/lucide": "^0.1.62",
-        "@oxidean/shiki-oxl": "https://github.com/oxidean/oxl/releases/download/v0.22.0/oxidean-shiki-oxl-0.22.0.tgz",
+        "@oxidean/shiki-oxl": "https://github.com/oxidean/oxl/releases/download/v0.23.0/oxidean-shiki-oxl-0.23.0.tgz",
         "astro": "^7.4.4",
         "clsx": "^2.1.1",
         "octane": "^0.16.4",
@@ -235,7 +235,7 @@
 
     "@oxfmt/binding-win32-x64-msvc": ["@oxfmt/binding-win32-x64-msvc@0.68.0", "", { "os": "win32", "cpu": "x64" }, "sha512-gPe+dJLXaPuWPWqlpklDAJp0k+K9KhQPYiQLHfb+i2rmFuUGfJ/5Qlj6tr1mO6of5g0DiLjG/XCFHIaPhotqqA=="],
 
-    "@oxidean/shiki-oxl": ["@oxidean/shiki-oxl@https://github.com/oxidean/oxl/releases/download/v0.22.0/oxidean-shiki-oxl-0.22.0.tgz", {}, "sha512-nk3kPu3DCAwhDRJxN2VKADVOv5HrBp24lN2LuVqTgMW8bp+ruxLqjiMGsmqI7VbVLfpMyiAKZvh++E5z69t/rw=="],
+    "@oxidean/shiki-oxl": ["@oxidean/shiki-oxl@https://github.com/oxidean/oxl/releases/download/v0.23.0/oxidean-shiki-oxl-0.23.0.tgz", {}, "sha512-B521JbqdGK8nVM3TS9UwsCx67zZ75JeQMJjNOxa+ocB6v3/HQ1srkgQHy7oNiN9RsJLH5bnKlarprhBL3MFFyw=="],
 
     "@oxlint-tsgolint/darwin-arm64": ["@oxlint-tsgolint/darwin-arm64@7.0.2002", "", { "os": "darwin", "cpu": "arm64" }, "sha512-E3yYb/tI+5M3SqGgKwrwUD0nmjA2FMGD1xFbma46qi8Y7+nPTlGY6bZk/hqxijc9Vda/tdtUxQ2d5zGIEX9qlg=="],
 
