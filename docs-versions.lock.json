@@ -103,8 +103,40 @@
       "name": "Ox-Agent",
       "source": "oxidean/Ox-Agent",
       "tag_pattern": "v*",
-      "default": "0.1.24",
+      "default": "0.1.25",
       "versions": [
+        {
+          "version": "0.1.25",
+          "tag": "v0.1.25",
+          "url": "https://github.com/oxidean/Ox-Agent/releases/download/v0.1.25/docs-0.1.25.tar.gz",
+          "sha256": "4c93c458028e3b00167d0df17e053066a11a1c66b1a7a5e6d5717b7df145f956",
+          "pages": [
+            {
+              "label": "Ox-Agent",
+              "link": "/"
+            },
+            {
+              "label": "Install",
+              "link": "/install/"
+            },
+            {
+              "label": "Quickstart",
+              "link": "/quickstart/"
+            },
+            {
+              "label": "Using skills",
+              "link": "/using-skills/"
+            },
+            {
+              "label": "CLI",
+              "link": "/cli/"
+            },
+            {
+              "label": "Architecture",
+              "link": "/architecture/"
+            }
+          ]
+        },
         {
           "version": "0.1.24",
           "tag": "v0.1.24",
@@ -222,34 +254,6 @@
             {
               "label": "Using skills",
               "link": "/using-skills/"
-            },
-            {
-              "label": "CLI",
-              "link": "/cli/"
-            },
-            {
-              "label": "Architecture",
-              "link": "/architecture/"
-            }
-          ]
-        },
-        {
-          "version": "0.1.20",
-          "tag": "v0.1.20",
-          "url": "https://github.com/oxidean/Ox-Agent/releases/download/v0.1.20/docs-0.1.20.tar.gz",
-          "sha256": "e9d48badc4cfcdc59488a9f02c7484024d672636c6f3e9cc34fcf9b4b81e8e07",
-          "pages": [
-            {
-              "label": "Ox-Agent",
-              "link": "/"
-            },
-            {
-              "label": "Install",
-              "link": "/install/"
-            },
-            {
-              "label": "Quickstart",
-              "link": "/quickstart/"
             },
             {
               "label": "CLI",
