@@ -103,8 +103,40 @@
       "name": "Ox-Agent",
       "source": "oxidean/Ox-Agent",
       "tag_pattern": "v*",
-      "default": "0.1.27",
+      "default": "0.1.28",
       "versions": [
+        {
+          "version": "0.1.28",
+          "tag": "v0.1.28",
+          "url": "https://github.com/oxidean/Ox-Agent/releases/download/v0.1.28/docs-0.1.28.tar.gz",
+          "sha256": "31f22a251eede2e3f964f9dce5e1424063704a4873f6ad3d7fcf1201c8e5136c",
+          "pages": [
+            {
+              "label": "Ox-Agent",
+              "link": "/"
+            },
+            {
+              "label": "Install",
+              "link": "/install/"
+            },
+            {
+              "label": "Quickstart",
+              "link": "/quickstart/"
+            },
+            {
+              "label": "Using skills",
+              "link": "/using-skills/"
+            },
+            {
+              "label": "CLI",
+              "link": "/cli/"
+            },
+            {
+              "label": "Architecture",
+              "link": "/architecture/"
+            }
+          ]
+        },
         {
           "version": "0.1.27",
           "tag": "v0.1.27",
@@ -206,38 +238,6 @@
           "tag": "v0.1.24",
           "url": "https://github.com/oxidean/Ox-Agent/releases/download/v0.1.24/docs-0.1.24.tar.gz",
           "sha256": "de49e30ef212ef7616c4881a6bdc55b8e672ab32c1069269f02bcc0d59c4b7d7",
-          "pages": [
-            {
-              "label": "Ox-Agent",
-              "link": "/"
-            },
-            {
-              "label": "Install",
-              "link": "/install/"
-            },
-            {
-              "label": "Quickstart",
-              "link": "/quickstart/"
-            },
-            {
-              "label": "Using skills",
-              "link": "/using-skills/"
-            },
-            {
-              "label": "CLI",
-              "link": "/cli/"
-            },
-            {
-              "label": "Architecture",
-              "link": "/architecture/"
-            }
-          ]
-        },
-        {
-          "version": "0.1.23",
-          "tag": "v0.1.23",
-          "url": "https://github.com/oxidean/Ox-Agent/releases/download/v0.1.23/docs-0.1.23.tar.gz",
-          "sha256": "e153a98b7ac09b3d6c9e6ad8048ae2a0bbdd59dab1e683b0ae6ecf7803750618",
           "pages": [
             {
               "label": "Ox-Agent",
